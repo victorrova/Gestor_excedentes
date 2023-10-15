@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "../.pio/build/esp32dev/bootloader-prefix"
+		},
+		{
+			"name": "librerias",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.c": "c",
+			"freertos.h": "c",
+			"task.h": "c",
+			"esp_system.h": "c"
+		}
+	}
+}

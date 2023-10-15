@@ -1,0 +1,26 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "nvs_flash.h": "c",
+        "string.h": "c",
+        "msgqueue.h": "c",
+        "time.h": "c",
+        "errno.h": "c",
+        "semphr.h": "c",
+        "unistd.h": "c",
+        "esp_netif.h": "c",
+        "stdio.h": "c",
+        "esp_types.h": "c",
+        "mqtt.h": "c",
+        "mqtt_pal.h": "c",
+        "sockets.h": "c",
+        "socket.h": "c",
+        "esp_timer.h": "c",
+        "netdb.h": "c",
+        "prueba socker": "c",
+        "storage.h": "c",
+        "esp_log.h": "c",
+        "esp_event.h": "c",
+        "compare": "c"
+    }
+}
