@@ -16,6 +16,12 @@
 #include "cJSON.h"
 #include "esp_netif_ip_addr.h"
 #include <netdb.h>
+#include "storage.h"
+#include "event.h"
+#include "esp_mac.h"
+#include "esp_err.h"
+#include "esp_check.h"
+
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY  25
 #define SSID "Gestor"
@@ -24,5 +30,7 @@
 #define MAXCON 1
 
 
+esp_err_t Wifi_stop(void);
+esp_err_t Wifi_start(void);
 
 #endif

@@ -21,6 +21,8 @@
         "storage.h": "c",
         "esp_log.h": "c",
         "esp_event.h": "c",
-        "compare": "c"
+        "compare": "c",
+        "esp_mac.h": "c",
+        "wifi.h": "c"
     }
 }
