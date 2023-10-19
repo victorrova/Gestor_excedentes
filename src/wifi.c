@@ -74,7 +74,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
 
 
         char * ip = malloc(sizeof(char)*ip_len);
-        if(ip != NULL)
+        if(ip == NULL)
         {
             ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
             return ESP_FAIL;
@@ -87,7 +87,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
         if(netmask_len >0)
         {
             char *netmask = malloc(sizeof(char) * netmask_len);
-            if(netmask != NULL)
+            if(netmask == NULL)
             {
                 ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
                 return ESP_FAIL;
@@ -100,7 +100,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
         if(gateway_len >0)
         {
             char *gateway = malloc(sizeof(char) * gateway_len);
-            if(gateway != NULL)
+            if(gateway == NULL)
             {
                 ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
                 return ESP_FAIL;
@@ -116,11 +116,15 @@ static esp_err_t static_ip(esp_netif_t *netif)
         }
         else{ ESP_LOGI(__FUNCTION__,"Conf. ip cargada con exito!");} 
     }
+    else
+    {
+        ESP_LOGI(__FUNCTION__,"[AUTO] DHCP automatico");
+    }
     size_t dns1_len = storage_get_size("dns1");
     if(dns1_len > 0)
     {
         char *dns1 = malloc(sizeof(char) * dns1_len);
-        if(dns1 != NULL)
+        if(dns1 == NULL)
         {
             ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
             return ESP_FAIL;
@@ -133,7 +137,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
     if(dns2_len > 0)
     {
         char *dns2 = malloc(sizeof(char) * dns2_len);
-        if(dns2 != NULL)
+        if(dns2 == NULL)
         {
             ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
             return ESP_FAIL;
@@ -198,7 +202,7 @@ esp_err_t wifi_init_sta(const char *ssid, const char* password)
         ESP_LOGE(__FUNCTION__, "UNEXPECTED EVENT");
         return ESP_FAIL;
     }
-    return ESP_OK;
+    return ESP_FAIL;
 }
 char *wifi_scan(void)
 {
@@ -225,6 +229,15 @@ char *wifi_scan(void)
     return string;
 
 }
+
+esp_err_t wifi_Ap_call(void)
+{
+
+    Wifi_stop();
+    ESP_ERROR_CHECK(wifi_init_softap());
+    return ESP_OK;
+}
+
 esp_err_t wifi_init_softap(void)
 {
 
@@ -266,7 +279,10 @@ void Wifi_stop(void)
 {
     esp_wifi_disconnect();
     esp_wifi_stop();
+    esp_wifi_deinit();
+    esp_netif_deinit();
     esp_wifi_set_mode(WIFI_MODE_NULL);
+
    
 }
 
@@ -279,9 +295,9 @@ esp_err_t Wifi_start(void)
     if( ssid_len > 0)
     {
         char *ssid = malloc(sizeof(char) * ssid_len);
-        if(ssid != NULL)
+        if(ssid == NULL)
         {
-            ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
+            ESP_LOGE(__FUNCTION__, "[284] sin memoria dinamica :(");
             return ESP_FAIL;
         }
         ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"ssid",ssid,ssid_len));
@@ -289,18 +305,26 @@ esp_err_t Wifi_start(void)
         if( passwd_len > 0)
         {
             char *passwd = malloc(sizeof(char) * ssid_len);
-            if(passwd != NULL)
+            if(passwd == NULL)
             {
-                ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
+                ESP_LOGE(__FUNCTION__, "[294] sin memoria dinamica :(");
                 return ESP_FAIL;
             }
             ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"password",passwd,passwd_len));
-            ESP_GOTO_ON_ERROR(wifi_init_sta(ssid,passwd),ap,__FUNCTION__,"[ERROR] config mode STA");
+            ret = wifi_init_sta(ssid,passwd);
+            if(ret != ESP_OK )
+            {
+                wifi_Ap_call();
+            }
 
         }
         else
         {
-            ESP_GOTO_ON_ERROR(wifi_init_sta(ssid,NULL),ap,__FUNCTION__,"[ERROR] config mode STA");
+            ret = wifi_init_sta(ssid,NULL);
+            if(ret != ESP_OK )
+            {
+                wifi_Ap_call();
+            }
         }
     }
     else
@@ -308,10 +332,6 @@ esp_err_t Wifi_start(void)
         ESP_LOGW(__FUNCTION__, "no ssid guardada en NVS");
     }
     
-
-ap:
-    Wifi_stop();
-    ESP_ERROR_CHECK(wifi_init_softap());
 
 return ESP_OK;   
 }

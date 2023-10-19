@@ -23,14 +23,26 @@
 #include "esp_check.h"
 
 
-#define EXAMPLE_ESP_MAXIMUM_RETRY  25
+#define EXAMPLE_ESP_MAXIMUM_RETRY  10
 #define SSID "Gestor"
 #define CANAL 1
 #define PASS 
 #define MAXCON 1
 
 
+typedef enum{
+    ON_ERROR,
+    ON_CONFIG,
+    ON_MAX_RETRY,
+}wifi_call_Ap_t;
+
+
+
+esp_err_t wifi_init_sta(const char *ssid, const char* password);
 void Wifi_stop(void);
 esp_err_t Wifi_start(void);
 char *wifi_scan(void);
+esp_err_t wifi_Ap_call(void);
+esp_err_t wifi_init_softap(void);
+
 #endif
