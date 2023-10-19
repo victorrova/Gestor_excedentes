@@ -30,7 +30,7 @@
 #define MAXCON 1
 
 
-esp_err_t Wifi_stop(void);
+void Wifi_stop(void);
 esp_err_t Wifi_start(void);
-
+char *wifi_scan(void);
 #endif

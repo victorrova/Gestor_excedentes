@@ -16,7 +16,6 @@
 #define MQTT_DISCONNECT    BIT5
 #define MQTT_ON_MESSAGE    BIT6
 
-EventGroupHandle_t Bits_events;
-StaticEventGroup_t xCreatedEventGroup;
-ESP_EVENT_DEFINE_BASE (MACHINE_EVENTS);
+
+esp_err_t Event_init(void);
 #endif

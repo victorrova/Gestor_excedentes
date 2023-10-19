@@ -23,6 +23,8 @@
         "esp_event.h": "c",
         "compare": "c",
         "esp_mac.h": "c",
-        "wifi.h": "c"
+        "wifi.h": "c",
+        "event.h": "c",
+        "event_new.h": "c"
     }
 }

@@ -5,7 +5,7 @@
 
 
 static int s_retry_num = 0;
-
+extern EventGroupHandle_t Bits_events;
 static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
@@ -198,6 +198,7 @@ esp_err_t wifi_init_sta(const char *ssid, const char* password)
         ESP_LOGE(__FUNCTION__, "UNEXPECTED EVENT");
         return ESP_FAIL;
     }
+    return ESP_OK;
 }
 char *wifi_scan(void)
 {
@@ -226,6 +227,7 @@ char *wifi_scan(void)
 }
 esp_err_t wifi_init_softap(void)
 {
+
 
     ESP_LOGI(__FUNCTION__,"ESP SOFT_AP");
     ESP_ERROR_CHECK(esp_netif_init());
@@ -260,16 +262,17 @@ esp_err_t wifi_init_softap(void)
              SSID,  CANAL);
     return ESP_OK;
 }
-esp_err_t Wifi_stop(void)
+void Wifi_stop(void)
 {
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
-    ESP_ERROR_CHECK(esp_wifi_stop());
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_NULL));
-    return ESP_OK;
+    esp_wifi_disconnect();
+    esp_wifi_stop();
+    esp_wifi_set_mode(WIFI_MODE_NULL);
+   
 }
 
 esp_err_t Wifi_start(void)
 {
+    ESP_ERROR_CHECK(Event_init());
     esp_err_t ret;
     nvs_flash_init();
     size_t ssid_len = storage_get_size("ssid");
@@ -299,14 +302,15 @@ esp_err_t Wifi_start(void)
         {
             ESP_GOTO_ON_ERROR(wifi_init_sta(ssid,NULL),ap,__FUNCTION__,"[ERROR] config mode STA");
         }
-
-    
-    
+    }
+    else
+    {
+        ESP_LOGW(__FUNCTION__, "no ssid guardada en NVS");
     }
     
 
 ap:
-    ESP_ERROR_CHECK(Wifi_stop());
+    Wifi_stop();
     ESP_ERROR_CHECK(wifi_init_softap());
 
 return ESP_OK;   
