@@ -1,0 +1,1 @@
+Tengo que crear las nteif_t fuera de las funciones, por que no se pueden volver a crear
