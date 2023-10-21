@@ -6,6 +6,12 @@
 
 static int s_retry_num = 0;
 extern EventGroupHandle_t Bits_events;
+static esp_netif_t *ap;
+static esp_netif_t *net;
+
+static esp_err_t wifi_init_softap(void);
+static esp_err_t wifi_Ap_call(void);
+static void Wifi_stop(void);
 static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
@@ -149,13 +155,10 @@ static esp_err_t static_ip(esp_netif_t *netif)
     return ESP_OK;
 }
 
-esp_err_t wifi_init_sta(const char *ssid, const char* password)
+static esp_err_t wifi_init_sta(const char *ssid, const char* password)
 {
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    esp_netif_t *net = esp_netif_create_default_wifi_sta();
+    
     static_ip(net);
-
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     esp_event_handler_instance_t instance_any_id;
@@ -230,7 +233,7 @@ char *wifi_scan(void)
 
 }
 
-esp_err_t wifi_Ap_call(void)
+static esp_err_t wifi_Ap_call(void)
 {
 
     Wifi_stop();
@@ -238,16 +241,13 @@ esp_err_t wifi_Ap_call(void)
     return ESP_OK;
 }
 
-esp_err_t wifi_init_softap(void)
+static esp_err_t wifi_init_softap(void)
 {
 
 
     ESP_LOGI(__FUNCTION__,"ESP SOFT_AP");
-    ESP_ERROR_CHECK(esp_netif_init());
-    esp_netif_t *ap = esp_netif_create_default_wifi_ap();
-    assert(ap);
-    esp_netif_t *_scan = esp_netif_create_default_wifi_sta();
-    assert(_scan);
+    //ESP_ERROR_CHECK(esp_netif_init());
+
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
@@ -275,63 +275,79 @@ esp_err_t wifi_init_softap(void)
              SSID,  CANAL);
     return ESP_OK;
 }
-void Wifi_stop(void)
+static void Wifi_stop(void)
 {
     esp_wifi_disconnect();
     esp_wifi_stop();
     esp_wifi_deinit();
-    esp_netif_deinit();
     esp_wifi_set_mode(WIFI_MODE_NULL);
 
    
 }
-
-esp_err_t Wifi_start(void)
+void Wifi_init(void)
 {
-    ESP_ERROR_CHECK(Event_init());
-    esp_err_t ret;
     nvs_flash_init();
-    size_t ssid_len = storage_get_size("ssid");
-    if( ssid_len > 0)
+    ESP_ERROR_CHECK(esp_netif_init());
+    ap = esp_netif_create_default_wifi_ap();
+    assert(ap);
+    net = esp_netif_create_default_wifi_sta();
+    assert(net);
+}
+
+esp_err_t Wifi_run(wifi_mode_t mode)
+{
+    esp_err_t ret;
+    
+    if(mode == WIFI_MODE_STA)
     {
-        char *ssid = malloc(sizeof(char) * ssid_len);
-        if(ssid == NULL)
+        Wifi_stop();
+        size_t ssid_len = storage_get_size("ssid");
+        if( ssid_len > 0)
         {
-            ESP_LOGE(__FUNCTION__, "[284] sin memoria dinamica :(");
-            return ESP_FAIL;
-        }
-        ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"ssid",ssid,ssid_len));
-        size_t passwd_len = storage_get_size("password");
-        if( passwd_len > 0)
-        {
-            char *passwd = malloc(sizeof(char) * ssid_len);
-            if(passwd == NULL)
+            char *ssid = malloc(sizeof(char) * ssid_len);
+            if(ssid == NULL)
             {
-                ESP_LOGE(__FUNCTION__, "[294] sin memoria dinamica :(");
+                ESP_LOGE(__FUNCTION__, " sin memoria dinamica :(");
                 return ESP_FAIL;
             }
-            ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"password",passwd,passwd_len));
-            ret = wifi_init_sta(ssid,passwd);
-            if(ret != ESP_OK )
+            ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"ssid",ssid,ssid_len));
+            size_t passwd_len = storage_get_size("password");
+            if( passwd_len > 0)
             {
-                wifi_Ap_call();
-            }
+                char *passwd = malloc(sizeof(char) * ssid_len);
+                if(passwd == NULL)
+                {
+                    ESP_LOGE(__FUNCTION__, " sin memoria dinamica :(");
+                    return ESP_FAIL;
+                }
+                ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"password",passwd,passwd_len));
+                ret = wifi_init_sta(ssid,passwd);
+                if(ret != ESP_OK )
+                {
+                    wifi_Ap_call();
+                }
 
+            }
+            else
+            {
+                ret = wifi_init_sta(ssid,NULL);
+                if(ret != ESP_OK )
+                {
+                    wifi_Ap_call();
+                }
+            }
         }
         else
         {
-            ret = wifi_init_sta(ssid,NULL);
-            if(ret != ESP_OK )
-            {
-                wifi_Ap_call();
-            }
+            ESP_LOGW(__FUNCTION__, "no ssid guardada en NVS");
+            wifi_init_softap();
         }
     }
-    else
+    else if(mode == WIFI_MODE_AP)
     {
-        ESP_LOGW(__FUNCTION__, "no ssid guardada en NVS");
+        wifi_Ap_call();
     }
-    
+
 
 return ESP_OK;   
 }

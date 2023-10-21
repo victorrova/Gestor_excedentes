@@ -9,6 +9,7 @@ StaticEventGroup_t xCreatedEventGroup;
 
 esp_err_t Event_init(void)
 {
+    
     Bits_events = xEventGroupCreateStatic( &xCreatedEventGroup);
     if(Bits_events == NULL)
     {

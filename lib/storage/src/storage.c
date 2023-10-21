@@ -63,21 +63,17 @@ esp_err_t storage_load(nvs_type_t type,const char* key,void* data, size_t len)
 }
 size_t storage_get_size(const char *key)
 {
-    ESP_ERROR_CHECK(nvs_open("storage",NVS_READWRITE,&store_handle));
     size_t len = 0;
     esp_err_t rr = nvs_get_str(store_handle,key,NULL,&len);
     if (rr != ESP_OK && rr != ESP_ERR_NVS_NOT_FOUND)
     {
-        nvs_close(store_handle);
         return 0;
     }
-    nvs_close(store_handle);
     return len;
 }
 esp_err_t storage_save(nvs_type_t type,const char* key,void* data)
 {
     esp_err_t err;
-    
     err = nvs_open("storage",NVS_READWRITE,&store_handle);
     if (err != ESP_OK)
     {
