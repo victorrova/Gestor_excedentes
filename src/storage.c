@@ -64,9 +64,12 @@ esp_err_t storage_load(nvs_type_t type,const char* key,void* data, size_t len)
 size_t storage_get_size(const char *key)
 {
     size_t len = 0;
+    esp_err_t err;
+    err = nvs_open("storage",NVS_READWRITE,&store_handle);
     esp_err_t rr = nvs_get_str(store_handle,key,NULL,&len);
     if (rr != ESP_OK && rr != ESP_ERR_NVS_NOT_FOUND)
-    {
+    {   
+        ESP_LOGE(__FUNCTION__,"error %s",esp_err_to_name(rr));
         return 0;
     }
     return len;
@@ -116,3 +119,18 @@ esp_err_t storage_erase(void)
 {
     return nvs_erase_all(store_handle);
 }
+
+void check_nvs(void)
+{
+    nvs_iterator_t it = NULL;
+    esp_err_t res = nvs_entry_find("nvs", "storage", NVS_TYPE_ANY, &it);
+    while(res == ESP_OK) 
+    {
+     nvs_entry_info_t info;
+     nvs_entry_info(it, &info); // Can omit error check if parameters are guaranteed to be non-NULL
+     printf("key '%s', type '%d' \n", info.key, info.type);
+     res = nvs_entry_next(&it);
+    }
+    nvs_release_iterator(it);
+}
+    

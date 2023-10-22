@@ -281,8 +281,6 @@ static void Wifi_stop(void)
     esp_wifi_stop();
     esp_wifi_deinit();
     esp_wifi_set_mode(WIFI_MODE_NULL);
-
-   
 }
 void Wifi_init(void)
 {
