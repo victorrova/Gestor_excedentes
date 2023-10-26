@@ -117,7 +117,29 @@ esp_err_t storage_save(nvs_type_t type,const char* key,void* data)
 
 esp_err_t storage_erase(void)
 {
-    return nvs_erase_all(store_handle);
+    esp_err_t err;
+    err = nvs_open("storage",NVS_READWRITE,&store_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(__FUNCTION__,"Error (%s) opening NVS handle!", esp_err_to_name(err));
+        return err;
+    }
+    err =  nvs_erase_all(store_handle);
+    nvs_close(store_handle);
+    return err;
+}
+esp_err_t storage_erase_key(char *key)
+{
+    esp_err_t err;
+    err = nvs_open("storage",NVS_READWRITE,&store_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(__FUNCTION__,"Error (%s) opening NVS handle!", esp_err_to_name(err));
+        return err;
+    }
+    err =  nvs_erase_key(store_handle,key);
+    nvs_close(store_handle);
+    return err;
 }
 
 void check_nvs(void)

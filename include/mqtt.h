@@ -18,5 +18,6 @@ typedef struct msg_event{
 }msg_t;
 
 esp_err_t mqtt_init(void);
+esp_err_t mqtt_publish(char * payload);
 
 #endif
