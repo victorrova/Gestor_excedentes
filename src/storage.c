@@ -45,13 +45,13 @@ esp_err_t storage_load(nvs_type_t type,const char* key,void* data, size_t len)
     switch (type)
     {
     case  NVS_TYPE_U8:
-        err = nvs_get_u8(store_handle,key,(uint8_t*)data);
+        err = nvs_get_u8(store_handle,key,(uint8_t)data);
         break;
     case NVS_TYPE_U16:
-        err = nvs_get_u16(store_handle,key,(uint16_t*)data);
+        err = nvs_get_u16(store_handle,key,(uint16_t)data);
         break;
     case NVS_TYPE_U32:
-        err = nvs_get_u32(store_handle,key,(uint32_t*)data);
+        err = nvs_get_u32(store_handle,key,(uint32_t)data);
         break;
     case NVS_TYPE_STR:
         err = nvs_get_str(store_handle,key,(char*)data, &len);

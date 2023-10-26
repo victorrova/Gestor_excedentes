@@ -102,7 +102,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
             Ip.netmask.addr = ipaddr_addr((const char*)netmask);
             free(netmask);
         }
-        size_t gateway_len = storage_get_size("netmask");
+        size_t gateway_len = storage_get_size("gateway");
         if(gateway_len >0)
         {
             char *gateway = malloc(sizeof(char) * gateway_len);
@@ -111,7 +111,7 @@ static esp_err_t static_ip(esp_netif_t *netif)
                 ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
                 return ESP_FAIL;
             }
-            ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"netmask",gateway,&gateway_len));
+            ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"gateway",gateway,&gateway_len));
             Ip.gw.addr = ipaddr_addr((const char*)gateway);
             free(gateway);
         }

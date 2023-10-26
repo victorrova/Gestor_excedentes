@@ -6,7 +6,24 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 
+/* 
+____WIFI___
+ip = ip
+mascara subred = netamask
+gateway = gateway
+dns1 = dns1
+dns2 = dns2
+___MQTT____
+ip broker = mqtt_host
+url brokder = mqtt_uri
+id = mqtt_id
+username = mqtt_user
+password  = mqtt_pass
+puerto = mqtt_port
+topic publicar = mqtt_pub
+topic subscribir = mqtt_sub
 
+*/
 
 
 void storage_init(void);

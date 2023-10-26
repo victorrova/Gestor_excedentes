@@ -25,6 +25,10 @@
         "esp_mac.h": "c",
         "wifi.h": "c",
         "event.h": "c",
-        "event_new.h": "c"
+        "event_new.h": "c",
+        "mqtt_client.h": "c",
+        "helper.h": "c",
+        "inttypes.h": "c",
+        "esp_system.h": "c"
     }
 }
