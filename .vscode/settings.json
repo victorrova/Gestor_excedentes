@@ -29,6 +29,9 @@
         "mqtt_client.h": "c",
         "helper.h": "c",
         "inttypes.h": "c",
-        "esp_system.h": "c"
+        "esp_system.h": "c",
+        "gpio.h": "c",
+        "map": "c",
+        "system_error": "c"
     }
 }

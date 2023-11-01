@@ -10,13 +10,12 @@
 
 
 #include "mqtt.h"
-#include "wifi.h"
+
 
 
 
 static esp_mqtt_client_handle_t client;
 extern EventGroupHandle_t Bits_events;
-msg_t msg;
 static void log_error_if_nonzero(const char *message, int error_code)
 {
     if (error_code != 0) {
@@ -80,7 +79,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGD(__FUNCTION__, "MQTT_EVENT_DATA");
-        if(msg.payload !=NULL)
+        /*if(msg.payload !=NULL)
         {
             free(msg.payload);
         }
@@ -98,7 +97,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         msg.topic_len = event->topic_len;
         msg.payload_len = event->data_len;
         printf("esto sale = %s",msg.payload);
-        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
+        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);*/
+        char* msg = (char*)malloc(sizeof(char)* event->data_len);
+        strncpy(msg,event->data,event->data_len);
+        ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,NULL,portMAX_DELAY));
+        if(msg != NULL)
+        {
+            free(msg);
+        }
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(__FUNCTION__, "MQTT_EVENT_ERROR");

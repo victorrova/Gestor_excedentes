@@ -8,14 +8,10 @@
 #include "event.h"
 #include "mqtt_client.h"
 #include "helper.h"
+#include "wifi.h"
+#include "msgqueue.h"
 
 
-typedef struct msg_event{
-    int topic_len;
-    char* topic;
-    int payload_len;
-    char* payload;
-}msg_t;
 
 esp_err_t mqtt_init(void);
 esp_err_t mqtt_publish(char * payload);
