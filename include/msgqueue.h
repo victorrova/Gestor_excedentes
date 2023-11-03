@@ -15,6 +15,7 @@ typedef enum{
     MQTT_RX,
     HTTP_TX,
     HTTP_RX,
+    OLED_TX,
     MASTER,
     DIMMER,
     CONFIG,

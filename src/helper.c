@@ -25,3 +25,4 @@ int decode_payload(char *msg)
     cJSON_Delete(payload);
     return excedente;
 }
+

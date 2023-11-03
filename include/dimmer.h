@@ -14,20 +14,23 @@
 #include "Kostal.h"
 #include "machine.h"
 #include "helper.h"
+#include "storage.h"
 
 typedef struct conf_dimmmer{
     char inverter_url[128];
     int min_delay;                          // tiempo minimo de apertura de Triac
-    int result;                             // tiempo maximo de apertura de Triac
-    int NTC_Temp;                           // temperatura  NTC control calentamiento Triac
+    int result;                             // tiempo maximo de apertura de Triac                           
     int Ext_Temp;                           // temperatura sonda externa
     int level;                              // Porcentaje nivel de apertura de Triac
     int reg;                                // Nivel de regulacion nivel en tanto por ciento
     bool _enable;                           // control de on-off
     bool eco_mode;                          // activacion modo eco
-    bool enable_Ext_Temp;
+    bool enable_Ext_Temp;                   // activacion control externo de temperatura
     esp_timer_handle_t _timer;   
     PID_IncTypeDef pid;
 }conf_dimmer_t;
+
+
+void dimmer_init(TaskHandle_t task);
 
 #endif

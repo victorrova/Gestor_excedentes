@@ -99,11 +99,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         printf("esto sale = %s",msg.payload);
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);*/
         char* msg = (char*)malloc(sizeof(char)* event->data_len);
+        char* topic = (char*)malloc(sizeof(char)* event->topic_len);
         strncpy(msg,event->data,event->data_len);
-        ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,NULL,portMAX_DELAY));
+        strncpy(topic,event->topic,event->topic_len);
+        ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,(const char *)topic,portMAX_DELAY));
         if(msg != NULL)
         {
             free(msg);
+            free(topic);
         }
         break;
     case MQTT_EVENT_ERROR:

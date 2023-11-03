@@ -26,12 +26,16 @@ ___PID___
 ki
 kp
 kd
+pid_max
+pid_min
 __URL_INVERTER__
-url_invverter
+url_inverter
 */
+
+
 union float_converter{
-  float    from;
-  uint32_t to;
+  float    fl;
+  uint32_t ui;
 };
 
 void storage_init(void);

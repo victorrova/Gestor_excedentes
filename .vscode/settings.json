@@ -32,6 +32,10 @@
         "esp_system.h": "c",
         "gpio.h": "c",
         "map": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "math.h": "c",
+        "machine.h": "c",
+        "freertos.h": "c",
+        "freertosconfig.h": "c"
     }
 }

@@ -11,7 +11,7 @@ esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t 
 {
     if(strlen(payload)>512 || strlen(topic) > 128)
     {
-        ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",strlen(payload),strlen(topic));
+        ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)strlen(payload),(int)strlen(topic));
         return ESP_FAIL;
     }
      msg_queue_t msg;
