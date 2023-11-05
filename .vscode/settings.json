@@ -36,6 +36,7 @@
         "math.h": "c",
         "machine.h": "c",
         "freertos.h": "c",
-        "freertosconfig.h": "c"
+        "freertosconfig.h": "c",
+        "hlw8032.h": "c"
     }
 }

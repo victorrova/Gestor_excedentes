@@ -3,8 +3,8 @@
 #define ZERO 18 
 #define TRIAC 14 
 
-conf_dimmer_t conf_gestor;
 
+static conf_dimmer_t conf_gestor;
 static void timer_callback(void* args)
 {
     gpio_set_level(TRIAC,1);
@@ -100,8 +100,9 @@ static void dimmer_http(void *PvParams)
         count++;
     }
 }
-void dimmer_init(TaskHandle_t task)
+void dimmer_init(void)
 {   
+    
     union float_converter converter;
     size_t kp_len = storage_get_size("kp");
     if( kp_len > 0)
@@ -195,7 +196,7 @@ void dimmer_init(TaskHandle_t task)
     conf_gestor.reg = 0;
     conf_timmer();
     conf_pin();
-    xTaskCreate(&dimmer_http,"DIMMER",1024*4,NULL,4,&task);
+    xTaskCreate(&dimmer_http,"DIMMER",3200,&conf_gestor,4,NULL);
 }
 
     

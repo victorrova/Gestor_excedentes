@@ -4,7 +4,10 @@
 
 
 static esp_adc_cal_characteristics_t adc1_chars;
+
+
 #define FAN 19
+
 
 
 int _free_mem(void)
@@ -91,6 +94,18 @@ static int ws_logger(const char *msg, va_list arg)
 
 }
 
+static int Oled_logger(const char *msg,va_list arg)
+{
+    char buffer[256];
+    vsprintf(buffer,msg,arg);
+    esp_err_t result = queue_send(OLED_TX,buffer,"oled_loggger",portMAX_DELAY);
+    if(result == -1){
+        return -1;
+    }
+    return vprintf(msg,arg);
+
+
+}
 void set_stream_logger(int logger)
 {
     if( logger == MQTT_TX)
@@ -102,6 +117,13 @@ void set_stream_logger(int logger)
     {
         esp_log_set_vprintf(&ws_logger);
         ESP_LOGW(__FUNCTION__,"log via sebsocket seleccionado");
+    }
+
+    else if(logger == OLED_TX)
+    {
+        esp_log_set_vprintf(&Oled_logger);
+        ESP_LOGW(__FUNCTION__,"log via sebsocket seleccionado");
+
     }
     else
     {
@@ -134,3 +156,4 @@ void timer_loop(s_timer_t *param)
     }
 
 }
+

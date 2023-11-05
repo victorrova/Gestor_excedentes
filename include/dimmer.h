@@ -31,6 +31,6 @@ typedef struct conf_dimmmer{
 }conf_dimmer_t;
 
 
-void dimmer_init(TaskHandle_t task);
+void dimmer_init(void);
 
 #endif
