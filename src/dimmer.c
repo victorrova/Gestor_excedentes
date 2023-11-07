@@ -69,8 +69,8 @@ static void dimmer_http(void *PvParams)
         {
             sal =(int)Kostal_requests(Inverter);
             char reg[10];
-            itoa(conf_gestor.reg,reg,10);
-            queue_send(DIMMER_TX,reg,"regulation",10);
+            itoa(conf_gestor.level,reg,10);
+            queue_send(DIMMER_TX,reg,"level",10);
             
         }
         if(count >30){count = 0;}
