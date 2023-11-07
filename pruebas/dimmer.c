@@ -4,7 +4,7 @@
 #define TRIAC 14 
 
 
-
+conf_dimmer_t conf_gestor;
 static void timer_callback(void* args)
 {
     gpio_set_level(TRIAC,1);
@@ -12,26 +12,24 @@ static void timer_callback(void* args)
 }
 static void IRAM_ATTR GPIO_ISR_Handler(void* arg)
 {   
-    conf_dimmer_t gestor =*(conf_dimmer_t*) arg;
-    esp_timer_stop(gestor._timer);
+    esp_timer_stop(conf_gestor._timer);
     gpio_set_level(TRIAC,0);
-    if(gestor._enable == true)
+    if(conf_gestor._enable == true)
     {
-        ESP_ERROR_CHECK(esp_timer_start_once(gestor._timer, gestor.result));
+        ESP_ERROR_CHECK(esp_timer_start_once(conf_gestor._timer, conf_gestor.result));
     }
     
 }
 
-static void conf_timmer(conf_dimmer_t dimmer)
+static void conf_timmer(void)
 {
     const esp_timer_create_args_t timer_args = {
             .callback = timer_callback,
             .name = "timmer"
-            
     };
-    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &dimmer._timer));
+    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &conf_gestor._timer));
 }
-static void conf_pin(conf_dimmer_t dimmer)
+static void conf_pin(void)
 {   
     gpio_config_t triac = {};
     triac.pin_bit_mask = (1ULL<<TRIAC);
@@ -49,18 +47,19 @@ static void conf_pin(conf_dimmer_t dimmer)
     zero.intr_type = GPIO_INTR_POSEDGE;
     ESP_ERROR_CHECK(gpio_config(&zero));
     gpio_install_isr_service(0);
-    gpio_isr_handler_add(ZERO, GPIO_ISR_Handler, &dimmer);
+    gpio_isr_handler_add(ZERO, GPIO_ISR_Handler, (void*) ZERO);
 
 
 }
 
 static void dimmer_http(void *PvParams)
 {
-    conf_dimmer_t conf_gestor = *(conf_dimmer_t*)PvParams;
+
+
     ESP_LOGI(__FUNCTION__,"inicio de tarea dimmer");
     esp_http_client_handle_t Inverter = http_begin(conf_gestor.inverter_url);
     int pid = 0;
-    int sal =(int)Kostal_requests(Inverter);
+    int sal =0;
     uint8_t count = 0;
     msg_queue_t msg;
     while(1)
@@ -68,9 +67,6 @@ static void dimmer_http(void *PvParams)
         if(count == 30)
         {
             sal =(int)Kostal_requests(Inverter);
-            char reg[10];
-            itoa(conf_gestor.reg,reg,10);
-            queue_send(DIMMER_TX,reg,"regulation",10);
             
         }
         if(count >30){count = 0;}
@@ -102,12 +98,13 @@ static void dimmer_http(void *PvParams)
             conf_gestor.reg = calc;
         }
         vTaskDelay(100/portTICK_PERIOD_MS);
+        printf(" memory %d\n",uxTaskGetStackHighWaterMark(NULL));
         count++;
     }
 }
 void dimmer_init(void)
 {   
-    conf_dimmer_t conf_gestor;
+    
     union float_converter converter;
     size_t kp_len = storage_get_size("kp");
     if( kp_len > 0)
@@ -199,9 +196,9 @@ void dimmer_init(void)
     conf_gestor.pid.LastError = 0;
     conf_gestor.result = 10000;
     conf_gestor.reg = 0;
-    conf_timmer(conf_gestor);
-    conf_pin(conf_gestor);
-    xTaskCreate(&dimmer_http,"DIMMER",4096,&conf_gestor,4,NULL);
+    conf_timmer();
+    conf_pin();
+    xTaskCreate(&dimmer_http,"DIMMER",3200,&conf_gestor,4,NULL);
 }
 
     

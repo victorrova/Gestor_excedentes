@@ -24,12 +24,6 @@ void termistor_init(void)
     ESP_ERROR_CHECK(adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_0));
 }
 
-int mem_task_usage(TaskHandle_t task)
-{
-    UBaseType_t uxHighWaterMark;
-    uxHighWaterMark = uxTaskGetStackHighWaterMark(&task);
-    return (int)uxHighWaterMark;
-}
 
 
 void Fan_init(void)
@@ -116,13 +110,12 @@ void set_stream_logger(int logger)
     else if(logger == WS_TX)
     {
         esp_log_set_vprintf(&ws_logger);
-        ESP_LOGW(__FUNCTION__,"log via sebsocket seleccionado");
+        ESP_LOGW(__FUNCTION__,"log via websocket seleccionado");
     }
-
     else if(logger == OLED_TX)
     {
         esp_log_set_vprintf(&Oled_logger);
-        ESP_LOGW(__FUNCTION__,"log via sebsocket seleccionado");
+        ESP_LOGW(__FUNCTION__,"log via Oled seleccionado");
 
     }
     else

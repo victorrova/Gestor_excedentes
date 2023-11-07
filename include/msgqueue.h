@@ -17,8 +17,10 @@ typedef enum{
     HTTP_RX,
     OLED_TX,
     MASTER,
-    DIMMER,
+    DIMMER_RX,
+    DIMMER_TX,
     CONFIG,
+    STORAGE,
 }msg_type;
 
 typedef struct msg{ //  estructura de la  cola infinita 

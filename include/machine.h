@@ -16,7 +16,7 @@
 #include "esp_adc_cal.h"
 #include "math.h"
 #include "msgqueue.h"
-
+#include "cJSON.h"
 
 
 typedef struct s_timer{
@@ -37,5 +37,7 @@ float temp_termistor(void);
 void timer_init(s_timer_t *param,int prescaler,int timer,int (*callback)(void), void *params);
 void timer_loop(s_timer_t *param);
 void set_stream_logger(int logger);
-int mem_task_usage(TaskHandle_t task);
+
+
+
 #endif

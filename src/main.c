@@ -38,7 +38,6 @@ void pid_temp(void *params)
     pid.min = -5;
     int temp =0;
     int _pid = 0;
-
     while(1)
     {
         temp = (int)temp_termistor();
@@ -49,7 +48,7 @@ void pid_temp(void *params)
         else if(temp > 65)
         {
             _pid = PID(50,temp,&pid);
-            queue_send(DIMMER,(const char*)_pid,"temp_pid",100);
+            queue_send(DIMMER_RX,(const char*)_pid,"temp_pid",100);
 
         }
         else if(temp < 50)
@@ -62,7 +61,7 @@ void pid_temp(void *params)
 
 }
 
-void Core(void)
+void Core(void *pvparams)
 {
     
 }
@@ -70,7 +69,7 @@ void Core(void)
 void app_main(void)
 {
     
-
+    Machine_init();
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));

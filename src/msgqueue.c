@@ -5,7 +5,7 @@
 #include "esp_log.h"
 #include "esp_err.h"
 
-QueueHandle_t msg_queue;
+static QueueHandle_t msg_queue;
 
 esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)
 {
