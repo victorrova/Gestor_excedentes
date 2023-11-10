@@ -56,38 +56,58 @@ static void conf_pin(conf_dimmer_t dimmer)
 
 static void dimmer_http(void *PvParams)
 {
-    conf_dimmer_t conf_gestor = *(conf_dimmer_t*)PvParams;
     ESP_LOGI(__FUNCTION__,"inicio de tarea dimmer");
+    conf_dimmer_t conf_gestor = *(conf_dimmer_t*)PvParams;
     esp_http_client_handle_t Inverter = http_begin(conf_gestor.inverter_url);
     int pid = 0;
     int sal =(int)Kostal_requests(Inverter);
     uint8_t count = 0;
+    int NTC_temp = 0;
     msg_queue_t msg;
     while(1)
     { 
         if(count == 30)
         {
             sal =(int)Kostal_requests(Inverter);
+            NTC_temp = (int)temp_termistor();
             char reg[10];
+            conf_gestor.level = map(conf_gestor.reg,100,10000,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",10);
-            
         }
-        if(count >30){count = 0;}
-        pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid);
+        if(count >30)
+        {
+            count = 0;
+        }
+        if(NTC_temp > 60)
+        {
+            Fan_state(1);
+        }
+        else if(NTC_temp > 65)
+        {
+            int _pid = PID(50,NTC_temp,&conf_gestor.pid_NTC);
+            int _ntc_pid = map(_pid,-5,5,-50,50);
+
+        }
+        else if(NTC_temp < 50)
+        {
+            Fan_state(0);
+        }
+        pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
         int arrived = map(pid,-1000,1000,-500,500);
         sal += arrived;
         conf_gestor.result +=pid;
+
         if(conf_gestor.result < conf_gestor.min_delay)
         {
             conf_gestor.result = conf_gestor.min_delay;
-            conf_gestor.pid.CumError = 0;
+            conf_gestor.pid_Pwr.CumError = 0;
         }
         
         else if(conf_gestor.result > 10000)
         {
             conf_gestor.result = 10000;
-            conf_gestor.pid.CumError = 0;
+            conf_gestor.pid_Pwr.CumError = 0;
             conf_gestor._enable =false;
         }
         else
@@ -117,12 +137,12 @@ void dimmer_init(void)
         
         converter.ui = kp;
        
-        conf_gestor.pid.Kp = converter.fl;
+        conf_gestor.pid_Pwr.Kp = converter.fl;
         ESP_LOGI(__FUNCTION__,"Nvs Kp = %f",converter.fl);
     }
     else
     {
-        conf_gestor.pid.Kp = 0.5;
+        conf_gestor.pid_Pwr.Kp = 0.5;
         ESP_LOGW(__FUNCTION__,"Nvs default Kp");
     }
     size_t ki_len = storage_get_size("ki");
@@ -132,12 +152,12 @@ void dimmer_init(void)
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"ki",ki,NULL));
 
         converter.ui = ki;
-         conf_gestor.pid.Ki = converter.fl;
+         conf_gestor.pid_Pwr.Ki = converter.fl;
           ESP_LOGI(__FUNCTION__,"Nvs Ki = %f",converter.fl);
     }
     else
     {
-        conf_gestor.pid.Ki = 0.2;
+        conf_gestor.pid_Pwr.Ki = 0.2;
         ESP_LOGW(__FUNCTION__,"Nvs default Ki");
     }
     size_t kd_len = storage_get_size("kd");
@@ -146,12 +166,12 @@ void dimmer_init(void)
         uint32_t kd = 0;
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"kd",kd,NULL));
         converter.ui = kd;
-        conf_gestor.pid.Kd = converter.fl;
+        conf_gestor.pid_Pwr.Kd = converter.fl;
         ESP_LOGI(__FUNCTION__,"Nvs Kd = %f",converter.fl);
     }
     else
     {
-        conf_gestor.pid.Kd = 0.8;
+        conf_gestor.pid_Pwr.Kd = 0.8;
         ESP_LOGW(__FUNCTION__,"Nvs default Kd");
     }
     size_t pid_max_len = storage_get_size("pid_max");
@@ -159,12 +179,12 @@ void dimmer_init(void)
     {
         uint32_t pid_max = 0;
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"pid_max",pid_max,NULL));
-        conf_gestor.pid.max= pid_max;
+        conf_gestor.pid_Pwr.max= pid_max;
         ESP_LOGI(__FUNCTION__,"Nvs max pid value  = %lu",pid_max);
     }
     else
     {
-        conf_gestor.pid.max= 1000;
+        conf_gestor.pid_Pwr.max= 1000;
         ESP_LOGW(__FUNCTION__,"Nvs default max pid");
     }
     size_t pid_min_len = storage_get_size("pid_min");
@@ -172,12 +192,12 @@ void dimmer_init(void)
     {
         uint32_t pid_min = 0;
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"pid_min",pid_min,NULL));
-        conf_gestor.pid.min= 1 - pid_min;
+        conf_gestor.pid_Pwr.min= 1 - pid_min;
         ESP_LOGI(__FUNCTION__,"Nvs min pid value  = %lu",pid_min);
     }
     else
     {
-        conf_gestor.pid.min= -1000;
+        conf_gestor.pid_Pwr.min= -1000;
         ESP_LOGW(__FUNCTION__,"Nvs default min pid");
     }
     size_t url_len = storage_get_size("url_inverter");
@@ -195,13 +215,22 @@ void dimmer_init(void)
     }
     conf_gestor.min_delay = 100;
     conf_gestor._enable = false;
-    conf_gestor.pid.CumError = 0;
-    conf_gestor.pid.LastError = 0;
+    conf_gestor.pid_Pwr.CumError = 0;
+    conf_gestor.pid_Pwr.LastError = 0;
     conf_gestor.result = 10000;
     conf_gestor.reg = 0;
+    conf_gestor.level = 0;
+    conf_gestor.pid_NTC.Kp = 0.5;
+    conf_gestor.pid_NTC.Ki = 0.2;
+    conf_gestor.pid_NTC.Kd = 0.6;
+    conf_gestor.pid_NTC.CumError =0;
+    conf_gestor.pid_NTC.Error = 0;
+    conf_gestor.pid_NTC.LastError = 0;
+    conf_gestor.pid_NTC.max = 5;
+    conf_gestor.pid_NTC.min = -5;
     conf_timmer(conf_gestor);
     conf_pin(conf_gestor);
-    xTaskCreate(&dimmer_http,"DIMMER",4096,&conf_gestor,4,NULL);
+    xTaskCreate(&dimmer_http,"DIMMER",6600,&conf_gestor,4,NULL);
 }
 
     

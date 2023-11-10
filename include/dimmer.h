@@ -27,7 +27,8 @@ typedef struct conf_dimmmer{
     bool eco_mode;                          // activacion modo eco
     bool enable_Ext_Temp;                   // activacion control externo de temperatura
     esp_timer_handle_t _timer;   
-    PID_IncTypeDef pid;
+    PID_IncTypeDef pid_Pwr;
+    PID_IncTypeDef pid_NTC;
 }conf_dimmer_t;
 
 

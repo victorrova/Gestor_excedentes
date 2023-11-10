@@ -25,41 +25,6 @@ void Meter_init(void)
 
 }
 
-void pid_temp(void *params)
-{
-    PID_IncTypeDef pid;
-    pid.Kp = 0.5;
-    pid.Ki = 0.2;
-    pid.Kd = 0.6;
-    pid.CumError =0;
-    pid.Error = 0;
-    pid.LastError = 0;
-    pid.max = 5;
-    pid.min = -5;
-    int temp =0;
-    int _pid = 0;
-    while(1)
-    {
-        temp = (int)temp_termistor();
-        if(temp > 60)
-        {
-            Fan_state(1);
-        }
-        else if(temp > 65)
-        {
-            _pid = PID(50,temp,&pid);
-            queue_send(DIMMER_RX,(const char*)_pid,"temp_pid",100);
-
-        }
-        else if(temp < 50)
-        {
-            Fan_state(0);
-        }
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
-    vTaskDelete(NULL);
-
-}
 
 void Core(void *pvparams)
 {

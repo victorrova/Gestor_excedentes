@@ -69,13 +69,13 @@ float Kostal_requests(esp_http_client_handle_t client)
     char *output_buffer = (char*)pvPortMalloc(sizeof(char) * 1800);
     if(output_buffer == NULL)
     {
-        ESP_LOGE(__FUNCTION__, "Failed to allocate memory for output buffer");
+        ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
     }
     bzero(output_buffer,1800);
     esp_err_t err = esp_http_client_open(client, 0);
     if (err != ESP_OK) 
     {
-        ESP_LOGE(__FUNCTION__, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+        ESP_LOGE(__FUNCTION__, "Imposible abrir conexion http: %s", esp_err_to_name(err));
         vPortFree(output_buffer);
         esp_http_client_close(client);
         
