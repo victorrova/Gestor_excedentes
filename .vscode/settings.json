@@ -39,6 +39,7 @@
         "freertosconfig.h": "c",
         "hlw8032.h": "c",
         "task.h": "c",
-        "dimmer.h": "c"
+        "dimmer.h": "c",
+        "http_server_app.h": "c"
     }
 }
