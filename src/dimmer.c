@@ -71,7 +71,7 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             char reg[10];
-            conf_gestor.level = map(conf_gestor.reg,100,10000,0,100);
+            conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",10);
         }
@@ -87,10 +87,18 @@ static void dimmer_http(void *PvParams)
         {
             int _pid = PID(50,NTC_temp,&conf_gestor.pid_NTC);
             int _ntc_pid = map(_pid,-5,5,-50,50);
+            conf_gestor.min_delay +=_ntc_pid;
 
         }
-        else if(NTC_temp < 50)
+        else if(NTC_temp < 55)
         {
+            int _pid = PID(55,NTC_temp,&conf_gestor.pid_NTC);
+            int _ntc_pid = map(_pid,-5,5,-50,50);
+            conf_gestor.min_delay +=_ntc_pid;
+            if(conf_gestor.min_delay < 100)
+            {
+                conf_gestor.min_delay = 100;
+            }
             Fan_state(0);
         }
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
