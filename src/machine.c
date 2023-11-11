@@ -31,7 +31,7 @@ void Fan_init(void)
     gpio_config_t fan = {};
     fan.pin_bit_mask = (1ULL<<FAN);
     fan.intr_type = GPIO_INTR_DISABLE;
-    fan.mode = GPIO_MODE_OUTPUT;
+    fan.mode = GPIO_MODE_INPUT_OUTPUT;
     fan.pull_down_en = 0;
     fan.pull_up_en = 0;
     ESP_ERROR_CHECK(gpio_config(&fan));
@@ -43,12 +43,13 @@ void Fan_init(void)
 
 void Fan_state(int state)
 {
-    if(state == 1)
+    int level = gpio_get_level(FAN);
+    if(state == 1 && level != 1)
     {
         ESP_LOGI(__FUNCTION__," Fan on!");
         ESP_ERROR_CHECK_WITHOUT_ABORT(gpio_set_level(FAN,1));
     }
-    else if(state == 0)
+    else if(state == 0 && level != 0)
     {
         ESP_LOGI(__FUNCTION__," Fan off!");
         ESP_ERROR_CHECK_WITHOUT_ABORT(gpio_set_level(FAN,0));

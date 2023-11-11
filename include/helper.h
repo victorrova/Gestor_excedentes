@@ -1,6 +1,8 @@
 #ifndef HELPER_H
 #define HELPER_H
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 #include "esp_log.h"
 #include "esp_err.h"
 #include "cJSON.h"

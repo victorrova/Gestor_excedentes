@@ -125,17 +125,26 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     }
 }
 
-esp_err_t mqtt_publish(char * payload)
+esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
 {
     esp_err_t err = ESP_FAIL;
-    size_t topic_len = storage_get_size("mqtt_pub");
-    if(topic_len >0)
+    if(topic != NULL)
     {
-        char *topic = (char*)malloc(sizeof(char) * topic_len);
-        ESP_MALLOC_CHECK(topic);
-        err = storage_load(NVS_TYPE_STR,"mqtt_sub",topic,&topic_len);
-        esp_mqtt_client_publish(client,topic,payload,strlen(payload), 1, 0);
-        free(topic);
+        esp_mqtt_client_publish(client,topic,payload,payload_len, 1, 0);
+        
+    }
+    else
+    {
+        size_t topic_len = storage_get_size("mqtt_pub");
+        if(topic_len >0)
+        {
+            char *_topic = (char*)malloc(sizeof(char) * topic_len);
+            ESP_MALLOC_CHECK(_topic);
+            err = storage_load(NVS_TYPE_STR,"mqtt_pub",topic,&topic_len);
+            esp_mqtt_client_publish(client,_topic,payload,payload_len, 1, 0);
+            free(_topic);
+        }
+
     }
     return err;
 }

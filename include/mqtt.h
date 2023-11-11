@@ -14,6 +14,6 @@
 
 
 esp_err_t mqtt_init(void);
-esp_err_t mqtt_publish(char * payload);
+esp_err_t mqtt_publish(char * payload,int payload_len, char* topic);
 
 #endif

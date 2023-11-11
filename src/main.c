@@ -6,16 +6,8 @@
 #include "components/hlw8032/include/hlw8032.h"
 
 
-void Machine_init(void)
-{
-    storage_init();
-    ESP_ERROR_CHECK(Event_init());
-    ESP_ERROR_CHECK(queue_start());
-    termistor_init();
-    Fan_init();
-    Wifi_init();
-    ESP_ERROR_CHECK(mqtt_init());
-}
+
+
 void Meter_init(void)
 {
     hlw8032_t  hlw_meter;
@@ -25,10 +17,38 @@ void Meter_init(void)
 
 }
 
-
-void Core(void *pvparams)
+void Machine_init(void)
 {
-    
+    storage_init();
+    ESP_ERROR_CHECK(Event_init());
+    ESP_ERROR_CHECK(queue_start());
+    termistor_init();
+    Fan_init();
+    Wifi_init();
+    ESP_ERROR_CHECK(mqtt_init());
+    Meter_init();
+}
+
+
+void Com_Task(void *pvparams)
+{
+    while(1)
+    {
+       
+        msg_queue_t msg = Master_queue_receive(10);
+        if(msg.len_msg >0)
+        {
+            if(msg.dest == MQTT_TX)
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(mqtt_publish(msg.msg,msg.len_msg,NULL));
+            }
+            else if(msg.dest == MQTT_RX)
+            {
+                PASS
+
+            }   
+        }
+    } 
 }
 
 void app_main(void)
@@ -43,10 +63,6 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     Wifi_run(WIFI_MODE_STA); 
-    vTaskDelay(5000/portTICK_PERIOD_MS);
-    mqtt_publish("hola mundo!");
-    vTaskDelay(5000/portTICK_PERIOD_MS);
-    mqtt_publish("hola mund1o!");
     dimmer_init();
     
 }

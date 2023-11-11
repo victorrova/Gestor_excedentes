@@ -38,5 +38,5 @@ msg_queue_t queue_receive(int dest,TickType_t time);
 esp_err_t queue_start(void);
 int queue_load(void);
 void queue_reset(void);
-
+msg_queue_t Master_queue_receive(TickType_t time);
 #endif
