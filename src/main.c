@@ -33,10 +33,8 @@ void Com_Task(void *pvparams)
 {
     while(1)
     {
-       
-        msg_queue_t msg = Master_queue_receive(portMAX_DELAY);
-
-
+        msg_queue_t msg; 
+        msg = queue_receive(MASTER,portMAX_DELAY);
         if(msg.len_msg >0)
         {
             switch (msg.dest)
@@ -46,33 +44,33 @@ void Com_Task(void *pvparams)
                 break;
             case MQTT_RX:
                 {
-                    if(strcmp(msg.topic,"dimmer")==0)
+                    cJSON *payload = cJSON_Parse(msg.msg);
+                    if(Find_Key(payload,"dimmer"))
                     {
-                        esp_err_t err;
                         float dimmer = 0.0;
-                        err = decode_payload(msg.msg,"dimmer",&dimmer);
-                        char buff[32];
+                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",(float)dimmer));
+                        char *buff = malloc(sizeof(float));
                         itoa((int)dimmer,buff,10);
                         queue_send(DIMMER_RX,buff,"dimmer",100);
-                        break;
+                        free(buff);
+
+                    }
+                    else if(Find_Key(payload,"temperature"))
+                    {
+                        /* mandar a dimmer cuando el control de temperatura este echo*/
+                    }
+                    else if (Find_Key(payload,"config"))
+                    {
+                        /* code */
                     }
                     
                 }
                 break;
             default:
+                msg.count +=1;
+                queue_send(msg.dest,msg.msg,msg.topic,portMAX_DELAY);
                 break;
-            }
-            if(msg.dest == MQTT_TX)
-            {
-                ESP_ERROR_CHECK_WITHOUT_ABORT(mqtt_publish(msg.msg,msg.len_msg,NULL));
-            }
-            else if(msg.dest == MQTT_RX)
-            {
-                printf("msg = %s\n",msg.msg);
-                char *prueba = malloc(sizeof(char)* 124);
-                ESP_ERROR_CHECK_WITHOUT_ABORT(decode_payload(msg.msg,"prueba",prueba));
-                printf("decode %s\n",prueba);
-            }   
+            }  
         }
     }
     vTaskDelete(NULL);

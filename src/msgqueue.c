@@ -34,7 +34,7 @@ msg_queue_t queue_receive(int dest,TickType_t time)
     msg_queue_t msg;
     if(xQueueReceive(msg_queue,&msg,time) == pdTRUE)
     {
-        if(msg.dest == dest)
+        if(msg.dest == dest || msg.dest ==  MASTER)
         {
             ESP_LOGD(__FUNCTION__,"mensaje entregado");
             return msg;
@@ -60,7 +60,8 @@ msg_queue_t queue_receive(int dest,TickType_t time)
       
 }
 msg_queue_t Master_queue_receive(TickType_t time)
-{   msg_queue_t msg;
+{   
+    msg_queue_t msg;
     if(xQueueReceive(msg_queue,&msg,time) != pdTRUE)
     {
         msg.len_msg = 0;

@@ -129,6 +129,11 @@ static void dimmer_http(void *PvParams)
             int calc = map(atoi(msg.msg),0,100,0,3600); // pasamos de % a watios 
             conf_gestor.reg = calc;
         }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"temperatura")== 0)
+        {
+
+            printf("temperatura = %f\n",atof(msg.msg));
+        }
         vTaskDelay(100/portTICK_PERIOD_MS);
         count++;
     }
