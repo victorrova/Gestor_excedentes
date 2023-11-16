@@ -123,7 +123,7 @@ static void dimmer_http(void *PvParams)
             conf_gestor._enable = true;
         }
         msg = queue_receive(DIMMER_RX,20);
-        if(msg.len_msg > 0)
+        if(msg.len_msg > 0 && strcmp(msg.topic,"dimmer") == 0)
         {   
             
             int calc = map(atoi(msg.msg),0,100,0,3600); // pasamos de % a watios 

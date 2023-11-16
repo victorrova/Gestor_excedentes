@@ -15,5 +15,5 @@
 
 esp_err_t mqtt_init(void);
 esp_err_t mqtt_publish(char * payload,int payload_len, char* topic);
-
+esp_err_t queue_to_mqtt_publish(msg_queue_t msg);
 #endif

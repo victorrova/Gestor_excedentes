@@ -1,4 +1,13 @@
-Tengo que crear las nteif_t fuera de las funciones, por que no se pueden volver a crear
+menciones de librerias!
 naleksiev / xread
-
 ucukertz / idf-hlw8032
+
+
+Notas mentales:
+
+La mejor manera de aplicar la configuración en tiempo de ejecución es hacer los json anidados y para cada tarea que tenga
+puedo separar dos tipos de configuración:
+1 .Global: que afecta a la configuración de las comunicaciones, ejem. Red Wifi
+
+2 .Operacional: que afecta a parametros de las tareas en ejecución ejemplo: Pid del dimmer.
+

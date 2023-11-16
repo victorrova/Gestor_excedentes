@@ -131,7 +131,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
     if(topic != NULL)
     {
         esp_mqtt_client_publish(client,topic,payload,payload_len, 1, 0);
-        
+        err = ESP_OK;
     }
     else
     {
@@ -147,6 +147,18 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
 
     }
     return err;
+}
+esp_err_t queue_to_mqtt_publish(msg_queue_t msg)
+{
+    if(msg.len_topic > 0)
+    {
+        esp_mqtt_client_publish(client,msg.topic,msg.msg,msg.len_msg, 1, 0);
+        return ESP_OK;
+    }
+    else
+    {
+        return mqtt_publish(msg.msg,msg.len_msg,NULL);
+    }
 }
 
 esp_err_t mqtt_init(void)

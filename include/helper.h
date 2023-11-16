@@ -9,5 +9,5 @@
 
 #define ESP_MALLOC_CHECK(x)  assert((x) != NULL)
 int map(int val,int in_min,int in_max,int out_min,int out_max);
-int decode_payload(char *msg);
+esp_err_t decode_payload(char *msg, char * key,void *exit);
 #endif

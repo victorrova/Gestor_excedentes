@@ -43,13 +43,10 @@ bool Find_Key(cJSON *obj, const char* key)
   return false;
 }
 
-
 esp_err_t decode_payload(char *msg, char * key,void *exit)
 {
-    esp_err_t err;
-
+    
     cJSON *payload = NULL;
-    int excedente = 0;
     payload = cJSON_Parse(msg);
     if(!Find_Key(payload,key))
     {
@@ -58,14 +55,15 @@ esp_err_t decode_payload(char *msg, char * key,void *exit)
     cJSON *item = cJSON_GetObjectItem(payload,key);
     if(cJSON_IsString(item))
     {
-        strcpy((void*)exit,item);
+        strcpy((void*)exit,item->valuestring);
+        return ESP_OK;
     }
     else if(cJSON_IsNumber(item))
-    {
-        *(float*)exit = item->valueint;
+    {   
+        *(float*)exit = item->valuedouble;
+        return ESP_OK;
     }
     cJSON_Delete(payload);
-    return err;
+    return ESP_FAIL;
 }
-
 

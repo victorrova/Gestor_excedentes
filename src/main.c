@@ -29,26 +29,53 @@ void Machine_init(void)
     Meter_init();
 }
 
-
 void Com_Task(void *pvparams)
 {
     while(1)
     {
        
-        msg_queue_t msg = Master_queue_receive(10);
+        msg_queue_t msg = Master_queue_receive(portMAX_DELAY);
+
+
         if(msg.len_msg >0)
         {
+            switch (msg.dest)
+            {
+            case MQTT_TX:
+                ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
+                break;
+            case MQTT_RX:
+                {
+                    if(strcmp(msg.topic,"dimmer")==0)
+                    {
+                        esp_err_t err;
+                        float dimmer = 0.0;
+                        err = decode_payload(msg.msg,"dimmer",&dimmer);
+                        char buff[32];
+                        itoa((int)dimmer,buff,10);
+                        queue_send(DIMMER_RX,buff,"dimmer",100);
+                        break;
+                    }
+                    
+                }
+                break;
+            default:
+                break;
+            }
             if(msg.dest == MQTT_TX)
             {
                 ESP_ERROR_CHECK_WITHOUT_ABORT(mqtt_publish(msg.msg,msg.len_msg,NULL));
             }
             else if(msg.dest == MQTT_RX)
             {
-                PASS
-
+                printf("msg = %s\n",msg.msg);
+                char *prueba = malloc(sizeof(char)* 124);
+                ESP_ERROR_CHECK_WITHOUT_ABORT(decode_payload(msg.msg,"prueba",prueba));
+                printf("decode %s\n",prueba);
             }   
         }
-    } 
+    }
+    vTaskDelete(NULL);
 }
 
 void app_main(void)
@@ -64,6 +91,6 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     Wifi_run(WIFI_MODE_STA); 
     dimmer_init();
-    
+    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
 }
 
