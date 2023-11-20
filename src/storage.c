@@ -3,6 +3,10 @@
 
 nvs_handle_t store_handle;
 
+static esp_err_t json_to_nvs( int type,const char* key)
+{
+    
+}
 void storage_init(void)
 {
     esp_err_t err = nvs_flash_init();
@@ -152,5 +156,46 @@ void check_nvs(void)
 void storage_task(void *Pvparams)
 {
     cJSON *msg = (cJSON*)Pvparams;
+    cJSON *config = cJSON_GetObjectItem(msg,"config");
+    if(cJSON_IsNull(config))
+    {
+        ESP_LOGE(__FUNCTION__,"Json no config");
+        vTaskDelete(NULL);  
+    }
+    if(Find_Key(config,"wifi"))
+    {
+        cJSON *wifi = cJSON_GetObjectItemCaseSensitive(config,"wifi");
+        if(!cJSON_IsNull(wifi))
+        {
+            if(Find_Key(wifi,"ssid"))
+            {
+                cJSON *ssid = cJSON_GetObjectItem(wifi,"ssid");
+                if(!cJSON_IsNull(ssid))
+                {
+                    char *_ssid = ssid->valuestring;
+                    if(storage_get_size("ssid") > 0)
+                    {
+                        storage_erase_key("ssid");  
+                    }
+                    storage_save(NVS_TYPE_STR,"ssid",_ssid);
+                }
+            }
+            else if(Find_key(wifi,"password"))
+            {
+                cJSON *password = cJSON_GetObjectItem(wifi,"password");
+                if(!cJSON_IsNull(password))
+                {
+                    char *_pwd = password->valuestring;
+                    if(storage_get_size("password") > 0)
+                    {
+                        storage_erase_key("password");   
+                    }
+                    storage_save(NVS_TYPE_STR,"password",_pwd);
+                }
+            }
+            
+        }
+    }
+
     
 }   

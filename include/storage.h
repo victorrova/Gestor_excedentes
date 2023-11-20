@@ -2,6 +2,8 @@
 #define STORAGE_H
 #include <stdio.h>
 #include <cJSON.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <inttypes.h>
 #include "esp_system.h"
 #include "nvs_flash.h"
@@ -11,8 +13,10 @@
 
 /* 
 ____WIFI___
+ssid
+password
 ip = ip
-mascara subred = netamask
+mascara subred = netmask
 gateway = gateway
 dns1 = dns1
 dns2 = dns2
@@ -35,6 +39,11 @@ __URL_INVERTER__
 url_inverter
 */
 
+enum {
+  STR = 100,
+  INT,
+  FLOAT,
+}storage_data_type_t;
 
 union float_converter{
   float    fl;
