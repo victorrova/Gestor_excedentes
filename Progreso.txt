@@ -11,3 +11,8 @@ puedo separar dos tipos de configuración:
 
 2 .Operacional: que afecta a parametros de las tareas en ejecución ejemplo: Pid del dimmer.
 
+
+mensaje de config:
+
+{config:{wifi:{ssid: "",password:""},mqtt:{broker:"",url:"", id:"",username:"",password:"",port: ,topic_pub:"",
+topic_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url:""}}}

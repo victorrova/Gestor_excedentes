@@ -1,10 +1,13 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 #include <stdio.h>
+#include <cJSON.h>
 #include <inttypes.h>
 #include "esp_system.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "esp_log.h"
+#include "helper.h"
 
 /* 
 ____WIFI___

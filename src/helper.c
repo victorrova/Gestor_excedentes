@@ -50,6 +50,7 @@ esp_err_t decode_number_payload(cJSON *payload, char *key, float exit)
         exit = item->valuedouble;
         return ESP_OK;
     }
+    exit = 0.0;
     return ESP_FAIL;
 
 }

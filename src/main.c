@@ -48,7 +48,7 @@ void Com_Task(void *pvparams)
                     if(Find_Key(payload,"dimmer"))
                     {
                         float dimmer = 0.0;
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",(float)dimmer));
+                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",dimmer));
                         char *buff = malloc(sizeof(float));
                         itoa((int)dimmer,buff,10);
                         queue_send(DIMMER_RX,buff,"dimmer",100);
@@ -62,10 +62,10 @@ void Com_Task(void *pvparams)
                     else if (Find_Key(payload,"config"))
                     {
                         /* code */
-                    }
-                    
+                    } 
                 }
                 break;
+        
             default:
                 msg.count +=1;
                 queue_send(msg.dest,msg.msg,msg.topic,portMAX_DELAY);

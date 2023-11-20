@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <inttypes.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
-#include "nvs.h"
-#include "esp_log.h"
+#include "storage.h"
 
 
 nvs_handle_t store_handle;
@@ -155,4 +148,9 @@ void check_nvs(void)
     }
     nvs_release_iterator(it);
 }
+
+void storage_task(void *Pvparams)
+{
+    cJSON *msg = (cJSON*)Pvparams;
     
+}   

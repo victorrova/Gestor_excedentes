@@ -133,6 +133,7 @@ static void dimmer_http(void *PvParams)
         {
 
             printf("temperatura = %f\n",atof(msg.msg));
+            /*implementacion pendiente*/
         }
         vTaskDelay(100/portTICK_PERIOD_MS);
         count++;
