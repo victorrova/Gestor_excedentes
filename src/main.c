@@ -48,7 +48,7 @@ void Com_Task(void *pvparams)
                     if(Find_Key(payload,"dimmer"))
                     {
                         float dimmer = 0.0;
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",dimmer));
+                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
                         char *buff = malloc(sizeof(float));
                         itoa((int)dimmer,buff,10);
                         queue_send(DIMMER_RX,buff,"dimmer",100);
@@ -76,10 +76,24 @@ void Com_Task(void *pvparams)
     vTaskDelete(NULL);
 }
 
+bool _Find_Key(cJSON *obj, const char* key)
+{
+    /*1 comprobar el primero 
+      2 meter en el bucle wile has Null hasta terminar*/
+cJSON *car = obj->child;
+while(car != NULL)
+{
+   Find_Key(car,key);
+   car = car->next;
+   printf("vuelta\n");
+}
+return false;
+}
+
 void app_main(void)
 {
     
-    Machine_init();
+    //Machine_init();
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
@@ -87,8 +101,12 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
-    Wifi_run(WIFI_MODE_STA); 
-    dimmer_init();
-    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    //Wifi_run(WIFI_MODE_STA); 
+    //dimmer_init();
+    //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    const char* prueba = "{\"config\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
+    cJSON *_prueba = cJSON_Parse(prueba);
+    _Find_Key(_prueba,"wifi");
+
 }
 

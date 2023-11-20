@@ -39,7 +39,7 @@ __URL_INVERTER__
 url_inverter
 */
 
-enum {
+typedef enum {
   STR = 100,
   INT,
   FLOAT,

@@ -5,7 +5,7 @@ nvs_handle_t store_handle;
 
 static esp_err_t json_to_nvs( int type,const char* key)
 {
-    
+    return ESP_OK;
 }
 void storage_init(void)
 {
@@ -180,7 +180,7 @@ void storage_task(void *Pvparams)
                     storage_save(NVS_TYPE_STR,"ssid",_ssid);
                 }
             }
-            else if(Find_key(wifi,"password"))
+            else if(Find_Key(wifi,"password"))
             {
                 cJSON *password = cJSON_GetObjectItem(wifi,"password");
                 if(!cJSON_IsNull(password))

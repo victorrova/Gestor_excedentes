@@ -24,6 +24,7 @@ bool Find_Key(cJSON *obj, const char* key)
   {
     return true;
   }
+  printf("key %s\n",probe->string);
   probe = probe->next;
  
   while(probe != NULL)
@@ -38,19 +39,20 @@ bool Find_Key(cJSON *obj, const char* key)
         probe = probe->next;
 
     }
-    
+    printf("key %s\n",probe->string);
   }
   return false;
 }
-esp_err_t decode_number_payload(cJSON *payload, char *key, float exit)
+esp_err_t decode_number_payload(cJSON *payload, char *key, float *exit)
 {
+    
     cJSON *item = cJSON_GetObjectItem(payload,key);
     if(cJSON_IsNumber(item))
     {   
-        exit = item->valuedouble;
+        
+        *(float*)exit =item->valuedouble;
         return ESP_OK;
     }
-    exit = 0.0;
     return ESP_FAIL;
 
 }
