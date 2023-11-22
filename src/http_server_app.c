@@ -4,9 +4,6 @@
  */
 
 #include "http_server_app.h"
-/*#include "wifi_app.h"
-#include "sntp_time_sync.h"
-#include "app_nvs.h"*/
 
 #include "FreeRTOS/event_groups.h"
 
@@ -46,14 +43,14 @@ extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
  * HTTP server monitor task used to track events of the HTTP server
  * @param pvParameters parameter which can be passed to the task.
  */
-static void http_server_monitor(void *parameter)
+
+/*static void http_server_monitor(void *parameter)
 {
 	http_server_queue_message_t msg;
-
 	for (;;)
 	{
-		if (xQueueReceive(http_server_monitor_queue_handle, &msg, portMAX_DELAY))
-		{
+		if (xQueueReceive(http_server_monitor_queue_handle, &msg, portMAX_DELAY)) 
+		{	ESP_LOGW(TAG, "http_server_configure_2!!!");
 			switch (msg.msgID)
 			{
 			case HTTP_MSG_WIFI_CONNECT_INIT:
@@ -67,7 +64,7 @@ static void http_server_monitor(void *parameter)
 				ESP_LOGI(TAG, "HTTP_MSG_WIFI_CONNECT_SUCCESS");
 
 				g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_SUCCESS;
-				//app_nvs_load_mqtt_creds();
+				
 
 				break;
 
@@ -90,23 +87,14 @@ static void http_server_monitor(void *parameter)
 			}
 		}
 	}
-}
+}*/
 
 /**
  * Jquery get handler is requested when accessing the web page.
  * @param req HTTP request for which the uri needs to be handled.
  * @return ESP_OK
  */
-/* static esp_err_t http_server_jquery_handler(httpd_req_t *req)
-{
-	ESP_LOGI(TAG, "Jquery requested");
 
-	httpd_resp_set_type(req, "application/javascript");
-	httpd_resp_send(req, (const char *)jquery_3_3_1_min_js_start, jquery_3_3_1_min_js_end - jquery_3_3_1_min_js_start);
-
-	return ESP_OK;
-}
- */
 /**
  * Sends the index.html page.
  * @param req HTTP request for which the uri needs to be handled.
@@ -246,23 +234,13 @@ void ws_mqtt_app(cJSON *root)
 		broker = cJSON_GetObjectItem(data, "broker");
 		user = cJSON_GetObjectItem(data, "user");
 		pass = cJSON_GetObjectItem(data, "pass");
-		/*
-		esp_mqtt_client_config_t mqtt_cfg = {
-			.broker.address.transport = MQTT_TRANSPORT_OVER_TCP,
-			.broker.address.hostname = broker->valuestring,
-			.credentials.username = user->valuestring,
-			.credentials.client_id = "SEC",
-			.credentials.authentication.password = pass->valuestring,
-			.broker.address.port = 1883,
-		};
-
-		mqtt_app_start(mqtt_cfg);*/
+		
 	}
 
 	else
 	{
 		ESP_LOGI(TAG, "MQTT Disconect requested");
-		//mqtt_app_disconnect();
+		
 	}
 }
 
@@ -281,7 +259,7 @@ char *ws_wifi_app(cJSON *root)
 	{
 		ESP_LOGI(TAG, "wifi Disconect requested");
 
-		//wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
+		
 	}
 
 	else if (connect->valueint == CONNECT_WIFI_FROM_STA) // Wifi Connect: Manda la orden de conectar con el SSID y el Pass
@@ -297,10 +275,7 @@ char *ws_wifi_app(cJSON *root)
 		ssid_str = ssid->valuestring;
 		pass_str = pass->valuestring;
 
-		/*if (wifi_app_creds_sta(ssid_str, pass_str) == ESP_OK)
-		{
-			ESP_LOGI(TAG, "SSID & Pass send!");
-		}*/
+		
 
 		free(ssid_str);
 		free(pass_str);
@@ -459,7 +434,6 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
 	return ESP_OK;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
 
 // HTTP Error (404) Handler - Redirects all requests to the root page
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
@@ -480,16 +454,16 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
  * @return http server instance handle if successful, NULL otherwise.
  */
 static httpd_handle_t http_server_configure(void)
-{
+{	
+	// Create the message queue
+	//http_server_monitor_queue_handle = xQueueCreate(3, sizeof(http_server_queue_message_t));
+	
 	// Generate the default configuration
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-
+	
 	// Create HTTP server monitor task
-	xTaskCreatePinnedToCore(&http_server_monitor, "http_server_monitor", HTTP_SERVER_MONITOR_STACK_SIZE, NULL, HTTP_SERVER_MONITOR_PRIORITY, &task_http_server_monitor, HTTP_SERVER_MONITOR_CORE_ID);
-
-	// Create the message queue
-	http_server_monitor_queue_handle = xQueueCreate(3, sizeof(http_server_queue_message_t));
-
+	//xTaskCreatePinnedToCore(&http_server_monitor, "http_server_monitor", HTTP_SERVER_MONITOR_STACK_SIZE, NULL, HTTP_SERVER_MONITOR_PRIORITY, &task_http_server_monitor, HTTP_SERVER_MONITOR_CORE_ID);
+	
 	// The core that the HTTP server will run on
 	config.core_id = HTTP_SERVER_TASK_CORE_ID;
 
@@ -569,8 +543,10 @@ static httpd_handle_t http_server_configure(void)
 void http_server_start(void)
 {
 	if (http_server_handle == NULL)
-	{
+	{	
+		
 		http_server_handle = http_server_configure();
+		
 	}
 }
 

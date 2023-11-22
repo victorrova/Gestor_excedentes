@@ -15,6 +15,7 @@ esp_err_t Event_init(void)
     {
         return ESP_FAIL;
     }
-    return esp_event_loop_create_default();
+    //return esp_event_loop_create_default();
+    return ESP_OK;
 }
 

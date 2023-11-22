@@ -10,6 +10,8 @@
 
 nvs_handle_t store_handle;
 
+
+
 void storage_init(void)
 {
     esp_err_t err = nvs_flash_init();

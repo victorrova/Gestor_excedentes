@@ -21,7 +21,7 @@
 #define HTTP_SERVER_MONITOR_PRIORITY			3
 #define HTTP_SERVER_MONITOR_CORE_ID				0
 
-
+/*
 //MQTT Publish Task
 #define MQTT_PUB_TASK_STACK_SIZE				4096
 #define MQTT_PUB_TASK_PRIORITY					5
@@ -36,6 +36,6 @@
 #define AXP192_SYNC_TASK_STACK_SIZE			    4096
 #define AXP192_SYNC_TASK_PRIORITY			    4
 #define AXP192_SYNC_TASK_CORE_ID				1
-
+*/
 
 #endif /* MAIN_TASKS_COMMON_H_ */

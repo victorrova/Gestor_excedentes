@@ -7,6 +7,17 @@
 #include "http_server_app.h"
 
 
+#include "esp_log.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include "event_source.h"
+
+static const char* TAG = "main";
+
+
+
 void Machine_init(void)
 {
     storage_init();
@@ -15,7 +26,7 @@ void Machine_init(void)
     termistor_init();
     Fan_init();
     Wifi_init();
-    //mqtt_init();
+    mqtt_init();
 }
 void Meter_init(void)
 {
@@ -32,10 +43,17 @@ void Core(void *pvparams)
     
 }
 
+
+
+
 void app_main(void)
-{
+{   
+    ESP_LOGI(TAG, "Inicio main");
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
     
     Machine_init();
+   
+
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "DIGIFIBRA-238F"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","Siroko_01"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
@@ -45,11 +63,16 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
     Wifi_run(WIFI_MODE_STA); 
     vTaskDelay(5000/portTICK_PERIOD_MS);
-    //mqtt_publish("hola mundo!");
+    mqtt_publish("hola mundo!");
     vTaskDelay(5000/portTICK_PERIOD_MS);
-    //mqtt_publish("hola mund1o!");
-    //dimmer_init();
-    //http_server_start();
+    mqtt_publish("hola mund1o!");
+    dimmer_init();
+    
+    
+    http_server_start();
+    
+    
+
     
 }
 
