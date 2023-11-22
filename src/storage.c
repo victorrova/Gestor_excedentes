@@ -1,11 +1,29 @@
 #include "storage.h"
 
 
-nvs_handle_t store_handle;
+static nvs_handle_t store_handle;
 
-static esp_err_t json_to_nvs( int type,const char* key)
-{
-    return ESP_OK;
+esp_err_t json_to_nvs(cJSON *json)
+{   
+    cJSON *obj = NULL;
+    cJSON *cal = json->child;
+    while(cal != NULL)
+    {
+        if(cJSON_IsObject(cal))
+        {
+            obj = cJSON_GetObjectItem(cal,cal->string);
+            cal = obj;
+        }
+        else if(cJSON_IsNumber(cal))
+        {
+            cal = cal->next;
+        }   
+        else if(cJSON_IsString(cal))
+        {
+            cal = cal->next;
+        }
+ 
+    }
 }
 void storage_init(void)
 {
