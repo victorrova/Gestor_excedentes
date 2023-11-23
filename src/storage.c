@@ -3,10 +3,7 @@
 
 static nvs_handle_t store_handle;
 
-static esp_err_t json_to_nvs( int type,const char* key)
-{
-    return ESP_OK;
-}
+
 void storage_init(void)
 {
     esp_err_t err = nvs_flash_init();
@@ -153,7 +150,7 @@ void check_nvs(void)
     nvs_release_iterator(it);
 }
 
-esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
+static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
 {   
     cJSON *data = cJSON_GetObjectItem(json,key);
     esp_err_t err;
