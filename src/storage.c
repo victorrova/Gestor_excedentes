@@ -3,6 +3,10 @@
 
 static nvs_handle_t store_handle;
 
+static esp_err_t json_to_nvs( int type,const char* key)
+{
+    return ESP_OK;
+}
 void storage_init(void)
 {
     esp_err_t err = nvs_flash_init();

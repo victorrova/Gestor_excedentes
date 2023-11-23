@@ -111,6 +111,15 @@ void app_main(void)
     const char* prueba = "{\"config\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
     cJSON *_prueba = cJSON_Parse(prueba);
     _Find_Key(_prueba,"wifi");
+    cJSON * root = cJSON_Parse(prueba);
+    cJSON * deviceData = cJSON_GetObjectItem(root,"config");
+    if( deviceData ) {
+   cJSON *device = deviceData->child;
+   while( device ) {
+      printf(" key = %s\n",device->string);
+      device = device->next;
+   }
+}
 
 }
 
