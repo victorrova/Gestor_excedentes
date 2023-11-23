@@ -1,12 +1,8 @@
 #include "storage.h"
 
 
-nvs_handle_t store_handle;
+static nvs_handle_t store_handle;
 
-static esp_err_t json_to_nvs( int type,const char* key)
-{
-    return ESP_OK;
-}
 void storage_init(void)
 {
     esp_err_t err = nvs_flash_init();
@@ -153,6 +149,68 @@ void check_nvs(void)
     nvs_release_iterator(it);
 }
 
+esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
+{   
+    cJSON *data = cJSON_GetObjectItem(json,key);
+    esp_err_t err;
+    if(!cJSON_IsNull(data))
+    {
+        switch (type)
+        {
+        case NVS_TYPE_STR:
+        {
+            char *_data= data->valuestring;
+            if(storage_get_size(key) > 0)
+            {
+                err = storage_erase_key(key);  
+            }
+            err =  storage_save(NVS_TYPE_STR,key,_data);
+            
+        }
+            break;
+        case NVS_TYPE_U16:
+        {
+            uint16_t  _data  = (uint16_t) data->valuedouble;
+                        if(storage_get_size(key) > 0)
+            {
+                err = storage_erase_key(key);  
+            }
+            err =  storage_save(NVS_TYPE_U16,key,(uint16_t)_data);
+            
+        }
+            break;
+        case  NVS_TYPE_U32:
+        {
+            uint32_t  _data  = (uint32_t) data->valuedouble;
+            if(storage_get_size(key) > 0)
+            {
+                err = storage_erase_key(key);  
+            }
+            err =  storage_save(NVS_TYPE_U32,key,(uint32_t)_data);
+            
+        }
+            break;
+        case NVS_TYPE_ANY:   // tipo float
+        {
+            union float_converter change;
+            change.fl = data->valuedouble;
+            if(storage_get_size(key) > 0)
+            {
+                err = storage_erase_key(key);  
+            }
+            err =  storage_save(NVS_TYPE_U32,key,(uint32_t)change.ui);
+        }
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        err= ESP_FAIL;
+    }
+    return err;
+}
 void storage_task(void *Pvparams)
 {
     cJSON *msg = (cJSON*)Pvparams;
@@ -169,33 +227,61 @@ void storage_task(void *Pvparams)
         {
             if(Find_Key(wifi,"ssid"))
             {
-                cJSON *ssid = cJSON_GetObjectItem(wifi,"ssid");
-                if(!cJSON_IsNull(ssid))
-                {
-                    char *_ssid = ssid->valuestring;
-                    if(storage_get_size("ssid") > 0)
-                    {
-                        storage_erase_key("ssid");  
-                    }
-                    storage_save(NVS_TYPE_STR,"ssid",_ssid);
-                }
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"ssid"));
+                ESP_LOGI(__FILE__,"ssid saved!");
             }
             else if(Find_Key(wifi,"password"))
             {
-                cJSON *password = cJSON_GetObjectItem(wifi,"password");
-                if(!cJSON_IsNull(password))
-                {
-                    char *_pwd = password->valuestring;
-                    if(storage_get_size("password") > 0)
-                    {
-                        storage_erase_key("password");   
-                    }
-                    storage_save(NVS_TYPE_STR,"password",_pwd);
-                }
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"password"));
+                ESP_LOGI(__FILE__,"wifi password saved!");
             }
-            
+            else if(Find_Key(wifi,"ip"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"ip"));
+                ESP_LOGI(__FILE__,"wifi ip saved!");
+            }
+            else if(Find_Key(wifi,"netmask"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"netmask"));
+                ESP_LOGI(__FILE__,"wifi netmask saved!");
+            }
+            else if(Find_Key(wifi,"gateway"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"gateway"));
+                ESP_LOGI(__FILE__,"wifi gateway saved!");
+            }
+            else if(Find_Key(wifi,"dns1"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"dns1"));
+                 ESP_LOGI(__FILE__,"wifi dns1 saved!");
+            }
+            else if(Find_Key(wifi,"dns2"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(wifi,NVS_TYPE_STR,"dns2"));
+                ESP_LOGI(__FILE__,"wifi dns2 saved!");
+            }
         }
     }
-
-    
+    else if(Find_Key(config,"mqtt"))
+    {
+        cJSON *mqtt = cJSON_GetObjectItemCaseSensitive(config,"mqtt");
+        if(!cJSON_IsNull(mqtt))
+        {
+            if(Find_Key(mqtt,"mqtt_host"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_host"));
+                ESP_LOGI(__FILE__,"mqtt host saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_uri"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_uri"));
+                ESP_LOGI(__FILE__,"mqtt url saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_id"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_id"));
+                ESP_LOGI(__FILE__,"mqtt id saved!");
+            }
+        }
+    }
 }   

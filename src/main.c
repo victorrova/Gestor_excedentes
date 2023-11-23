@@ -110,13 +110,7 @@ void app_main(void)
     //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
     const char* prueba = "{\"config\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
     cJSON *_prueba = cJSON_Parse(prueba);
-    cJSON *config  = cJSON_GetObjectItem(_prueba,"config");
-    printf("key %s\n",config->string);
-    if(cJSON_IsObject(config->child))
-    {
-        printf("salida \n");
-    }
-    
+    _Find_Key(_prueba,"wifi");
 
 }
 
