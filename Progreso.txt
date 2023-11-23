@@ -14,5 +14,5 @@ puedo separar dos tipos de configuración:
 
 mensaje de config:
 
-{config:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},mqtt:{broker:"",url:"", id:"",username:"",password:"",port: ,topic_pub:"",
-topic_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url:""}}}
+{config:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
+mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}

@@ -39,11 +39,7 @@ __URL_INVERTER__
 url_inverter
 */
 
-typedef enum {
-  STR = 100,
-  INT,
-  FLOAT,
-}storage_data_type_t;
+
 
 union float_converter{
   float    fl;
