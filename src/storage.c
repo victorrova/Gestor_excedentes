@@ -153,7 +153,7 @@ void check_nvs(void)
 static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
 {   
     cJSON *data = cJSON_GetObjectItem(json,key);
-    esp_err_t err;
+    esp_err_t err = ESP_FAIL;
     if(!cJSON_IsNull(data))
     {
         switch (type)
@@ -283,6 +283,78 @@ void storage_task(void *Pvparams)
                 ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_id"));
                 ESP_LOGI(__FILE__,"mqtt id saved!");
             }
+            else if(Find_Key(mqtt,"mqtt_user"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_user"));
+                ESP_LOGI(__FILE__,"mqtt user saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_pass"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_pass"));
+                ESP_LOGI(__FILE__,"mqtt password saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_port"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_U32,"mqtt_port"));
+                ESP_LOGI(__FILE__,"mqtt port saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_pub"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_pub"));
+                ESP_LOGI(__FILE__,"mqtt publish topic saved!");
+            }
+            else if(Find_Key(mqtt,"mqtt_sub"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(mqtt,NVS_TYPE_STR,"mqtt_sub"));
+                ESP_LOGI(__FILE__,"mqtt subscribe topic saved!");
+            }
+
         }
     }
+    else if(Find_Key(config,"pid"))
+    {
+        cJSON *pid = cJSON_GetObjectItemCaseSensitive(config,"pid");
+        if(!cJSON_IsNull(pid))
+        {
+            if(Find_Key(pid,"kp"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(pid,NVS_TYPE_ANY,"kp"));
+                ESP_LOGI(__FILE__,"pid kp saved!");
+            }
+            else if(Find_Key(pid,"ki"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(pid,NVS_TYPE_ANY,"ki"));
+                ESP_LOGI(__FILE__,"pid ki saved!");
+            }
+            else if(Find_Key(pid,"kd"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(pid,NVS_TYPE_ANY,"kd"));
+                ESP_LOGI(__FILE__,"pid kd saved!");
+            }
+            else if(Find_Key(pid,"min"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(pid,NVS_TYPE_ANY,"min"));
+                ESP_LOGI(__FILE__,"pid min saved!");
+            }
+            else if(Find_Key(pid,"max"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(pid,NVS_TYPE_ANY,"max"));
+                ESP_LOGI(__FILE__,"pid max saved!");
+            }
+        }
+    }
+    else if(Find_Key(config,"inverter"))
+    {
+        cJSON *inverter = cJSON_GetObjectItemCaseSensitive(config,"inverter");
+        if(!cJSON_IsNull(inverter))
+        {
+            if(Find_Key(inverter,"url_inverter"))
+            {
+                ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(inverter,NVS_TYPE_STR,"url_inverter"));
+                ESP_LOGI(__FILE__,"url inverter saved!");
+            }   
+        }
+
+    }
+   
 }   
