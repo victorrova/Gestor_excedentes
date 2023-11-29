@@ -42,7 +42,7 @@ void Com_Task(void *pvparams)
             case MQTT_TX:
                 ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
                 break;
-            case MQTT_RX:
+            case MQTT_RX || WS_RX:
                 {
                     cJSON *payload = cJSON_Parse(msg.msg);
                     if(Find_Key(payload,"dimmer"))

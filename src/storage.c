@@ -219,7 +219,8 @@ void storage_task(void *Pvparams)
     if(cJSON_IsNull(config))
     {
         ESP_LOGE(__FUNCTION__,"Json no config");
-        vTaskDelete(NULL);  
+        vTaskDelete(NULL);
+        cJSON_Delete(config);
     }
     if(Find_Key(config,"wifi"))
     {
@@ -352,9 +353,11 @@ void storage_task(void *Pvparams)
             {
                 ESP_ERROR_CHECK_WITHOUT_ABORT(json_to_nvs(inverter,NVS_TYPE_STR,"url_inverter"));
                 ESP_LOGI(__FILE__,"url inverter saved!");
+
             }   
         }
-
     }
+    cJSON_Delete(config);
+    vTaskDelete(NULL);
    
 }   
