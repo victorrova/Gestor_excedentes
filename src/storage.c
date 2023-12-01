@@ -215,7 +215,7 @@ static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
 void storage_task(void *Pvparams)
 {
     cJSON *msg = (cJSON*)Pvparams;
-    cJSON *config = cJSON_GetObjectItem(msg,"config");
+    cJSON *config = cJSON_GetObjectItem(msg,"storage");
     if(cJSON_IsNull(config))
     {
         ESP_LOGE(__FUNCTION__,"Json no config");

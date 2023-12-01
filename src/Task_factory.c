@@ -16,7 +16,7 @@ typedef struct mem_task{
 }mem_task_t;
 
 
-void create_task()
+void create_task(void *function,const char* name,void *params)
 {
   
 }

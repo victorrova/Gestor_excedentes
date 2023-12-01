@@ -12,7 +12,12 @@ puedo separar dos tipos de configuración:
 2 .Operacional: que afecta a parametros de las tareas en ejecución ejemplo: Pid del dimmer.
 
 
-mensaje de config:
+mensaje de guardado:
 
-{config:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
+{storage:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
+mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}
+
+mensaje de stream:
+
+{stream:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
 mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}

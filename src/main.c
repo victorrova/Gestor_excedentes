@@ -28,7 +28,108 @@ void Machine_init(void)
     ESP_ERROR_CHECK(mqtt_init());
     Meter_init();
 }
-
+static esp_err_t stream_pid(cJSON *payload)
+{
+    esp_err_t err = ESP_FAIL;
+    cJSON *stream = cJSON_GetObjectItem(payload,"stream");
+    if(cJSON_IsNull(stream))
+    {
+        ESP_LOGE(__FUNCTION__,"json no strem :(");
+        return err;
+    }
+    if(Find_Key(stream,"pid"))
+    {
+        cJSON *pid = cJSON_GetObjectItem(stream,"pid");
+        if(!cJSON_IsNull(pid))
+        {
+            if(Find_Key(pid,"kp"))
+            {
+                cJSON *kp = cJSON_GetObjectItem(pid,"kp");
+                float _kp = (float)kp->valuedouble;
+                char buff[64];
+                int change =snprintf(buff,sizeof(buff),"%f",_kp);
+                if(change == sizeof(buff))
+                {
+                    err = queue_send(DIMMER_RX,buff,"kp",100);
+                }
+                else
+                {
+                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    err = ESP_FAIL;
+                }
+            }
+            else if(Find_Key(pid,"ki"))
+            {
+                cJSON *ki = cJSON_GetObjectItem(pid,"ki");
+                float _ki = (float)ki->valuedouble;
+                char buff[64];
+                int change =snprintf(buff,sizeof(buff),"%f",_ki);
+                if(change == sizeof(buff))
+                {
+                    err = queue_send(DIMMER_RX,buff,"ki",100);
+                }
+                else
+                {
+                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    err = ESP_FAIL;
+                }
+            }
+            else if(Find_Key(pid,"kd"))
+            {
+                cJSON *kd = cJSON_GetObjectItem(pid,"kd");
+                float _kd = (float)kd->valuedouble;
+                char buff[64];
+                int change =snprintf(buff,sizeof(buff),"%f",_kd);
+                if(change == sizeof(buff))
+                {
+                    err = queue_send(DIMMER_RX,buff,"kd",100);
+                }
+                else
+                {
+                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    err = ESP_FAIL;
+                }
+            }
+            else if(Find_Key(pid,"min"))
+            {
+                cJSON *min = cJSON_GetObjectItem(pid,"min");
+                float _min = (float)min->valuedouble;
+                char buff[64];
+                int change =snprintf(buff,sizeof(buff),"%f",_min);
+                if(change == sizeof(buff))
+                {
+                    err = queue_send(DIMMER_RX,buff,"min",100);
+                }
+                else
+                {
+                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    err = ESP_FAIL;
+                }
+            }
+            else if(Find_Key(pid,"max"))
+            {
+                cJSON *max = cJSON_GetObjectItem(pid,"max");
+                float _max = (float)max->valuedouble;
+                char buff[64];
+                int change =snprintf(buff,sizeof(buff),"%f",_max);
+                if(change == sizeof(buff))
+                {
+                    err = queue_send(DIMMER_RX,buff,"max",100);
+                }
+                else
+                {
+                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    err = ESP_FAIL;
+                }
+            }
+        }
+        else
+        {
+            return ESP_FAIL;
+        }
+    }
+    return err;
+}
 void Com_Task(void *pvparams)
 {
     while(1)
@@ -49,20 +150,25 @@ void Com_Task(void *pvparams)
                     {
                         float dimmer = 0.0;
                         ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
-                        char *buff = malloc(sizeof(float));
+                        char *buff =(char*)pvPortMalloc(sizeof(float));
                         itoa((int)dimmer,buff,10);
                         queue_send(DIMMER_RX,buff,"dimmer",100);
-                        free(buff);
+                        vPortFree(buff);
 
                     }
                     else if(Find_Key(payload,"temperature"))
                     {
                         /* mandar a dimmer cuando el control de temperatura este echo*/
                     }
-                    else if (Find_Key(payload,"config"))
+                    else if (Find_Key(payload,"storage"))
                     {
                         /* code */
-                    } 
+                    }
+                    else if( Find_Key(payload,"stream"))
+                    {
+                        ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
+                    }
+                    cJSON_Delete(payload);
                 }
                 break;
         
@@ -108,11 +214,11 @@ void app_main(void)
     //Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
     //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-    const char* prueba = "{\"config\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
+    const char* prueba = "{\"storage\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
     cJSON *_prueba = cJSON_Parse(prueba);
     _Find_Key(_prueba,"wifi");
     cJSON * root = cJSON_Parse(prueba);
-    cJSON * deviceData = cJSON_GetObjectItem(root,"config");
+    cJSON * deviceData = cJSON_GetObjectItem(root,"storage");
     if( deviceData ) {
    cJSON *device = deviceData->child;
    while( device ) {
