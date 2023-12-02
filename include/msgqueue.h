@@ -6,7 +6,8 @@
 
 #define QUEUE_MAX_LAP 5
 #define QUEUE_SIZE 5
-
+#define MAX_PAYLOAD 1024
+#define MAX_TOPIC 128
 
 typedef enum{
     WS_TX,
@@ -27,9 +28,9 @@ typedef struct msg{ //  estructura de la  cola infinita
     int count;
     int dest;
     int len_topic;
-    char topic[128];
+    char topic[MAX_TOPIC];
     int len_msg;
-    char msg[512];
+    char msg[MAX_PAYLOAD];
 }msg_queue_t;
 
 

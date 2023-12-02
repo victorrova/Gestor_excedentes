@@ -9,7 +9,7 @@ static QueueHandle_t msg_queue;
 
 esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)
 {
-    if(strlen(payload)>512 || strlen(topic) > 128)
+    if(strlen(payload)>MAX_PAYLOAD || strlen(topic) > MAX_TOPIC)
     {
         ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)strlen(payload),(int)strlen(topic));
         return ESP_FAIL;

@@ -135,6 +135,27 @@ static void dimmer_http(void *PvParams)
             printf("temperatura = %f\n",atof(msg.msg));
             /*implementacion pendiente*/
         }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"kp")== 0)
+        {
+            conf_gestor.pid_Pwr.Kp = atof(msg.msg);
+        }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"ki")== 0)
+        {
+            conf_gestor.pid_Pwr.Ki = atof(msg.msg);
+        }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"kd")== 0)
+        {
+            conf_gestor.pid_Pwr.Kd = atof(msg.msg);
+        }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"min")== 0)
+        {
+            conf_gestor.pid_Pwr.min = (int)atof(msg.msg);
+        }
+        else if(msg.len_msg > 0 && strcmp(msg.topic,"max")== 0)
+        {
+            conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
+        }
+        
         vTaskDelay(100/portTICK_PERIOD_MS);
         count++;
     }

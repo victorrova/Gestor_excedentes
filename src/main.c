@@ -162,7 +162,7 @@ void Com_Task(void *pvparams)
                     }
                     else if (Find_Key(payload,"storage"))
                     {
-                        /* code */
+                        xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
                     }
                     else if( Find_Key(payload,"stream"))
                     {
@@ -182,23 +182,6 @@ void Com_Task(void *pvparams)
     vTaskDelete(NULL);
 }
 
-bool _Find_Key(cJSON *obj, const char* key)
-{
-    /*1 comprobar el primero 
-      2 meter en el bucle wile has Null hasta terminar*/
-cJSON *car = obj->child;
-while(car != NULL)
-{
-   Find_Key(car,key);
-   car = car->next;
-   if(cJSON_IsObject(car))
-   {
-        printf("esbojeto\n");
-   }
-   printf("vuelta\n");
-}
-return false;
-}
 
 void app_main(void)
 {
@@ -214,18 +197,5 @@ void app_main(void)
     //Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
     //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-    const char* prueba = "{\"storage\":{\"wifi\":{\"ssid\":\"prueba\",\"password\":\"prueba\"}}}";
-    cJSON *_prueba = cJSON_Parse(prueba);
-    _Find_Key(_prueba,"wifi");
-    cJSON * root = cJSON_Parse(prueba);
-    cJSON * deviceData = cJSON_GetObjectItem(root,"storage");
-    if( deviceData ) {
-   cJSON *device = deviceData->child;
-   while( device ) {
-      printf(" key = %s\n",device->string);
-      device = device->next;
-   }
-}
-
 }
 

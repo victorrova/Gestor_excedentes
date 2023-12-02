@@ -149,6 +149,81 @@ void check_nvs(void)
     }
     nvs_release_iterator(it);
 }
+void get_config(void)
+{
+    cJSON *root = cJSON_CreateObject();
+    cJSON *storage = cJSON_CreateObject();
+    cJSON *wifi = cJSON_CreateObject();
+    cJSON *mqtt = cJSON_CreateObject();
+    cJSON *pid = cJSON_CreateObject();
+    cJSON *inverter = cJSON_CreateObject();
+
+    size_t ssid_len = storage_get_size("ssid");
+    if(ssid_len > 0)
+    {
+        char* ssid = (char*)malloc(sizeof(char) * ssid_len);
+        ESP_MALLOC_CHECK(ssid);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"ssid",ssid,&ssid_len));
+        cJSON_AddStringToObject(wifi,"ssid",ssid);
+        free(ssid);
+    }
+
+    size_t pass_len = storage_get_size("password");
+    if(pass_len >0)
+    {
+        char* pass = (char*)malloc(sizeof(char) * pass_len);
+        ESP_MALLOC_CHECK(pass);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"password",pass,&pass_len));
+        cJSON_AddStringToObject(wifi,"password",pass);
+        free(pass);
+    }
+    size_t ip_len = storage_get_size("ip");
+    if(ip_len > 0)
+    {
+        char* ip = (char*)malloc(sizeof(char) * ip_len);
+        ESP_MALLOC_CHECK(ip);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"ip",ip,&ip_len));
+        cJSON_AddStringToObject(wifi,"ip",ip);
+        free(ip);
+    }
+    size_t netmask_len = storage_get_size("netmask");
+    if(netmask_len > 0)
+    {
+        char* netmask = (char*)malloc(sizeof(char) * netmask_len);
+        ESP_MALLOC_CHECK(netmask);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"netmask",netmask,&netmask_len));
+        cJSON_AddStringToObject(wifi,"netmask",netmask);
+        free(netmask);
+    }
+    size_t gateway_len = storage_get_size("gateway");
+    if(gateway_len > 0)
+    {
+        char* gateway = (char*)malloc(sizeof(char) * gateway_len);
+        ESP_MALLOC_CHECK(gateway);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"gateway",gateway,&gateway_len));
+        cJSON_AddStringToObject(wifi,"gateway",gateway);
+        free(gateway);
+    }
+    size_t dns1_len = storage_get_size("dns1");
+    if(dns1_len > 0)
+    {
+        char* dns1 = (char*)malloc(sizeof(char) * dns1_len);
+        ESP_MALLOC_CHECK(dns1);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"dns1",dns1,&dns1_len));
+        cJSON_AddStringToObject(wifi,"dns1",dns1);
+        free(dns1);
+    }
+    size_t dns2_len = storage_get_size("dns2");
+    if(dns2_len > 0)
+    {
+        char* dns2 = (char*)malloc(sizeof(char) * dns2_len);
+        ESP_MALLOC_CHECK(dns2);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"dns2",dns2,&dns2_len));
+        cJSON_AddStringToObject(wifi,"dns2",dns2);
+        free(dns2);
+    }
+    cJSON_AddItemToObject(storage,"wifi",wifi);
+}
 
 static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
 {   
