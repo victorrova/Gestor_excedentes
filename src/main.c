@@ -171,7 +171,6 @@ void Com_Task(void *pvparams)
                     cJSON_Delete(payload);
                 }
                 break;
-        
             default:
                 msg.count +=1;
                 queue_send(msg.dest,msg.msg,msg.topic,portMAX_DELAY);
@@ -186,7 +185,7 @@ void Com_Task(void *pvparams)
 void app_main(void)
 {
     
-    //Machine_init();
+    Machine_init();
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
@@ -197,5 +196,6 @@ void app_main(void)
     //Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
     //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    storage_get_config();
 }
 

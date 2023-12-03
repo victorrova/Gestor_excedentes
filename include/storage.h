@@ -54,5 +54,5 @@ esp_err_t storage_erase(void);
 void check_nvs(void);
 esp_err_t storage_erase_key(char *key);
 void storage_task(void *Pvparams);
-
+void storage_get_config(void);
 #endif

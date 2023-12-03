@@ -149,7 +149,7 @@ void check_nvs(void)
     }
     nvs_release_iterator(it);
 }
-void get_config(void)
+void storage_get_config(void)
 {
     cJSON *root = cJSON_CreateObject();
     cJSON *storage = cJSON_CreateObject();
@@ -223,6 +223,63 @@ void get_config(void)
         free(dns2);
     }
     cJSON_AddItemToObject(storage,"wifi",wifi);
+    union float_converter converter;
+    
+    size_t kp_len = storage_get_size("kp");
+    if(kp_len >0)
+    {
+        uint32_t kp = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"kp",kp,NULL));
+        
+        converter.ui = kp;
+        cJSON_AddNumberToObject(pid,"kp",converter.fl);
+    }
+    size_t ki_len = storage_get_size("ki");
+    if( ki_len > 0)
+    {
+        uint32_t ki = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"ki",ki,NULL));
+
+        converter.ui = ki;
+        cJSON_AddNumberToObject(pid,"ki",converter.fl);
+    }
+    size_t kd_len = storage_get_size("kd");
+    if( kd_len > 0)
+    {
+        uint32_t kd = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"kd",kd,NULL));
+        converter.ui = kd;
+        cJSON_AddNumberToObject(pid,"kd",converter.fl);
+    }
+    size_t pid_min_len = storage_get_size("pid_min");
+    if(pid_min_len > 0)
+    {
+        uint32_t pid_min = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"pid_min",pid_min,NULL));
+        cJSON_AddNumberToObject(pid,"min",1-pid_min);
+    }
+    size_t pid_max_len = storage_get_size("pid_max");
+    if(pid_max_len > 0)
+    {
+        uint32_t pid_max = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"pid_max",pid_max,NULL));
+        cJSON_AddNumberToObject(pid,"max",pid_max);
+    }
+    cJSON_AddItemToObject(storage,"pid",pid);
+    size_t url_len = storage_get_size("url_inverter");
+    if(url_len >0)
+    {
+        char *url = (char*)malloc(sizeof(char) * url_len);
+        ESP_MALLOC_CHECK(url);
+        ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"url_inverter",url,&url_len));
+        cJSON_AddStringToObject(inverter,"url_inverter",url);
+        free(url);
+    }
+    cJSON_AddItemToObject(storage,"inverter",inverter);
+    cJSON_AddItemToObject(root,"storage",storage);
+    char *print = cJSON_Print(root);
+    printf("salida %s medida %d\n",print,strlen(print));
+    cJSON_Delete(root);
 }
 
 static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)
