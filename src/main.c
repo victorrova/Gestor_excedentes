@@ -3,10 +3,10 @@
 #include "mqtt.h"
 #include "pid.h"
 #include "dimmer.h"
-#include "components/hlw8032/include/hlw8032.h"
+#include "hlw8032.h"
+#include "http_server_app.h"
 
-
-
+static const char TAG[] = "main";
 
 void Meter_init(void)
 {
@@ -25,7 +25,7 @@ void Machine_init(void)
     termistor_init();
     Fan_init();
     Wifi_init();
-    ESP_ERROR_CHECK(mqtt_init());
+    //ESP_ERROR_CHECK(mqtt_init());
     Meter_init();
 }
 static esp_err_t stream_pid(cJSON *payload)
@@ -131,7 +131,7 @@ static esp_err_t stream_pid(cJSON *payload)
     return err;
 }
 void Com_Task(void *pvparams)
-{
+{   ESP_LOGI(TAG, "Com_Task");
     while(1)
     {
         msg_queue_t msg; 
@@ -168,6 +168,10 @@ void Com_Task(void *pvparams)
                     {
                         ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
                     }
+                    else if( Find_Key(payload,"wifi"))
+                    {
+                        ESP_LOGE(TAG, "Recibido datos wifi");
+                    }
                     cJSON_Delete(payload);
                 }
                 break;
@@ -186,16 +190,18 @@ void app_main(void)
 {
     
     Machine_init();
-    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
-    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
+    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "_____________"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","______________"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
-    //Wifi_run(WIFI_MODE_STA); 
+    Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
-    //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
     storage_get_config();
+
+    http_server_start();
 }
 

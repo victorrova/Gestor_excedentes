@@ -42,6 +42,9 @@
         "dimmer.h": "c",
         "event_groups.h": "c",
         "esp_err.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "*.tcc": "c",
+        "type_traits": "c",
+        "memory": "c"
     }
 }

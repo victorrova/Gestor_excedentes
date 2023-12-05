@@ -1,0 +1,160 @@
+
+
+body {
+    background-color: #e7eaf6;
+    font-family: HelveticaNeueRegular, HelveticaNeue-Regular, "Helvetica Neue Regular", HelveticaNeue, "Helvetica Neue", Helvetica, Arial;
+    color: #388371;
+}
+
+h1 {
+    display: block;
+    text-align: center;
+    margin: 5px;
+    padding: 30px;
+    font-size: 3em;
+    color: #f3f3f7;
+    background-color: #113f67;
+    border-radius: 30px;
+}
+
+h2 {
+	font-size: 1.4em;
+    color: #38598b;
+}
+
+h3 {
+	font-size: 1.2em;
+    color: #38598b;
+}
+
+h4 {
+	font-size: 1em;
+    color: #38598b;
+}
+
+.gr {
+	color: green;
+}
+.rd {
+	color: red;
+}
+
+#local_time {
+	display:inline;
+	color: #1d3557;
+}
+
+#pmu_temp-label, #pmu-vbus-v-label, #pmu-vbus-c-label, #pmu-bat-v-label, #pmu-bat-c-label, #pmu-bat-d-label {
+	
+    display: none;
+    
+}
+
+th, td {
+    padding-left: 15px;
+  }
+
+#pmu_temp, #pmu-vbus-v, #pmu-vbus-c, #pmu-bat-v, #pmu-bat-c, #pmu-bat-d {
+   
+    display: none;
+    color: #1d3557;
+}
+
+#latest_firmware, #latest_firmware_label {
+	display:inline;
+}
+#latest_firmware {
+	color: #1d3557;
+}
+
+#temperature_reading {
+	display:inline;
+	color: #1d3557;
+}
+
+#humidity_reading {
+	display:inline;
+	color: #1d3557;
+}
+
+
+#pressure_reading {
+	display:inline;
+	color: #1d3557;
+}
+
+#connected_ap_label, #connected_ap {
+	display:inline;
+}
+
+#ip_address_label, #netmask_label, #gateway_label {
+	display:inline;
+}
+
+#wifi_connect_ip, #wifi_connect_netmask, #wifi_connect_gw {
+	display:inline;
+}
+
+#connected_ap {
+	color: #1d3557;
+}
+
+#wifi_connect_ip {
+	color: #1d3557;
+}
+
+#wifi_connect_netmask {
+	color: #1d3557;
+}
+
+#wifi_connect_gw {
+	color: #1d3557;
+}
+
+#disconnect_wifi {
+	display: none;
+}
+
+.buttons {
+    padding: 5px;
+}
+
+input[type="button"] {
+	font-size: 12px;
+	border: 0;
+    line-height: 2;
+    padding: 0 5px;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 5px;
+    background-color: #a2a8d3;
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+input[type="button"]:hover {
+    background-color: #38598b;
+}
+
+
+input[type="button"]:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+
+
+
+
+
+
+
+
+
+
+
+

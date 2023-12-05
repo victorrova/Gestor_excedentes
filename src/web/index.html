@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="app.css">
+	<script async src="app.js"></script>
+	<title>Configuración Gestor</title>
+</head>
+
+<body>
+	<header>
+		<h1>Configuración Gestor</h1>
+	</header>
+
+	<section id="local_time">
+		<h4 id="time_label">Fecha y Hora:</h4>
+		<p id="timestamp_label">-</p>
+	</section>
+
+	<hr>
+	<div id="WiFiConnect">
+		<h2>Conexión WIFI:</h2>
+		<section>
+			<input id="scan_wifi" type="button" value="Scan">
+			<input list="wifi_list" id="connect_ssid" type="text" maxlength="32" placeholder="SSID" value="">
+			<datalist id="wifi_list">
+			</datalist>
+			<input id="connect_pass" type="password" maxlength="64" placeholder="Password" value="">
+			<input type="checkbox" onclick="showPassword()">Show Password
+		</section>
+		<div class="buttons">
+			<input id="connect_wifi" type="button" value="Connect" />
+		</div>
+		<div id="wifi_connect_credentials_errors"></div>
+		<h4 id="wifi_connect_status"></h4>
+	</div>
+
+	<div id="ConnectInfo">
+		<section>
+			<div id="connected_ap_label"></div>
+			<div id="connected_ap"></div>
+		</section>
+		<div id="ip_address_label"></div>
+		<div id="wifi_connect_ip"></div>
+		<div id="netmask_label"></div>
+		<div id="wifi_connect_netmask"></div>
+		<div id="gateway_label"></div>
+		<div id="wifi_connect_gw"></div>
+		<div class="buttons">
+			<input id="disconnect_wifi" type="button" value="Disconnect" />
+		</div>
+	</div>
+	</hr>
+	<hr>
+
+	<div id="MqttConnect">
+		<h2>Conexión MQTT</h2>
+		<section>
+			<input id="mqtt_uri" type="text" maxlength="64" placeholder="Servidor" value="">
+			<input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
+			<input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
+			<input type="checkbox" onclick="showPassword()">Show Password
+		</section>
+		<div class="buttons">
+			<input id="connect_mqtt" type="button" value="Connect" />
+		</div>
+		<div id="mqtt_connect_credentials_errors"></div>
+		<h4 id="mqtt_connect_status"></h4>
+	</div>
+
+	<div id="MqttConnectInfo">
+		<section>
+			<div id="mqtt_connected_ap_label"></div>
+			<div id="mqtt_connected_ap"></div>
+		</section>
+		<div class="buttons">
+			<input id="disconnect_mqtt" type="button" value="Disconnect" />
+		</div>
+	</div>
+	<hr>
+	<div id="pmu_Info">
+		<h4>Información PMU:</h4>
+		<table>
+		<tr>
+			<td id="pmu_temp-label">Temperatura: </td>
+			<td id="pmu_temp"></td>
+		</tr>
+	
+		<tr>
+			<td id="pmu-vbus-v-label">Tensión VBUS: </td>
+			<td id="pmu-vbus-v"></td>
+		</tr>
+		<tr>
+			<td id="pmu-vbus-c-label">Corriente VBUS: </td>
+			<td id="pmu-vbus-c"></td>
+		</tr>
+		<tr>
+			<td id="pmu-bat-v-label">Tensión Batería: </td>
+			<td id="pmu-bat-v"></td>
+		</tr>
+		<tr>
+			<td id="pmu-bat-c-label"></td>
+			<td id="pmu-bat-c"></td>
+		</tr>
+	</div>
+
+</body>
+<html>
