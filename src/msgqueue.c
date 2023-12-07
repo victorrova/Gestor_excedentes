@@ -34,12 +34,12 @@ msg_queue_t queue_receive(int dest,TickType_t time)
     msg_queue_t msg;
     if(xQueueReceive(msg_queue,&msg,time) == pdTRUE)
     {
-        if(msg.dest == dest || msg.dest ==  MASTER)
+        if(dest == MASTER || msg.dest == dest)
         {
             ESP_LOGD(__FUNCTION__,"mensaje entregado");
             return msg;
         }
-        else if(msg.dest != dest && msg.count < QUEUE_MAX_LAP)
+        else if(msg.dest != dest && dest != MASTER && msg.count < QUEUE_MAX_LAP )
         {
             msg.count++;
             xQueueSend(msg_queue,&msg,time);
@@ -53,20 +53,10 @@ msg_queue_t queue_receive(int dest,TickType_t time)
             ESP_LOGD(__FUNCTION__,"mensaje huerfano eliminado en lap =  %d",msg.count);
             return msg;
         }
-
     }
     msg.len_msg= 0;
     return msg;
       
-}
-msg_queue_t Master_queue_receive(TickType_t time)
-{   
-    msg_queue_t msg;
-    if(xQueueReceive(msg_queue,&msg,time) != pdTRUE)
-    {
-        msg.len_msg = 0;
-    }
-    return msg;
 }
 
 esp_err_t queue_start(void)

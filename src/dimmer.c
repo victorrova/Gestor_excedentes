@@ -70,7 +70,7 @@ static void dimmer_http(void *PvParams)
         {
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
-            char reg[10];
+            char reg[32];
             conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",10);

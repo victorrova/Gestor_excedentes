@@ -149,7 +149,7 @@ void check_nvs(void)
     }
     nvs_release_iterator(it);
 }
-void storage_get_config(void)
+char *storage_get_config(void)
 {
     cJSON *root = cJSON_CreateObject();
     cJSON *storage = cJSON_CreateObject();
@@ -223,6 +223,80 @@ void storage_get_config(void)
         free(dns2);
     }
     cJSON_AddItemToObject(storage,"wifi",wifi);
+
+    size_t mqtt_host_len = storage_get_size("mqtt_host");
+    if(mqtt_host_len >0)
+    {
+        char *mqtt_host = (char*)malloc(sizeof(char)*mqtt_host_len);
+        ESP_MALLOC_CHECK(mqtt_host);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_host",mqtt_host,&mqtt_host_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_host",mqtt_host);
+        free(mqtt_host);
+    }
+    size_t mqtt_uri_len = storage_get_size("mqtt_uri");
+    if(mqtt_uri_len >0)
+    {
+        char *mqtt_uri = (char*)malloc(sizeof(char)*mqtt_uri_len);
+        ESP_MALLOC_CHECK(mqtt_uri);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_uri",mqtt_uri,&mqtt_uri_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_uri",mqtt_uri);
+        free(mqtt_uri);
+    }
+    size_t mqtt_id_len = storage_get_size("mqtt_id");
+    if(mqtt_id_len >0)
+    {
+        char *mqtt_id = (char*)malloc(sizeof(char)*mqtt_id_len);
+        ESP_MALLOC_CHECK(mqtt_id);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_id",mqtt_id,&mqtt_id_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_id",mqtt_id);
+        free(mqtt_id);
+    }
+    size_t mqtt_user_len = storage_get_size("mqtt_user");
+    if(mqtt_user_len >0)
+    {
+        char *mqtt_user = (char*)malloc(sizeof(char)*mqtt_user_len);
+        ESP_MALLOC_CHECK(mqtt_user);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_user",mqtt_user,&mqtt_user_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_user",mqtt_user);
+        free(mqtt_user);
+    }
+    size_t mqtt_pass_len = storage_get_size("mqtt_pass");
+    if(mqtt_pass_len >0)
+    {
+        char *mqtt_pass = (char*)malloc(sizeof(char)*mqtt_pass_len);
+        ESP_MALLOC_CHECK(mqtt_pass);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_pass",mqtt_pass,&mqtt_pass_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_pass",mqtt_pass);
+        free(mqtt_pass);
+    }
+    size_t mqtt_pub_len = storage_get_size("mqtt_pub");
+    if(mqtt_pub_len >0)
+    {
+        char *mqtt_pub = (char*)malloc(sizeof(char)*mqtt_pub_len);
+        ESP_MALLOC_CHECK(mqtt_pub);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_pub",mqtt_pub,&mqtt_pub_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_pub",mqtt_pub);
+        free(mqtt_pub);
+    }
+    size_t mqtt_sub_len = storage_get_size("mqtt_sub");
+    if(mqtt_sub_len >0)
+    {
+        char *mqtt_sub = (char*)malloc(sizeof(char)*mqtt_sub_len);
+        ESP_MALLOC_CHECK(mqtt_sub);
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_sub",mqtt_sub,&mqtt_sub_len));
+        cJSON_AddStringToObject(mqtt,"mqtt_sub",mqtt_sub);
+        free(mqtt_sub);
+    }
+    size_t port_len = storage_get_size("mqtt_port");
+    if(port_len >0)
+    {
+        uint32_t port = 0;
+        ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_U32,"mqtt_port",port,NULL));
+        
+        cJSON_AddNumberToObject(pid,"mqtt_port",port);
+    }
+    cJSON_AddItemToObject(storage,"mqtt",mqtt);
+
     union float_converter converter;
     
     size_t kp_len = storage_get_size("kp");
@@ -278,8 +352,8 @@ void storage_get_config(void)
     cJSON_AddItemToObject(storage,"inverter",inverter);
     cJSON_AddItemToObject(root,"storage",storage);
     char *print = cJSON_Print(root);
-    printf("salida %s medida %d\n",print,strlen(print));
     cJSON_Delete(root);
+    return print;
 }
 
 static esp_err_t json_to_nvs(cJSON *json,nvs_type_t type,char *key)

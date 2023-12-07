@@ -40,7 +40,6 @@ void Fan_init(void)
     vTaskDelay(2000/portTICK_PERIOD_MS);
     gpio_set_level(FAN,0);
 }
-
 void Fan_state(int state)
 {
     int level = gpio_get_level(FAN);
@@ -125,6 +124,7 @@ void set_stream_logger(int logger)
     }
 }
 
+
 void timer_init(s_timer_t *param,int prescaler,int timer,int (*callback)(void), void *params)
 {
     param->count =0;
@@ -150,4 +150,5 @@ void timer_loop(s_timer_t *param)
     }
 
 }
+
 

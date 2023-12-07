@@ -25,7 +25,7 @@ void Machine_init(void)
     termistor_init();
     Fan_init();
     Wifi_init();
-    //ESP_ERROR_CHECK(mqtt_init());
+    ESP_ERROR_CHECK(mqtt_init());
     Meter_init();
 }
 static esp_err_t stream_pid(cJSON *payload)
@@ -143,9 +143,10 @@ void Com_Task(void *pvparams)
             case MQTT_TX:
                 ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
                 break;
-            case MQTT_RX || WS_RX:
+            case  MQTT_RX || WS_RX:
                 {
                     cJSON *payload = cJSON_Parse(msg.msg);
+                    
                     if(Find_Key(payload,"dimmer"))
                     {
                         float dimmer = 0.0;
@@ -161,7 +162,7 @@ void Com_Task(void *pvparams)
                         /* mandar a dimmer cuando el control de temperatura este echo*/
                     }
                     else if (Find_Key(payload,"storage"))
-                    {
+                    {   
                         xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
                     }
                     else if( Find_Key(payload,"stream"))
@@ -172,9 +173,11 @@ void Com_Task(void *pvparams)
                     {
                         ESP_LOGE(TAG, "Recibido datos wifi");
                     }
-                    cJSON_Delete(payload);
+                    //cJSON_Delete(payload);
+                    
                 }
                 break;
+
             default:
                 msg.count +=1;
                 queue_send(msg.dest,msg.msg,msg.topic,portMAX_DELAY);
@@ -184,14 +187,33 @@ void Com_Task(void *pvparams)
     }
     vTaskDelete(NULL);
 }
-
+void  Keepalive_Task(void *params)
+{
+    cJSON *root = cJSON_CreateObject();
+    int state_gestor;
+    float temp;
+    float voltage;
+    float intensidad;
+    float P_activa;
+    float P_appa;
+    while(1)
+    {
+        msg_queue_t msg = queue_receive(DIMMER_TX,portMAX_DELAY);
+        if(msg.len_msg >0 && strcmp(msg.topic,"level")== 0)
+        {
+            state_gestor =atoi(msg.msg);
+        }
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    }
+    vTaskDelete(NULL);
+}
 
 void app_main(void)
 {
     
     Machine_init();
-    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "_____________"));
-    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","______________"));
+    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
@@ -199,9 +221,9 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
-    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-    storage_get_config();
-
-    http_server_start();
+    //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    char *store = storage_get_config();
+    printf(" salida: %s",store);
+    //http_server_start();
 }
 
