@@ -61,23 +61,26 @@ static void dimmer_http(void *PvParams)
     esp_http_client_handle_t Inverter = http_begin(conf_gestor.inverter_url);
     int pid = 0;
     int sal =(int)Kostal_requests(Inverter);
-    uint8_t count = 0;
+    uint8_t count_power = 0;
+    uint8_t count_send = 0;
     int NTC_temp = 0;
     msg_queue_t msg;
     while(1)
     { 
-        if(count == 30)
+        if(count_power == 30)
         {
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
+            count_power = 0;
+            
+        }
+        if(count_send == 600)
+        {
             char reg[32];
             conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",10);
-        }
-        if(count >30)
-        {
-            count = 0;
+            count_send = 0;
         }
         if(NTC_temp > 60)
         {
@@ -157,7 +160,8 @@ static void dimmer_http(void *PvParams)
         }
         
         vTaskDelay(100/portTICK_PERIOD_MS);
-        count++;
+        count_power++;
+        count_send ++;
     }
 }
 void dimmer_init(void)

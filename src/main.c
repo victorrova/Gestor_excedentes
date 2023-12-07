@@ -6,11 +6,11 @@
 #include "hlw8032.h"
 #include "http_server_app.h"
 
-static const char TAG[] = "main";
 
+static hlw8032_t  hlw_meter;
 void Meter_init(void)
 {
-    hlw8032_t  hlw_meter;
+   
     ESP_ERROR_CHECK(hlw8032_serial_begin(&hlw_meter,2,17,256));
     hlw8032_set_I_coef_from_R(&hlw_meter, 0.001);
     hlw8032_set_V_coef_from_R(&hlw_meter, 1880000, 1000);
@@ -131,7 +131,7 @@ static esp_err_t stream_pid(cJSON *payload)
     return err;
 }
 void Com_Task(void *pvparams)
-{   ESP_LOGI(TAG, "Com_Task");
+{   ESP_LOGI(__FUNCTION__, "Com_Task");
     while(1)
     {
         msg_queue_t msg; 
@@ -171,7 +171,7 @@ void Com_Task(void *pvparams)
                     }
                     else if( Find_Key(payload,"wifi"))
                     {
-                        ESP_LOGE(TAG, "Recibido datos wifi");
+                        ESP_LOGE(__FUNCTION__, "Recibido datos wifi");
                     }
                     //cJSON_Delete(payload);
                     
@@ -190,19 +190,32 @@ void Com_Task(void *pvparams)
 void  Keepalive_Task(void *params)
 {
     cJSON *root = cJSON_CreateObject();
-    int state_gestor;
-    float temp;
-    float voltage;
-    float intensidad;
-    float P_activa;
-    float P_appa;
+    int state_gestor = 0;
+    float temp = 0.0;
+    float voltage = 0.0;
+    float intensidad = 0.0 ;
+    float P_activa = 0.0;
+    float P_appa = 0.0;
+    float factor_p = 0.0;
+    esp_err_t err;
     while(1)
     {
-        msg_queue_t msg = queue_receive(DIMMER_TX,portMAX_DELAY);
+        msg_queue_t msg = queue_receive(DIMMER_TX,100);
         if(msg.len_msg >0 && strcmp(msg.topic,"level")== 0)
         {
             state_gestor =atoi(msg.msg);
         }
+        err = hlw8032_read(&hlw_meter);
+        temp = temp_termistor();
+        if(err == ESP_OK)
+        {
+            voltage = hlw8032_get_V(&hlw_meter);
+            intensidad = hlw8032_get_I(&hlw_meter);
+            P_activa = hlw8032_get_P_active(&hlw_meter);
+            P_appa = hlw8032_get_P_apparent(&hlw_meter);
+            factor_p = hlw8032_get_P_factor(&hlw_meter);
+        }
+
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
@@ -222,8 +235,6 @@ void app_main(void)
     Wifi_run(WIFI_MODE_STA); 
     //dimmer_init();
     //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-    char *store = storage_get_config();
-    printf(" salida: %s",store);
     //http_server_start();
 }
 
