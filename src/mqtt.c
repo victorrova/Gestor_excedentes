@@ -13,7 +13,7 @@
 
 
 
-
+extern EventGroupHandle_t Bits_events;
 static esp_mqtt_client_handle_t client;
 extern EventGroupHandle_t Bits_events;
 static void log_error_if_nonzero(const char *message, int error_code)
@@ -51,6 +51,7 @@ static void mqtt_disconnect_handler(void* arg, esp_event_base_t event_base,int32
         }
         else
         {
+            xEventGroupClearBits(Bits_events,MQTT_CONNECT);
             ESP_LOGI(__FUNCTION__,"cliente desconectado con exito!");
         }
     }
@@ -79,25 +80,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGD(__FUNCTION__, "MQTT_EVENT_DATA");
-        /*if(msg.payload !=NULL)
-        {
-            free(msg.payload);
-        }
-        if(msg.topic != NULL)
-        {
-            free(msg.topic);
-        }
-        msg.payload = (char*)malloc(sizeof(char) * event->data_len);
-        ESP_MALLOC_CHECK(msg.payload);
-        msg.topic = (char*)malloc(sizeof(char) * event->topic_len);
-        ESP_MALLOC_CHECK(msg.topic);
-        
-        memcpy(msg.payload,event->data,event->data_len);
-        memcpy(msg.topic,event->topic,event->topic_len);
-        msg.topic_len = event->topic_len;
-        msg.payload_len = event->data_len;
-        printf("esto sale = %s",msg.payload);
-        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);*/
+        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
         char* msg = (char*)malloc(sizeof(char)* event->data_len);
         char* topic = (char*)malloc(sizeof(char)* event->topic_len);
         strncpy(msg,event->data,event->data_len);

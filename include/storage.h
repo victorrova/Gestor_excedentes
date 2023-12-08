@@ -46,7 +46,7 @@ union float_converter{
   uint32_t ui;
 };
 
-void storage_init(void);
+esp_err_t storage_init(void);
 esp_err_t storage_load(nvs_type_t type,const char* key,void* data, size_t len);
 size_t storage_get_size(const char *key);
 esp_err_t storage_save(nvs_type_t type,const char* key,void* data);

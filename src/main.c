@@ -5,28 +5,36 @@
 #include "dimmer.h"
 #include "hlw8032.h"
 #include "http_server_app.h"
+#include "event.h"
 
+extern EventGroupHandle_t Bits_events;
 
 static hlw8032_t  hlw_meter;
-void Meter_init(void)
+esp_err_t Meter_init(void)
 {
-   
-    ESP_ERROR_CHECK(hlw8032_serial_begin(&hlw_meter,2,17,256));
-    hlw8032_set_I_coef_from_R(&hlw_meter, 0.001);
-    hlw8032_set_V_coef_from_R(&hlw_meter, 1880000, 1000);
-
+   esp_err_t err = ESP_FAIL;
+   err = hlw8032_serial_begin(&hlw_meter,2,16,256);
+   hlw8032_set_I_coef_from_R(&hlw_meter, 0.001);
+   hlw8032_set_V_coef_from_R(&hlw_meter, 1880000, 1000);
+   return err;
 }
 
 void Machine_init(void)
 {
-    storage_init();
-    ESP_ERROR_CHECK(Event_init());
-    ESP_ERROR_CHECK(queue_start());
-    termistor_init();
-    Fan_init();
-    Wifi_init();
-    ESP_ERROR_CHECK(mqtt_init());
-    Meter_init();
+    esp_err_t err = ESP_FAIL;
+    err = Event_init();
+    err = storage_init();
+    err  = queue_start();
+    err  = termistor_init();
+    err  = Fan_init();
+    err  = Wifi_init();
+    err = mqtt_init();
+    err = Meter_init();
+    if(err == ESP_OK)
+    {
+        xEventGroupSetBits(Bits_events, MACHINE_CONF_OK);
+    }
+
 }
 static esp_err_t stream_pid(cJSON *payload)
 {
@@ -197,7 +205,7 @@ void  Keepalive_Task(void *params)
     float P_activa = 0.0;
     float P_appa = 0.0;
     float factor_p = 0.0;
-    esp_err_t err;
+    esp_err_t err = ESP_FAIL;
     while(1)
     {
         msg_queue_t msg = queue_receive(DIMMER_TX,100);
@@ -215,8 +223,8 @@ void  Keepalive_Task(void *params)
             P_appa = hlw8032_get_P_apparent(&hlw_meter);
             factor_p = hlw8032_get_P_factor(&hlw_meter);
         }
-
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        
+        vTaskDelay(30000/portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
@@ -233,8 +241,10 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     Wifi_run(WIFI_MODE_STA); 
-    //dimmer_init();
-    //xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-    //http_server_start();
+    dimmer_init();
+    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+    http_server_start();
+    
+    
 }
 

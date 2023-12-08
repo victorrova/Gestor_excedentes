@@ -4,9 +4,10 @@
 static nvs_handle_t store_handle;
 
 
-void storage_init(void)
+esp_err_t storage_init(void)
 {
-    esp_err_t err = nvs_flash_init();
+    esp_err_t err = ESP_FAIL;
+    err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -23,6 +24,7 @@ void storage_init(void)
        ESP_LOGI(__FUNCTION__,"storage system...[OK]");
        nvs_close(store_handle); 
     }
+    return err;
 }
 
 esp_err_t storage_load(nvs_type_t type,const char* key,void* data, size_t len)

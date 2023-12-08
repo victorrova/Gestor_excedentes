@@ -17,28 +17,42 @@ int _free_mem(void)
     return a;  
 }
 
-void termistor_init(void)
+esp_err_t termistor_init(void)
 {
+    esp_err_t err = ESP_FAIL;
     esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_0, ADC_WIDTH_BIT_DEFAULT, 1100, &adc1_chars);
-    ESP_ERROR_CHECK(adc1_config_width(ADC_WIDTH_BIT_DEFAULT));
-    ESP_ERROR_CHECK(adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_0));
+    err = adc1_config_width(ADC_WIDTH_BIT_DEFAULT);
+    if(err != ESP_OK)
+    {
+        ESP_LOGE(__FUNCTION__,"[FAIL] adc config ");
+        return ESP_FAIL;
+    }
+    err = adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_0);
+    if(err != ESP_OK)
+    {
+        ESP_LOGE(__FUNCTION__,"[FAIL] adc channel config ");
+        return ESP_FAIL;
+    }
+    return err;
 }
 
 
 
-void Fan_init(void)
+esp_err_t Fan_init(void)
 {
+    esp_err_t err = ESP_FAIL;
     gpio_config_t fan = {};
     fan.pin_bit_mask = (1ULL<<FAN);
     fan.intr_type = GPIO_INTR_DISABLE;
     fan.mode = GPIO_MODE_INPUT_OUTPUT;
     fan.pull_down_en = 0;
     fan.pull_up_en = 0;
-    ESP_ERROR_CHECK(gpio_config(&fan));
+    err = gpio_config(&fan);
     ESP_LOGI(__FUNCTION__,"prueba de ventilador...");
     gpio_set_level(FAN,1);
     vTaskDelay(2000/portTICK_PERIOD_MS);
     gpio_set_level(FAN,0);
+    return err;
 }
 void Fan_state(int state)
 {

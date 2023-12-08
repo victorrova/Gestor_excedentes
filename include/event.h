@@ -11,10 +11,12 @@
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
-#define WIFI_MODE          BIT3
-#define MQTT_CONNECT       BIT4
-#define MQTT_DISCONNECT    BIT5
-#define MQTT_ON_MESSAGE    BIT6
+#define WIFI_MODE          BIT2
+#define MQTT_CONNECT       BIT3
+#define MQTT_ON_MESSAGE    BIT4
+#define MACHINE_STATE_OK   BIT5
+#define TASK_CALL          BIT6
+ 
 
 
 enum{                  // EVENTOS DE LA MAQUINA 
@@ -26,7 +28,6 @@ enum{                  // EVENTOS DE LA MAQUINA
     MACHINE_CONF_OK,   // configuración correcta
     MACHINE_CONF_FAIL, // configuración fallida
     QUEUE_OVERLOAD     // cola de mensajes llena
-    
 };
 
 esp_err_t Event_init(void);

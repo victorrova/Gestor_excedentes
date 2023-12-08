@@ -282,14 +282,16 @@ static void Wifi_stop(void)
     esp_wifi_deinit();
     esp_wifi_set_mode(WIFI_MODE_NULL);
 }
-void Wifi_init(void)
+esp_err_t Wifi_init(void)
 {
+    esp_err_t err = ESP_FAIL;
     nvs_flash_init();
-    ESP_ERROR_CHECK(esp_netif_init());
+    err = esp_netif_init();
     ap = esp_netif_create_default_wifi_ap();
     assert(ap);
     net = esp_netif_create_default_wifi_sta();
     assert(net);
+    return err;
 }
 
 esp_err_t Wifi_run(wifi_mode_t mode)
