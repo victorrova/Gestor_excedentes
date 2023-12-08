@@ -212,6 +212,7 @@ void  Keepalive_Task(void *params)
         if(msg.len_msg >0 && strcmp(msg.topic,"level")== 0)
         {
             state_gestor =atoi(msg.msg);
+            ESP_LOGD(__FUNCTION__,"nuevo nivel = %d",state_gestor);
         }
         err = hlw8032_read(&hlw_meter);
         temp = temp_termistor();

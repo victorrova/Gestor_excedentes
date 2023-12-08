@@ -91,6 +91,8 @@ static void dimmer_http(void *PvParams)
             int _pid = PID(50,NTC_temp,&conf_gestor.pid_NTC);
             int _ntc_pid = map(_pid,-5,5,-50,50);
             conf_gestor.min_delay +=_ntc_pid;
+            ESP_LOGW(__FUNCTION__,"temperatura escesiva!");
+            ESP_LOGI(__FUNCTION__,"inicio pid temperatura");
 
         }
         else if(NTC_temp < 55)
@@ -131,12 +133,13 @@ static void dimmer_http(void *PvParams)
             
             int calc = map(atoi(msg.msg),0,100,0,3600); // pasamos de % a watios 
             conf_gestor.reg = calc;
+            ESP_LOGD(__FUNCTION__,"nuevo nivel = %d",calc);
         }
         else if(msg.len_msg > 0 && strcmp(msg.topic,"temperatura")== 0)
         {
 
             printf("temperatura = %f\n",atof(msg.msg));
-            /*implementacion pendiente*/
+            /*implementación pendiente*/
         }
         else if(msg.len_msg > 0 && strcmp(msg.topic,"kp")== 0)
         {
