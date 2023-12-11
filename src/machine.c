@@ -79,6 +79,7 @@ void Fan_state(int state)
     }
         
 }
+ 
 
 float temp_termistor(void)
 {
