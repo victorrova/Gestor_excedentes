@@ -103,14 +103,14 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
         else
         {
         hlw8032->buffer[23] = 1;
-        ESP_LOGE(HLW8032_TAG,"  CAE AQUI");
+       
         return ESP_FAIL;
         } 
     }
     else
     {
         hlw8032->buffer[23] = 0;
-        ESP_LOGE(HLW8032_TAG,"CAE AQUI2");
+        
         return ESP_FAIL;
     } 
     

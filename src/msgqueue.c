@@ -18,7 +18,7 @@ esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t 
      msg.dest = dest;
      strcpy(msg.msg,payload);
      msg.len_msg = strlen(payload);
-     if(topic != NULL)
+    if(topic != NULL)
     {
         strcpy(msg.topic,topic);
         msg.len_topic = strlen(topic);
@@ -61,6 +61,7 @@ msg_queue_t queue_receive(int dest,TickType_t time)
 
 esp_err_t queue_start(void)
 {
+    
     msg_queue = xQueueCreate(QUEUE_SIZE, sizeof(msg_queue_t));
     if(msg_queue == NULL)
     {

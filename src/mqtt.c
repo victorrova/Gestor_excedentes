@@ -12,7 +12,6 @@
 #include "mqtt.h"
 
 
-
 extern EventGroupHandle_t Bits_events;
 static esp_mqtt_client_handle_t client;
 extern EventGroupHandle_t Bits_events;
@@ -136,11 +135,13 @@ esp_err_t queue_to_mqtt_publish(msg_queue_t msg)
     if(msg.len_topic > 0)
     {
         esp_mqtt_client_publish(client,msg.topic,msg.msg,msg.len_msg, 1, 0);
+        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
         return ESP_OK;
     }
     else
     {
         return mqtt_publish(msg.msg,msg.len_msg,NULL);
+        xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
     }
 }
 

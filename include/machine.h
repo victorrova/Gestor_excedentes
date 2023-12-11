@@ -17,6 +17,7 @@
 #include "math.h"
 #include "msgqueue.h"
 #include "cJSON.h"
+#include "hlw8032.h"
 
 
 typedef struct s_timer{
@@ -37,7 +38,8 @@ float temp_termistor(void);
 void timer_init(s_timer_t *param,int prescaler,int timer,int (*callback)(void), void *params);
 void timer_loop(s_timer_t *param);
 void set_stream_logger(int logger);
-
+esp_err_t Meter_init(void);
+int Keepalive(void);
 
 
 #endif

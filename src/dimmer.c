@@ -161,7 +161,6 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
         }
-        
         vTaskDelay(100/portTICK_PERIOD_MS);
         count_power++;
         count_send ++;

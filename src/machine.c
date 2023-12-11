@@ -9,7 +9,17 @@ static esp_adc_cal_characteristics_t adc1_chars;
 #define FAN 19
 
 
+static hlw8032_t  hlw_meter;
 
+
+esp_err_t Meter_init(void)
+{
+   esp_err_t err = ESP_FAIL;
+   err = hlw8032_serial_begin(&hlw_meter,2,16,256);
+   hlw8032_set_I_coef_from_R(&hlw_meter, 0.001);
+   hlw8032_set_V_coef_from_R(&hlw_meter, 1880000, 1000);
+   return err;
+}
 int _free_mem(void)
 {
     int a =  esp_get_free_heap_size()/1024;
@@ -166,3 +176,60 @@ void timer_loop(s_timer_t *param)
 }
 
 
+int Keepalive(void)
+{
+    cJSON *keep = cJSON_CreateObject();
+    cJSON *root = cJSON_CreateObject();
+    int state_gestor = 0;
+    float temp = 0.0;
+    float voltage = 0.0;
+    float intensidad = 0.0 ;
+    float P_activa = 0.0;
+    float P_appa = 0.0;
+    float factor_p = 0.0;
+    esp_err_t err = ESP_FAIL;
+
+    msg_queue_t msg = queue_receive(DIMMER_TX,100);
+    if(msg.len_msg >0 && strcmp(msg.topic,"level")== 0)
+    {
+        state_gestor =atoi(msg.msg);
+        ESP_LOGD(__FUNCTION__,"nuevo nivel = %d",state_gestor);
+    }
+    temp = temp_termistor();
+    for(int i = 0; i == 10;i++)
+    {
+        err = hlw8032_read(&hlw_meter);
+        if(err == ESP_OK)
+        {
+            break;
+        }
+        else{
+            vTaskDelay(50/portTICK_PERIOD_MS);
+        }
+    }
+    if(err == ESP_OK)
+    {
+        voltage = hlw8032_get_V(&hlw_meter);
+        intensidad = hlw8032_get_I(&hlw_meter);
+        P_activa = hlw8032_get_P_active(&hlw_meter);
+        P_appa = hlw8032_get_P_apparent(&hlw_meter);
+        factor_p = hlw8032_get_P_factor(&hlw_meter);
+
+    }
+    else
+    {
+        ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
+    }
+    cJSON_AddNumberToObject(root,"temp_ntc",temp);
+    cJSON_AddNumberToObject(root,"voltage",voltage);
+    cJSON_AddNumberToObject(root,"current",intensidad);
+    cJSON_AddNumberToObject(root,"p_activa",P_activa);
+    cJSON_AddNumberToObject(root,"p_appa",P_appa);
+    cJSON_AddNumberToObject(root,"factor_p",factor_p);
+    cJSON_AddItemToObject(keep, "keepalive",root);
+    char *msg_root = cJSON_Print(keep);
+    queue_send(MQTT_TX,msg_root,NULL,portMAX_DELAY);
+    cJSON_Delete(keep);
+    ESP_LOGD(__FUNCTION__,"keep alive enviado!");
+    return ESP_OK;
+}
