@@ -74,6 +74,26 @@ typedef enum client_actions_wifi
 } client_actions_wifi_e;
 
 /**
+ * Client actions for MQTT
+ */
+typedef enum client_actions_mqtt
+{
+	DISCONNECT_MQTT_FROM_BROKER = 0,
+	CONNECT_MQTT_FROM_BROKER,
+	STATUS_MQTT,
+} client_actions_mqtt_e;
+
+/**
+ * PID actions
+ */
+typedef enum client_actions_pid
+{
+	STREAM_PID_VALUE = 0,
+	STORAGE_PID_VALUE,
+	
+} client_actions_pid_e;
+
+/**
  * Structure for the message queue
  */
 typedef struct http_server_queue_message

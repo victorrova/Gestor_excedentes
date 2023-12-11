@@ -192,6 +192,7 @@ void app_main(void)
 {
     
     Machine_init();
+    
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
@@ -200,7 +201,7 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     Wifi_run(WIFI_MODE_STA); 
-    dimmer_init();
+    //dimmer_init();
     xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
     http_server_start();
 }

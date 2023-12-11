@@ -28,9 +28,7 @@ function onOpen(event) {
 	console.log('Connection opened');
 	
 	//WSgetWifiConnectStatus();
-	//WSgetPMU();
-	//WSgetTime();
-
+	
 	//setInterval(WSgetTime, 5000); //Update time 
 	
 	
@@ -89,17 +87,54 @@ function initButton() {
 	document.getElementById('connect_mqtt').addEventListener('click', WSconnectMQTT);
 	document.getElementById('disconnect_mqtt').addEventListener('click', WSdisconnectMQTT);
 	document.getElementById('scan_wifi').addEventListener('click', WSgetWifiScanList);
+	document.getElementById('pid-send_pid').addEventListener('click', WSsendPID);
+	document.getElementById('pid-save_pid').addEventListener('click', WSsavePID);
+}
+
+function WSsendPID() {
+	
+	var obj = {
+			id: "pid",
+			data:{
+				action: 0,
+				kp: document.getElementById("pid-kp").value,
+				ki: document.getElementById("pid-ki").value,
+				kd: document.getElementById("pid-kd").value,
+				min: document.getElementById("pid-min").value,
+				max: document.getElementById("pid-max").value,
+			}
+	}
+	var json = JSON.stringify(obj);
+	websocket.send(json);
+}
+
+function WSsavePID() {
+	
+	var obj = {
+			id: "pid",
+			data:{
+				action: 1,
+				kp: document.getElementById("pid-kp").value,
+				ki: document.getElementById("pid-ki").value,
+				kd: document.getElementById("pid-kd").value,
+				min: document.getElementById("pid-min").value,
+				max: document.getElementById("pid-max").value,
+			}
+	}
+	var json = JSON.stringify(obj);
+	websocket.send(json);
 }
 
 function WSconnectMQTT() {
 	
 	var obj = {
-			id: "MQTT",
+			id: "mqtt",
 			data:{
-				connect: 1,
-				broker: document.getElementById("mqtt_uri").value,
-				user: document.getElementById("mqtt_user").value,
-				pass: document.getElementById("mqtt_pass").value,
+				action: 1,
+				mqtt_host: document.getElementById("mqtt_host").value,
+				mqtt_host: document.getElementById("mqtt_port").value,
+				mqtt_user: document.getElementById("mqtt_user").value,
+				mqtt_pass: document.getElementById("mqtt_pass").value,
 			}
 	}
 	var json = JSON.stringify(obj);
@@ -109,9 +144,9 @@ function WSconnectMQTT() {
 function WSdisconnectMQTT() {
 	
 	var obj = {
-			id: "MQTT",
+			id: "mqtt",
 			data:{
-				connect: 0,
+				action: 0,
 			}
 	}
 	var json = JSON.stringify(obj);
@@ -131,6 +166,8 @@ function WSconnectWIFI() {
 	var json = JSON.stringify(obj);
 	websocket.send(json);
 	//startWifiConnectStatusInterval();
+
+	document.getElementById('disconnect_wifi').style.display = 'block';
 }
 
 function WSdisconnectWIFI() {
@@ -302,61 +339,6 @@ function WSupdatetTime(response) {
 		console.log("Recibido WSupdateTime");
 		
 }
-
-/**
- * Gets PMU data from server.
- */
-function WSgetPMU() {
-	//Envía la orden de obtener la fecha y la hora del ESP
-	var obj = {
-		id: "PMU",
-		
-	}
-	var json = JSON.stringify(obj);
-	websocket.send(json);
-	console.log("WSgetPMU");
-}
-
-/**
- * Set PMU data on webpage.
- */
-function WSupdatetPMU(response) {
-
-		
-		console.log("Recibido WSupdatetPMU");
-		document.getElementById('pmu_temp').style.display = 'block';
-		document.getElementById('pmu_temp-label').style.display = 'block';
-		document.getElementById("pmu_temp").innerText = `${response.data.TEMP} ºC`;
-
-		document.getElementById('pmu-vbus-v').style.display = 'block';
-		document.getElementById('pmu-vbus-v-label').style.display = 'block';
-		document.getElementById("pmu-vbus-v").innerText = `${response.data.VBUS_VOLTAGE} V`;
-
-		document.getElementById('pmu-vbus-c').style.display = 'block';
-		document.getElementById('pmu-vbus-c-label').style.display = 'block';
-		document.getElementById("pmu-vbus-c").innerText = `${response.data.VBUS_CURRENT} A`;
-		if(response.data.BATTERY_CONNECTED == true){
-
-			document.getElementById('pmu-bat-v').style.display = 'block';
-			document.getElementById('pmu-bat-v-label').style.display = 'block';
-			document.getElementById("pmu-bat-v").innerText = `${response.data.BATTERY_VOLTAGE} V`;
-
-			document.getElementById('pmu-bat-c').style.display = 'block';
-			document.getElementById('pmu-bat-c-label').style.display = 'block';
-
-			if(response.data.BATTERY_CHARGING == true)
-			{	
-				document.getElementById("pmu-bat-c-label").innerText = `Corriente Carga Batería: `;
-				document.getElementById("pmu-bat-c").innerText = `${response.data.CHARGE_CURRENT} A`;
-			}
-			else
-			{	
-				document.getElementById("pmu-bat-c-label").innerText = `Corriente Descarga Batería: `;
-				document.getElementById("pmu-bat-c").innerText = `${response.data.DISCHARGE_CURRENT} A`;
-			}
-		}
-}
-
 
 /**
  * Clears the connection status interval.

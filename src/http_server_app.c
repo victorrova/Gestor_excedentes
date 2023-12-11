@@ -214,68 +214,28 @@ void ws_mqtt_app(cJSON *root)
 {
 	ESP_LOGI(TAG, "WS MQTT");
 
-	cJSON *data, *connect, *broker, *user, *pass;
-
-	data = cJSON_GetObjectItem(root, "data");
-	connect = cJSON_GetObjectItem(data, "connect");
-
-	// Manda la orden de conectar con el broker
-	if (connect->valueint == 1)
-	{
-
-		ESP_LOGI(TAG, "MQTT Connect requested");
-
-		broker = cJSON_GetObjectItem(data, "broker");
-		user = cJSON_GetObjectItem(data, "user");
-		pass = cJSON_GetObjectItem(data, "pass");
-		
-	}
-
-	else
-	{
-		ESP_LOGI(TAG, "MQTT Disconect requested");
-		
-	}
-}
-
-// Función para la gestión de la conexión/desconexión del wifi por mensaje WS recibido
-char *ws_wifi_app(cJSON *root)
-{
-	ESP_LOGI(TAG, "WS WIFI");
-
-	cJSON *data, *action, *queue_data, *storage, *stream;
+	cJSON *data, *action, *queue_data, *storage;
 	queue_data =  cJSON_CreateObject();
 	storage =  cJSON_CreateObject();
-	stream =  cJSON_CreateObject();
 
-	//char *send_data_json_string = (char *)malloc(sizeof(char));
+	char *send_data_json_string = (char *)malloc(sizeof(char));
 
 	data = cJSON_GetObjectItem(root, "data");
 	action = cJSON_GetObjectItem(data, "action");
 
-	if (action->valueint == DISCONNECT_WIFI_FROM_STA) // Wifi Disconnect
+	// Manda la orden de conectar con el broker
+	if (action->valueint == CONNECT_MQTT_FROM_BROKER)
 	{
-		ESP_LOGI(TAG, "wifi Disconect requested");
 
+		ESP_LOGI(TAG, "MQTT Connect requested");
 		
-	}
-
-	else if (action->valueint == CONNECT_WIFI_FROM_STA) // Wifi Connect: Manda la orden de conectar con el SSID y el Pass
-	{
-
-		ESP_LOGI(TAG, "wifi Connect requested");
-
-		char *string = NULL;
-
-
-		cJSON_AddItemToObject(storage, "wifi", data);
+		cJSON_AddItemToObject(storage, "mqtt", data);
 		cJSON_AddItemToObject(queue_data, "storage", storage);
 		
-		
-		string = cJSON_Print(queue_data);
-		ESP_LOGI(TAG, "Queue: %s",string);
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
 
-		if(queue_send(WS_RX,string,"wifi",10) == ESP_OK)
+		if(queue_send(WS_RX,send_data_json_string,"mqtt",10) == ESP_OK)
 		{
 				ESP_LOGI(TAG, "enviado a queue");
 		}
@@ -285,7 +245,188 @@ char *ws_wifi_app(cJSON *root)
 				ESP_LOGI(TAG, "fallo a enviado a queue");
 		}
 		
-		free(string);
+		free(send_data_json_string);
+
+	}
+
+	// Manda la orden de conectar con el broker
+	else if (action->valueint == DISCONNECT_MQTT_FROM_BROKER)
+	{
+
+		ESP_LOGI(TAG, "MQTT Disconnect requested");
+
+		cJSON_AddItemToObject(storage, "mqtt", data);
+		cJSON_AddItemToObject(queue_data, "storage", storage);
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"mqtt",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
+		
+	}
+	
+	else
+	{
+		ESP_LOGI(TAG, "MQTT action error");
+		
+	}
+}
+
+// Función para la gestión de los vlres PID recibido por mensaje WS 
+void ws_pid_app(cJSON *root)
+{
+	ESP_LOGI(TAG, "WS OID");
+
+	cJSON *data, *action, *queue_data;
+	queue_data =  cJSON_CreateObject();
+	
+
+	char *send_data_json_string = (char *)malloc(sizeof(char));
+
+	data = cJSON_GetObjectItem(root, "data");
+	action = cJSON_GetObjectItem(data, "action");
+
+	// Manda la orden de guardar los parámetros PID
+	if (action->valueint == STORAGE_PID_VALUE)
+	{
+
+		ESP_LOGI(TAG, "PID Param Storage");
+
+		cJSON  *storage;
+
+		storage =  cJSON_CreateObject();
+		
+		cJSON_AddItemToObject(storage, "pid", data);
+		cJSON_AddItemToObject(queue_data, "storage", storage);
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"pid",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
+
+	}
+
+	// Manda la orden de conectar con el broker
+	else if (action->valueint == STREAM_PID_VALUE)
+	{
+
+		ESP_LOGI(TAG, "STREAM PID VALUE");
+
+		cJSON *stream;
+
+		stream =  cJSON_CreateObject();
+
+		cJSON_AddItemToObject(stream, "pid", data);
+		cJSON_AddItemToObject(queue_data, "stream", stream);
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"pid",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
+		
+	}
+	
+	else
+	{
+		ESP_LOGI(TAG, "PID action error");
+		
+	}
+}
+
+// Función para la gestión de la conexión/desconexión del wifi por mensaje WS recibido
+char *ws_wifi_app(cJSON *root)
+{
+	ESP_LOGI(TAG, "WS WIFI");
+
+	cJSON *data, *action, *queue_data, *storage;
+	queue_data =  cJSON_CreateObject();
+	storage =  cJSON_CreateObject();
+	
+
+	char *send_data_json_string = (char *)malloc(sizeof(char));
+
+	data = cJSON_GetObjectItem(root, "data");
+	action = cJSON_GetObjectItem(data, "action");
+
+	if (action->valueint == DISCONNECT_WIFI_FROM_STA) // Wifi Disconnect
+	{
+		ESP_LOGI(TAG, "wifi Disconect requested");
+
+		cJSON_AddItemToObject(storage, "wifi", data);
+		cJSON_AddItemToObject(queue_data, "storage", storage);
+		
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"wifi",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
+
+		
+	}
+
+	else if (action->valueint == CONNECT_WIFI_FROM_STA) // Wifi Connect: Manda la orden de conectar con el SSID y el Pass
+	{
+
+		ESP_LOGI(TAG, "wifi Connect requested");
+
+		cJSON_AddItemToObject(storage, "wifi", data);
+		cJSON_AddItemToObject(queue_data, "storage", storage);
+		
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"wifi",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
 		
 	}
 
@@ -404,7 +545,7 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
 		ESP_LOGI(TAG, "id: %s", id->valuestring);
 
 		// Filtro de ID para direccionar los datos
-		if (strcmp(id->valuestring, "MQTT") == 0)
+		if (strcmp(id->valuestring, "mqtt") == 0)
 		{
 			ws_mqtt_app(root);
 			trigger_async_send(req->handle, req, (char *)data); // devuelve un mensaje WS al clinete
@@ -414,6 +555,12 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
 		{
 			data = ws_wifi_app(root);
 			//trigger_async_send(req->handle, req, (char *)data); // devuelve un mensaje WS al clinete
+		}
+
+		else if (strcmp(id->valuestring, "pid") == 0)
+		{
+			ws_pid_app(root);
+			
 		}
 
 		else if (strcmp(id->valuestring, "TIME") == 0)

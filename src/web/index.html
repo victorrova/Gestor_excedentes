@@ -60,7 +60,8 @@
 	<div id="MqttConnect">
 		<h2>Conexión MQTT</h2>
 		<section>
-			<input id="mqtt_uri" type="text" maxlength="64" placeholder="Servidor" value="">
+			<input id="mqtt_host" type="text" maxlength="64" placeholder="Servidor" value="">
+			<input id="mqtt_port" type="text" maxlength="6" placeholder="Port" value="1883">
 			<input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
 			<input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
 			<input type="checkbox" onclick="showPassword()">Show Password
@@ -82,30 +83,19 @@
 		</div>
 	</div>
 	<hr>
-	<div id="pmu_Info">
-		<h4>Información PMU:</h4>
-		<table>
-		<tr>
-			<td id="pmu_temp-label">Temperatura: </td>
-			<td id="pmu_temp"></td>
-		</tr>
-	
-		<tr>
-			<td id="pmu-vbus-v-label">Tensión VBUS: </td>
-			<td id="pmu-vbus-v"></td>
-		</tr>
-		<tr>
-			<td id="pmu-vbus-c-label">Corriente VBUS: </td>
-			<td id="pmu-vbus-c"></td>
-		</tr>
-		<tr>
-			<td id="pmu-bat-v-label">Tensión Batería: </td>
-			<td id="pmu-bat-v"></td>
-		</tr>
-		<tr>
-			<td id="pmu-bat-c-label"></td>
-			<td id="pmu-bat-c"></td>
-		</tr>
+	<div id="pid">
+		<h2>PID:</h2>
+		<section>
+			<input id="pid-kp" type="text" maxlength="4" placeholder="Valor kp" value="">
+			<input id="pid-ki" type="text" maxlength="4" placeholder="Valor ki" value="">
+			<input id="pid-kd" type="text" maxlength="4" placeholder="Valor kd" value="">
+			<input id="pid-min" type="text" maxlength="4" placeholder="Valor Min" value="">
+			<input id="pid-max" type="text" maxlength="4" placeholder="Valor Max" value="">
+		</section>
+		<div class="buttons">
+			<input id="pid-send_pid" type="button" value="Send PID" />
+			<input id="pid-save_pid" type="button" value="Save PID" />
+		</div>
 	</div>
 
 </body>
