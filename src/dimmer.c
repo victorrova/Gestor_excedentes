@@ -67,14 +67,14 @@ static void dimmer_http(void *PvParams)
     msg_queue_t msg;
     while(1)
     { 
-        if(count_power == 30)
+        if(count_power >= 30)
         {
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
             
         }
-        if(count_send == 600)
+        if(count_send >= 300)
         {
             char reg[32];
             conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
@@ -162,7 +162,7 @@ static void dimmer_http(void *PvParams)
             conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
         }
         vTaskDelay(100/portTICK_PERIOD_MS);
-        count_power++;
+        count_power ++;
         count_send ++;
     }
 }

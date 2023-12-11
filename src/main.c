@@ -180,7 +180,13 @@ void Com_Task(void *pvparams)
     }
     vTaskDelete(NULL);
 }
-
+void Control(void *pvparams)
+{
+    /*control de la cola*/
+    /* causa de reinicio*/
+    /*control reinicio*/
+    /*salto keep alive*/
+}
 
 void app_main(void)
 {
@@ -197,6 +203,5 @@ void app_main(void)
     dimmer_init();
     xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
     http_server_start();
-    
 }
 
