@@ -25,7 +25,7 @@ void Machine_init(void)
     err = Meter_init();
     if(err == ESP_OK)
     {
-        xEventGroupSetBits(Bits_events, MACHINE_CONF_OK);
+        xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
     }
 }
 static esp_err_t stream_pid(cJSON *payload)
@@ -34,7 +34,7 @@ static esp_err_t stream_pid(cJSON *payload)
     cJSON *stream = cJSON_GetObjectItem(payload,"stream");
     if(cJSON_IsNull(stream))
     {
-        ESP_LOGE(__FUNCTION__,"json no strem :(");
+        ESP_LOGE(__FUNCTION__,"json no stream :(");
         return err;
     }
     if(Find_Key(stream,"pid"))
