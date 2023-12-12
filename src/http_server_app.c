@@ -282,10 +282,62 @@ void ws_mqtt_app(cJSON *root)
 	}
 }
 
-// Función para la gestión de los vlres PID recibido por mensaje WS 
+// Función para la gestión de los valores de Inverter recibido por mensaje WS 
+void ws_inverter_app(cJSON *root)
+{
+	ESP_LOGI(TAG, "WS INVERTER");
+
+	cJSON *data, *action, *queue_data;
+	queue_data =  cJSON_CreateObject();
+	
+
+	char *send_data_json_string = (char *)malloc(sizeof(char));
+
+	data = cJSON_GetObjectItem(root, "data");
+	action = cJSON_GetObjectItem(data, "action");
+
+	// Manda la orden de guardar los parámetros Inverter
+	if (action->valueint == STORAGE_INVERTER_VALUE)
+	{
+
+		ESP_LOGI(TAG, "Inverter Param Storage");
+
+		cJSON  *storage;
+
+		storage =  cJSON_CreateObject();
+		
+		cJSON_AddItemToObject(storage, "inverter", data);
+		cJSON_AddItemToObject(queue_data, "storage", storage);
+		
+		send_data_json_string = cJSON_Print(queue_data);
+		ESP_LOGI(TAG, "Queue: %s",send_data_json_string);
+
+		if(queue_send(WS_RX,send_data_json_string,"inverter",10) == ESP_OK)
+		{
+				ESP_LOGI(TAG, "enviado a queue");
+		}
+
+		else
+		{
+				ESP_LOGI(TAG, "fallo a enviado a queue");
+		}
+		
+		free(send_data_json_string);
+
+	}
+
+
+	else
+	{
+		ESP_LOGI(TAG, "Inverter action error");
+		
+	}
+}
+
+// Función para la gestión de los valores PID recibido por mensaje WS 
 void ws_pid_app(cJSON *root)
 {
-	ESP_LOGI(TAG, "WS OID");
+	ESP_LOGI(TAG, "WS PID");
 
 	cJSON *data, *action, *queue_data;
 	queue_data =  cJSON_CreateObject();
@@ -326,7 +378,7 @@ void ws_pid_app(cJSON *root)
 
 	}
 
-	// Manda la orden de conectar con el broker
+	// Manda la orden de modificar los parámetros PID
 	else if (action->valueint == STREAM_PID_VALUE)
 	{
 
@@ -563,19 +615,9 @@ static esp_err_t handle_ws_req(httpd_req_t *req)
 			
 		}
 
-		else if (strcmp(id->valuestring, "TIME") == 0)
+		else if (strcmp(id->valuestring, "inverter") == 0)
 		{
-			// Función para devolver fecha y hora al cliente
-
-			char *timestamp_json_string;
-			timestamp_json_string = (char *)malloc(sizeof(char));
-
-			/*if (sntp_json_time(&timestamp_json_string) == ESP_OK)
-			{
-
-				trigger_async_send(req->handle, req, timestamp_json_string);
-				ESP_LOGI(TAG, "Enviado time: %s", timestamp_json_string);
-			}*/
+			ws_inverter_app(root);
 		}
 
 		else

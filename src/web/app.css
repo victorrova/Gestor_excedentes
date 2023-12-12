@@ -1,7 +1,7 @@
 
 
 body {
-    background-color: #e7eaf6;
+    background-color: #ffffff;
     font-family: HelveticaNeueRegular, HelveticaNeue-Regular, "Helvetica Neue Regular", HelveticaNeue, "Helvetica Neue", Helvetica, Arial;
     color: #388371;
 }
@@ -12,8 +12,8 @@ h1 {
     margin: 5px;
     padding: 30px;
     font-size: 3em;
-    color: #f3f3f7;
-    background-color: #113f67;
+    color: #cd4e4e;
+    background-color: #2b3237;
     border-radius: 30px;
 }
 
@@ -39,48 +39,15 @@ h4 {
 	color: red;
 }
 
-#local_time {
-	display:inline;
-	color: #1d3557;
-}
-
-#pmu_temp-label, #pmu-vbus-v-label, #pmu-vbus-c-label, #pmu-bat-v-label, #pmu-bat-c-label, #pmu-bat-d-label {
-	
-    display: none;
-    
-}
 
 th, td {
     padding-left: 15px;
   }
 
-#pmu_temp, #pmu-vbus-v, #pmu-vbus-c, #pmu-bat-v, #pmu-bat-c, #pmu-bat-d {
-   
-    display: none;
-    color: #1d3557;
-}
 
-#latest_firmware, #latest_firmware_label {
+.slidecontainer {
 	display:inline;
-}
-#latest_firmware {
-	color: #1d3557;
-}
-
-#temperature_reading {
-	display:inline;
-	color: #1d3557;
-}
-
-#humidity_reading {
-	display:inline;
-	color: #1d3557;
-}
-
-
-#pressure_reading {
-	display:inline;
-	color: #1d3557;
+	color: #e4530f;
 }
 
 #connected_ap_label, #connected_ap {

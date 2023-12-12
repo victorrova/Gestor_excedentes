@@ -94,6 +94,16 @@ typedef enum client_actions_pid
 } client_actions_pid_e;
 
 /**
+ * Inverter actions
+ */
+typedef enum client_actions_inverter
+{
+	STREAM_INVERTER_VALUE = 0,
+	STORAGE_INVERTER_VALUE,
+	
+} client_actions_inverter_e;
+
+/**
  * Structure for the message queue
  */
 typedef struct http_server_queue_message

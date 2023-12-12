@@ -85,16 +85,30 @@
 	<hr>
 	<div id="pid">
 		<h2>PID:</h2>
-		<section>
-			<input id="pid-kp" type="text" maxlength="4" placeholder="Valor kp" value="">
-			<input id="pid-ki" type="text" maxlength="4" placeholder="Valor ki" value="">
-			<input id="pid-kd" type="text" maxlength="4" placeholder="Valor kd" value="">
+		<div class="slidecontainer">
+			Valor Kp: <p id="pid-kp-value"></p>
+			<input type="range" min="1" max="100" value="50" class="slider" id="pid-kp">
+			Valor Ki: <p id="pid-ki-value"></p>
+			<input type="range" min="1" max="100" value="50" class="slider" id="pid-ki">
+			Valor Kd: <p id="pid-kd-value"></p>
+			<input type="range" min="1" max="100" value="50" class="slider" id="pid-kd">
 			<input id="pid-min" type="text" maxlength="4" placeholder="Valor Min" value="">
 			<input id="pid-max" type="text" maxlength="4" placeholder="Valor Max" value="">
-		</section>
+		  </div>
 		<div class="buttons">
 			<input id="pid-send_pid" type="button" value="Send PID" />
 			<input id="pid-save_pid" type="button" value="Save PID" />
+		</div>
+	</div>
+	<hr>
+	<div id="inversor">
+		<h2>Inversor:</h2>
+		<div>
+			<h3>URL Inversor</h3>
+			<input id="url_inverter" type="text" maxlength="64" placeholder="url_inverter" value="http://192.168.1.39/measurements.xml">
+		  </div>
+		<div class="buttons">
+			<input id="inverter-save_url" type="button" value="Save URL" />
 		</div>
 	</div>
 
