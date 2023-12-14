@@ -10,7 +10,7 @@
 
 extern EventGroupHandle_t Bits_events;
 
-
+ESP_EVENT_DEFINE_BASE (MACHINE_EVENTS);
 
 void Machine_init(void)
 {
@@ -26,7 +26,15 @@ void Machine_init(void)
     if(err == ESP_OK)
     {
         xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
+        esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY);
     }
+}
+void Handler_battery_register(void)
+{
+    wifi_mode_t wi = WIFI_MODE_STA;
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Wifi_run,&wi));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
 }
 static esp_err_t stream_pid(cJSON *payload)
 {
@@ -141,7 +149,14 @@ void Com_Task(void *pvparams)
             switch (msg.dest)
             {
             case MQTT_TX:
-                ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
+                {
+                    EventBits_t flags = xEventGroupGetBits(Bits_events);
+                
+                    if(flags & MQTT_CONNECT)
+                    {
+                        ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
+                    }
+                }
                 break;
             case  MQTT_RX || WS_RX:
                 {
@@ -192,16 +207,16 @@ void app_main(void)
 {
     
     Machine_init();
-    
-    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
-    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
     Wifi_run(WIFI_MODE_STA); 
-    //dimmer_init();
     xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
     http_server_start();
 }

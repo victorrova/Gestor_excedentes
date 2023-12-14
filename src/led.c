@@ -3,10 +3,10 @@
 
 
 extern EventGroupHandle_t Bits_events;
+static led_params_t led;
 
 
-
-static void led_machine_ok(led_params_t led)
+void led_machine_ok(void)
 {
     led.color.blue = 0;
     led.color.green = 0;
@@ -24,7 +24,7 @@ static void led_machine_ok(led_params_t led)
 }
 
 
-static void led_total_connect(led_params_t led)
+void led_total_connect(void)
 {
     led.color.blue = 0;
     led.color.green = 0;
@@ -42,7 +42,7 @@ static void led_total_connect(led_params_t led)
     
 }
 
-static void led_on_message(led_params_t led)
+void led_on_message(void)
 {
 
 
@@ -60,7 +60,7 @@ static void led_on_message(led_params_t led)
         
 }
 
-static void led_fail(led_params_t led)
+void led_fail(void)
 {
         led.pixel[0] = 254;
         led.pixel[1] = 0;
@@ -74,7 +74,6 @@ static void led_fail(led_params_t led)
 esp_err_t led_init(void)
 {
     esp_err_t err =ESP_FAIL;
-    led_params_t led;
     led.led_chan = 0;
     rmt_tx_channel_config_t tx_chan_config = {
         .clk_src = RMT_CLK_SRC_DEFAULT, 

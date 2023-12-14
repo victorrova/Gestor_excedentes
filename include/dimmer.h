@@ -31,7 +31,7 @@ typedef struct conf_dimmmer{
     PID_IncTypeDef pid_NTC;
 }conf_dimmer_t;
 
-
-void dimmer_init(void);
+void dimmer_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data);
+void dimmer_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data);
 
 #endif

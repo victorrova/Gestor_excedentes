@@ -2,7 +2,7 @@
 
 #define ZERO 18 
 #define TRIAC 14 
-
+TaskHandle_t dimmer_task;
 
 
 static void timer_callback(void* args)
@@ -166,7 +166,7 @@ static void dimmer_http(void *PvParams)
         count_send ++;
     }
 }
-void dimmer_init(void)
+static void dimmer_init(void)
 {   
     conf_dimmer_t conf_gestor;
     union float_converter converter;
@@ -271,7 +271,18 @@ void dimmer_init(void)
     conf_gestor.pid_NTC.min = -5;
     conf_timmer(conf_gestor);
     conf_pin(conf_gestor);
-    xTaskCreate(&dimmer_http,"DIMMER",6600,&conf_gestor,4,NULL);
+    xTaskCreate(&dimmer_http,"DIMMER",6600,&conf_gestor,4,&dimmer_task);
 }
-
+void dimmer_stop(void)
+{
+    vTaskDelete(&dimmer_task);
+}
+void dimmer_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    dimmer_init();
+}
     
+void dimmer_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    dimmer_stop();
+}

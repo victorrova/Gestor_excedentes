@@ -18,7 +18,6 @@
 #define TASK_CALL          BIT6
  
 
-
 enum{                  // EVENTOS DE LA MAQUINA 
     MACHINE_OK,        // El arranque se ha completado con exito
     MACHINE_FAIL,      //  El arranque tiene un componente crito en fallo
@@ -29,6 +28,7 @@ enum{                  // EVENTOS DE LA MAQUINA
     MACHINE_CONF_FAIL, // configuración fallida
     QUEUE_OVERLOAD     // cola de mensajes llena
 };
+
 
 esp_err_t Event_init(void);
 #endif

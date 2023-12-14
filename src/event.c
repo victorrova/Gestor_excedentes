@@ -2,9 +2,10 @@
 
 
 
-ESP_EVENT_DEFINE_BASE (MACHINE_EVENTS);
+
 EventGroupHandle_t Bits_events;
 StaticEventGroup_t xCreatedEventGroup;
+
 
 
 esp_err_t Event_init(void)
