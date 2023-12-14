@@ -23,10 +23,20 @@ typedef enum{
     MODE_ERROR,
     MODE_MSG,
 }led_mode_t;
-typedef struct led{
+
+typedef struct color{
     uint8_t red;
     uint8_t green;
     uint8_t blue;
+    
 }color_led_t;
+
+typedef struct led{
+    color_led_t color;
+    uint8_t pixel[3];
+    rmt_channel_handle_t led_chan;
+    rmt_encoder_handle_t led_encoder;
+    rmt_transmit_config_t tx_config;
+}led_params_t;
 
 #endif
