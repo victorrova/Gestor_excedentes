@@ -16,21 +16,54 @@ void Machine_init(void)
 {
     esp_err_t err = ESP_FAIL;
     err = Event_init();
-    err = storage_init();
-    err  = queue_start();
-    err  = termistor_init();
-    err  = Fan_init();
-    err  = Wifi_init();
-    err = mqtt_init();
-    err = Meter_init();
-    if(err == ESP_OK)
+    if(err != ESP_OK)
     {
-        xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
-        esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY);
+        goto error;
     }
+    err = storage_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err  = queue_start();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err  = termistor_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err  = Fan_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err  = Wifi_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err = mqtt_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    err = Meter_init();
+    if(err != ESP_OK)
+    {
+        goto error;
+    }
+    xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
+    esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY);
+   
+error:
+    esp_event_post(MACHINE_EVENTS,MACHINE_FAIL,NULL,0,portMAX_DELAY);
 }
 void Handler_battery_register(void)
 {
+
     wifi_mode_t wi = WIFI_MODE_STA;
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Wifi_run,&wi));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));

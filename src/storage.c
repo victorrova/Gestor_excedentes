@@ -62,10 +62,10 @@ size_t storage_get_size(const char *key)
     size_t len = 0;
     esp_err_t err;
     err = nvs_open("storage",NVS_READWRITE,&store_handle);
-    esp_err_t rr = nvs_get_str(store_handle,key,NULL,&len);
-    if (rr != ESP_OK && rr != ESP_ERR_NVS_NOT_FOUND)
+    err = nvs_get_str(store_handle,key,NULL,&len);
+    if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
     {   
-        ESP_LOGE(__FUNCTION__,"error %s",esp_err_to_name(rr));
+        ESP_LOGE(__FUNCTION__,"[ERROR] %s",esp_err_to_name(err));
         return 0;
     }
     return len;
