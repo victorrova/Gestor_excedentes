@@ -31,6 +31,12 @@
 			</datalist>
 			<input id="connect_pass" type="password" maxlength="64" placeholder="Password" value="">
 			<input type="checkbox" onclick="showPassword()">Show Password
+			<input id="connect_dhcp" type="checkbox">DHCP
+			<input id="connect_ip" type="text" maxlength="16" placeholder="IP" value="">
+			<input id="connect_netmask" type="text" maxlength="16" placeholder="Netmask" value="255.255.255.0">
+			<input id="connect_gateway" type="text" maxlength="16" placeholder="Gateway" value="">
+			<input id="connect_dns1" type="text" maxlength="16" placeholder="DNS 1" value="">
+			<input id="connect_dns2" type="text" maxlength="16" placeholder="DNS 2" value="">
 		</section>
 		<div class="buttons">
 			<input id="connect_wifi" type="button" value="Connect" />
@@ -62,9 +68,12 @@
 		<section>
 			<input id="mqtt_host" type="text" maxlength="64" placeholder="Servidor" value="">
 			<input id="mqtt_port" type="text" maxlength="6" placeholder="Port" value="1883">
+			<input id="mqtt_id" type="text" maxlength="32" placeholder="Id" value="">
 			<input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
 			<input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
 			<input type="checkbox" onclick="showPassword()">Show Password
+			<input id="mqtt_pub" type="text" maxlength="64" placeholder="mqtt pub" value="">
+			<input id="mqtt_sub" type="text" maxlength="64" placeholder="mqtt sub" value="">
 		</section>
 		<div class="buttons">
 			<input id="connect_mqtt" type="button" value="Connect" />

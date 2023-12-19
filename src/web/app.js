@@ -176,9 +176,14 @@ function WSconnectMQTT() {
 		data: {
 			action: 1,
 			mqtt_host: document.getElementById("mqtt_host").value,
-			mqtt_host: document.getElementById("mqtt_port").value,
+			mqtt_id: document.getElementById("mqtt_id").value,
 			mqtt_user: document.getElementById("mqtt_user").value,
 			mqtt_pass: document.getElementById("mqtt_pass").value,
+			mqtt_port: document.getElementById("mqtt_port").value,
+			mqtt_pub: document.getElementById("mqtt_pub").value,
+			mqtt_sub: document.getElementById("mqtt_sub").value,
+			
+			
 		}
 	}
 	var json = JSON.stringify(obj);
@@ -204,7 +209,13 @@ function WSconnectWIFI() {
 		data: {
 			action: 1,
 			ssid: document.getElementById("connect_ssid").value,
-			pass: document.getElementById("connect_pass").value,
+			password: document.getElementById("connect_pass").value,
+			ip: document.getElementById("connect_ip").value,
+			netmask: document.getElementById("connect_netmask").value,
+			gateway: document.getElementById("connect_gateway").value,
+			dns1: document.getElementById("connect_dns1").value,
+			dns2: document.getElementById("dns2").value,
+			dhcp: document.getElementById("connect_dhcp").value,
 		}
 	}
 	var json = JSON.stringify(obj);
