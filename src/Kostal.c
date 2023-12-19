@@ -57,11 +57,13 @@ esp_http_client_handle_t  http_begin(const char *url)
     esp_http_client_config_t config = {
         .url = url,
     };
-    
+    ESP_LOGI(__FUNCTION__,"conexion http: %s",url);
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_method(client, HTTP_METHOD_GET);
     return client;
 }
+
+
 float Kostal_requests(esp_http_client_handle_t client)
 {
     int content_length = 0;

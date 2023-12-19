@@ -6,7 +6,7 @@
 EventGroupHandle_t Bits_events;
 StaticEventGroup_t xCreatedEventGroup;
 
-
+ESP_EVENT_DEFINE_BASE(MACHINE_EVENTS);
 
 esp_err_t Event_init(void)
 {

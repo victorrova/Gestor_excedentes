@@ -47,6 +47,7 @@
         "type_traits": "c",
         "memory": "c",
         "led_strip_encoder.h": "c",
-        "rmt_tx.h": "c"
+        "rmt_tx.h": "c",
+        "functional": "c"
     }
 }

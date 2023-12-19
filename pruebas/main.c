@@ -284,10 +284,10 @@ void Control(void *pvparams)
 void app_main(void)
 {
     
-    Machine_init();
-    Handler_battery_register();
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-    Wifi_run(WIFI_MODE_STA);
+    //Machine_init();
+    //Handler_battery_register();
+    //vTaskDelay(1000/portTICK_PERIOD_MS);
+    //Wifi_run(WIFI_MODE_STA);
     //ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
     //ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
@@ -297,6 +297,13 @@ void app_main(void)
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
+    termistor_init();
+    while(1)
+    {
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+        temp_termistor();
+
+    }
 }
 
 

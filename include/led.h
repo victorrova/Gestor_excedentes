@@ -39,4 +39,10 @@ typedef struct led{
     rmt_transmit_config_t tx_config;
 }led_params_t;
 
+void led_machine_ok(void);
+void led_total_connect(void);
+void led_on_message(void);
+void led_fail(void);
+esp_err_t led_init(void);
+void led_off(void);
 #endif

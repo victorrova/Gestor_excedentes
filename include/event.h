@@ -26,9 +26,11 @@ enum{                  // EVENTOS DE LA MAQUINA
     MACHINE_LOAD,      // necesidad de cargar cambios
     MACHINE_CONF_OK,   // configuración correcta
     MACHINE_CONF_FAIL, // configuración fallida
-    QUEUE_OVERLOAD     // cola de mensajes llena
+    QUEUE_OVERLOAD,     // cola de mensajes llena
+    MACHINE_MQTT_CONNECT,
+    MACHINE_MQTT_DISCONNECT,
+    MACHINE_MQTT_MESSAGE
 };
-
 
 esp_err_t Event_init(void);
 #endif

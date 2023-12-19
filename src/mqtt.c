@@ -15,8 +15,7 @@
 extern EventGroupHandle_t Bits_events;
 static esp_mqtt_client_handle_t client;
 
-
-
+ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -69,10 +68,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(__FUNCTION__, "MQTT_EVENT_CONNECTED");
         xEventGroupSetBits(Bits_events,MQTT_CONNECT);
+        esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,NULL,0,portMAX_DELAY);
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(__FUNCTION__, "MQTT_EVENT_DISCONNECTED");
         xEventGroupClearBits(Bits_events,MQTT_CONNECT);
+        esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,NULL,0,portMAX_DELAY);
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGD(__FUNCTION__, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
@@ -83,6 +84,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_DATA:
         ESP_LOGD(__FUNCTION__, "MQTT_EVENT_DATA");
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
+         esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_MESSAGE,NULL,0,portMAX_DELAY);
         char* msg = (char*)malloc(sizeof(char)* event->data_len);
         char* topic = (char*)malloc(sizeof(char)* event->topic_len);
         strncpy(msg,event->data,event->data_len);

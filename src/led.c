@@ -2,7 +2,7 @@
 #include "led.h"
 
 
-extern EventGroupHandle_t Bits_events;
+
 static led_params_t led;
 
 
@@ -13,8 +13,8 @@ void led_machine_ok(void)
     led.color.red = 0;
     while(led.color.blue < 254)
     {
-        led.pixel[0] = led.color.red;
-        led.pixel[1] = led.color.green;
+        led.pixel[0] = led.color.green;
+        led.pixel[1] = led.color.red;
         led.pixel[2] = led.color.blue;
         ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
         ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
@@ -31,8 +31,8 @@ void led_total_connect(void)
     led.color.red = 0;
     while(led.color.green < 254)
     {
-        led.pixel[0] = led.color.red;
-        led.pixel[1] = led.color.green;
+        led.pixel[0] = led.color.green;
+        led.pixel[1] = led.color.red;
         led.pixel[2] = led.color.blue;
         ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
         ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
@@ -62,15 +62,22 @@ void led_on_message(void)
 
 void led_fail(void)
 {
-        led.pixel[0] = 254;
-        led.pixel[1] = 0;
+        led.pixel[0] = 0;
+        led.pixel[1] = 254;
         led.pixel[2] = 0;
         ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
         ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
         
 }
 
-
+void led_off(void)
+{
+        led.pixel[0] = 0;
+        led.pixel[1] = 0;
+        led.pixel[2] = 0;
+        ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
+        ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
+}
 esp_err_t led_init(void)
 {
     esp_err_t err =ESP_FAIL;
@@ -82,7 +89,7 @@ esp_err_t led_init(void)
         .resolution_hz = RMT_LED_STRIP_RESOLUTION_HZ,
         .trans_queue_depth = 4, 
     };
-    err = rmt_new_tx_channel(&tx_chan_config, led.led_chan);
+    err = rmt_new_tx_channel(&tx_chan_config, &led.led_chan);
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[FAIL] rmt tx Channel Fail");
@@ -105,10 +112,11 @@ esp_err_t led_init(void)
         return ESP_FAIL;
     }
     led.tx_config.loop_count = 0;
-    led.pixel[0] = 100;
-    led.pixel[1]= 100;
+    led.pixel[0] = 0;
+    led.pixel[1]= 0;
     led.pixel[2] = 0;
     ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
     ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
     return err;
 }
+

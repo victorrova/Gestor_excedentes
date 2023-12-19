@@ -30,4 +30,5 @@
 #define MAXCON 1
 esp_err_t Wifi_run(wifi_mode_t mode);
 esp_err_t Wifi_init(void);
+
 #endif

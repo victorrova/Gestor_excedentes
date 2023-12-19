@@ -25,8 +25,7 @@ typedef struct conf_dimmmer{
     int reg;                                // Nivel de regulacion nivel en tanto por ciento
     bool _enable;                           // control de on-off
     bool eco_mode;                          // activacion modo eco
-    bool enable_Ext_Temp;                   // activacion control externo de temperatura
-    esp_timer_handle_t _timer;   
+    bool enable_Ext_Temp;                   // activacion control externo de temperatura   
     PID_IncTypeDef pid_Pwr;
     PID_IncTypeDef pid_NTC;
 }conf_dimmer_t;

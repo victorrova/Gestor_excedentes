@@ -21,7 +21,7 @@ int PID(int SetValue, int ActualValue, PID_IncTypeDef *PID)
   int PIDInc;    // incremental
   PID->Error = SetValue - ActualValue;
   PID->CumError += PID->Error;//*100;
-  int rateError =(PID->Error - PID->LastError);///1000
+  int rateError = PID->Error - PID->LastError;///1000
   PIDInc = (PID->Kp * PID->Error) + (PID->Ki * PID->CumError) + (PID->Kd * rateError);
   PID->LastError = PID->Error;
  

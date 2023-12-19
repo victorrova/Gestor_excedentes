@@ -30,14 +30,14 @@ int _free_mem(void)
 esp_err_t termistor_init(void)
 {
     esp_err_t err = ESP_FAIL;
-    esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_0, ADC_WIDTH_BIT_DEFAULT, 1100, &adc1_chars);
+    esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_DEFAULT, 1100, &adc1_chars);
     err = adc1_config_width(ADC_WIDTH_BIT_DEFAULT);
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[FAIL] adc config ");
         return ESP_FAIL;
     }
-    err = adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_0);
+    err = adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_DB_11 );
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[FAIL] adc channel config ");
@@ -62,6 +62,7 @@ esp_err_t Fan_init(void)
     gpio_set_level(FAN,1);
     vTaskDelay(2000/portTICK_PERIOD_MS);
     gpio_set_level(FAN,0);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
     return err;
 }
 void Fan_state(int state)
@@ -83,13 +84,19 @@ void Fan_state(int state)
 
 float temp_termistor(void)
 {
-    //int raw = (int)esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC1_CHANNEL_6), &adc1_chars);
-    int adc = adc1_get_raw(ADC1_CHANNEL_6);
-    float celsius = 1 / (log(1 / (4095. / adc - 1)) / 3950 + 1.0 / 298.15) - 273.15;
-    ESP_LOGW(__FUNCTION__, "[APP] temperatura interna %f", celsius);
-    return celsius;
+    float R1 = 10000;
+    float logR2, R2, T, Tc, Tf;
+    float c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
+    int Vo = adc1_get_raw(ADC1_CHANNEL_6);
+    R2 = R1 * (4095.0 / (float)Vo - 1.0);
+    logR2 = log(R2);
+    T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
+    Tc = T - 273.15;
+    return Tc;
 
 }
+
+
 static int mqtt_logger(const char *msg, va_list arg)
 {
     char buffer[512];
