@@ -27,7 +27,7 @@ typedef struct {
     uint32_t CurrentData;
     uint32_t PowerData;
 
-    uint8_t buffer[24];
+    uint8_t buffer[25];
 
     uart_port_t UART_num;
 } hlw8032_t;

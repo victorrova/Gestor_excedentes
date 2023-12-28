@@ -14,14 +14,11 @@ typedef enum{
     WS_RX,
     MQTT_TX,
     MQTT_RX,
-    HTTP_TX,
-    HTTP_RX,
     OLED_TX,
     MASTER,
     DIMMER_RX,
     DIMMER_TX,
-    CONFIG,
-    STORAGE,
+    CONTROL,
 }msg_type;
 
 typedef struct msg{ //  estructura de la  cola infinita 

@@ -24,7 +24,7 @@ bool Find_Key(cJSON *obj, const char* key)
   {
     return true;
   }
-  printf("key %s\n",probe->string);
+ 
   probe = probe->next;
  
   while(probe != NULL)
@@ -39,7 +39,7 @@ bool Find_Key(cJSON *obj, const char* key)
         probe = probe->next;
 
     }
-    printf("key %s\n",probe->string);
+   
   }
   return false;
 }

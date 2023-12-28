@@ -34,7 +34,8 @@ static void mqtt_connect_handler(void* arg, esp_event_base_t event_base,int32_t 
         char *topic = (char*)malloc(sizeof(char) * topic_len);
         ESP_MALLOC_CHECK(topic);
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_sub",topic,&topic_len));
-        esp_mqtt_client_subscribe(client,(const char*)topic, 0);
+        int eso = esp_mqtt_client_subscribe(client,(const char*)topic, 0);
+        ESP_LOGI(__FILE__,"subscrito al broker en %s id %d",topic,eso);
         free(topic);
     }
     
@@ -90,6 +91,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         strncpy(msg,event->data,event->data_len);
         strncpy(topic,event->topic,event->topic_len);
         ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,(const char *)topic,portMAX_DELAY));
+        ESP_LOGW(__FUNCTION__, "mensaje enviado");
         if(msg != NULL)
         {
             free(msg);
@@ -155,13 +157,13 @@ esp_err_t mqtt_init(void)
     esp_mqtt_client_config_t mqtt_cfg ={0};
     mqtt_cfg.broker.address.transport = MQTT_TRANSPORT_OVER_TCP;
     uint32_t port = 0;
-
+    esp_err_t err = ESP_OK;
     char *uri = (char*)malloc(sizeof(char));
     char *broker_ip=(char*)malloc(sizeof(char));
     char *id = (char*)malloc(sizeof(char));
     char *user = (char*)malloc(sizeof(char));
     char *password = (char*)malloc(sizeof(char));
-
+    bool config = true;
     size_t broker_ip_len= storage_get_size("mqtt_host");
     if(broker_ip_len == 0)
     {
@@ -169,7 +171,9 @@ esp_err_t mqtt_init(void)
         if(broker_uri_len == 0)
         {
             ESP_LOGE(__FUNCTION__,"url de broker desconocida");
-            return ESP_FAIL;
+            config = false;
+            err = ESP_FAIL;
+            goto exit;
         }
         else
         {
@@ -192,7 +196,9 @@ esp_err_t mqtt_init(void)
         if(port == 0)
         {
             ESP_LOGE(__FUNCTION__,"puerto erroneo");
-            return ESP_FAIL;
+            config = false;
+            err = ESP_FAIL;
+            goto exit;
         }
     }
     size_t id_len = storage_get_size("mqtt_id");
@@ -228,10 +234,14 @@ esp_err_t mqtt_init(void)
     {
         ESP_LOGW(__FUNCTION__,"Broker sin credenciales :|");
     }
-    client = esp_mqtt_client_init(&mqtt_cfg);
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&mqtt_connect_handler,NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&mqtt_disconnect_handler,NULL));
+    if(config)
+    {
+        client = esp_mqtt_client_init(&mqtt_cfg);
+        esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&mqtt_connect_handler,NULL));
+        ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&mqtt_disconnect_handler,NULL));
+    }
+exit:
     if(uri != NULL)
     {
         free(uri);
@@ -252,6 +262,6 @@ esp_err_t mqtt_init(void)
     {
         free(password);
     }
-    return ESP_OK;
+    return err;
 }
 

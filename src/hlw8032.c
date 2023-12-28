@@ -49,14 +49,14 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
         uart_read_bytes(hlw8032->UART_num, &check_search, 1, portMAX_DELAY);
         uart_get_buffered_data_len(hlw8032->UART_num, &data_len);
     }
-    if ((int)data_len >= 23 && check_search == 0x5A)
+    if ((int)data_len >= 24 && check_search == 0x5A)
     {
         uint8_t* data = (uint8_t*)hlw8032->buffer;
         data[0] = check_search;
-        const int rxBytes = uart_read_bytes(hlw8032->UART_num, data + 1, 23, portMAX_DELAY);
+        const int rxBytes = uart_read_bytes(hlw8032->UART_num, data + 2, 24, portMAX_DELAY);
         if (rxBytes > 0)
         {
-            if (data[23] != 0x55 && data[23] < 0xF0)
+            if (data[24] != 0x55 && data[24] < 0xF0)
             {
                 ESP_LOGW(HLW8032_TAG, "Invalid status REG -> 0x%02X", data[23]);
                 uart_flush(hlw8032->UART_num);
@@ -64,11 +64,11 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
             }
 
             uint8_t checksum = 0;
-            for(uint8_t a = 1; a<=21; a++)
+            for(uint8_t a = 2; a<=22; a++)
             {
                 checksum = checksum + data[a];
             }
-            if (checksum != data[22])
+            if (checksum != data[23])
             {
                 ESP_LOGW(HLW8032_TAG, "Checksum failed");
                 uart_flush(hlw8032->UART_num);
@@ -76,26 +76,26 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
                 return ESP_FAIL;
             }
 
-            hlw8032->VoltagePar = ((uint32_t)data[1]  <<16) + ((uint32_t)data[2] <<8) + data[3]; 
-            if (bitRead(data[19], 6) == 1)
+            hlw8032->VoltagePar = ((uint32_t)data[2]  <<16) + ((uint32_t)data[3] <<8) + data[4]; 
+            if (bitRead(data[20], 6) == 1)
             {
-                hlw8032->VoltageData = ((uint32_t)data[4]  <<16) + ((uint32_t)data[5] <<8) + data[6];
+                hlw8032->VoltageData = ((uint32_t)data[5]  <<16) + ((uint32_t)data[6] <<8) + data[7];
             }
 
             hlw8032->CurrentPar = ((uint32_t)data[8]  <<16) + ((uint32_t)data[9] <<8) + data[10];  
-            if (bitRead(data[19], 5) == 1)
+            if (bitRead(data[20], 5) == 1)
             {
-                hlw8032->CurrentData = ((uint32_t)data[10]  <<16) + ((uint32_t)data[11] <<8) + data[12]; 
+                hlw8032->CurrentData = ((uint32_t)data[11]  <<16) + ((uint32_t)data[12] <<8) + data[13]; 
             }
 
-            hlw8032->PowerPar = ((uint32_t)data[13]  <<16) + ((uint32_t)data[14] <<8) + data[15];
-            if(bitRead(data[19], 4) == 1)
+            hlw8032->PowerPar = ((uint32_t)data[14]  <<16) + ((uint32_t)data[15] <<8) + data[16];
+            if(bitRead(data[20], 4) == 1)
             {
-                hlw8032->PowerData = ((uint32_t)data[16]  <<16) + ((uint32_t)data[17] <<8) + data[18];
+                hlw8032->PowerData = ((uint32_t)data[17]  <<16) + ((uint32_t)data[18] <<8) + data[19];
             }
 
-            hlw8032->PowerCoef = ((uint32_t)data[20] <<8) + data[21];
-            if(bitRead(data[19], 7) == 1)
+            hlw8032->PowerCoef = ((uint32_t)data[21] <<8) + data[22];
+            if(bitRead(data[20], 7) == 1)
             {
                 hlw8032->PowerCoefData++;
             }
@@ -103,20 +103,74 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
         else
         {
         hlw8032->buffer[23] = 1;
-       
+        ESP_LOGW(HLW8032_TAG, "buufer =1");
         return ESP_FAIL;
         } 
     }
     else
     {
         hlw8032->buffer[23] = 0;
-        
+        ESP_LOGW(HLW8032_TAG, "buufer =0");
         return ESP_FAIL;
     } 
     
     uart_flush(hlw8032->UART_num);
     return ESP_OK;
 }
+/*esp_err_t hlw8032_read(hlw8032_t* hlw8032)
+{
+    uint8_t check_search = 0;
+    size_t data_len = 0;
+    uart_get_buffered_data_len(hlw8032->UART_num, &data_len);
+
+    while ((int)data_len > 0 && check_search != 0x5A)
+    {
+        uart_read_bytes(hlw8032->UART_num, &check_search, 1, portMAX_DELAY);
+        uart_get_buffered_data_len(hlw8032->UART_num, &data_len);
+    }
+    if ((int)data_len >= 23 && check_search == 0x5A)
+    {
+        uint8_t* data = (uint8_t*)hlw8032->buffer;
+        data[0] = check_search;
+        const int rxBytes = uart_read_bytes(hlw8032->UART_num, data + 2, 24, portMAX_DELAY);
+        if (rxBytes > 0)
+        {
+            for(int i = 0; i<rxBytes;i++)
+            {
+                printf("%02x ",data[i]);
+            }
+            printf("numero %d\n",rxBytes);
+            uart_flush(hlw8032->UART_num);
+        }
+        else
+        {
+            printf("[MAL] BUFFER EN %d",rxBytes);
+        }
+        uint8_t checksum = 0;
+ 
+        for (int i = 2; i <= 22; i++)
+        {
+            checksum = checksum + data[i];
+        }
+        if(checksum == data[23])
+        {
+            printf("checksum ok data[20] =%d \n",bitRead(data[20],6));
+            float vol_par = ((uint32_t)data[2]  <<16) + ((uint32_t)data[3] <<8) + data[4];
+            float vol_data = ((uint32_t)data[5]  <<16) + ((uint32_t)data[6] <<8) + data[7];
+            printf("volt data = %f  volt register = %f\n",vol_par,vol_data);
+            float i_data = ((uint32_t)data[8]  <<16) + ((uint32_t)data[9] <<8) + data[10];
+            float i_par =  ((uint32_t)data[11]  <<16) + ((uint32_t)data[12] <<8) + data[13];
+            printf("i data = %f  i register = %f\n",i_data,i_par);
+        }   
+        else
+        {
+            printf("checksum fail\n");
+        }
+            
+    }
+   
+    return ESP_OK;
+}*/
 
 void hlw8032_set_V_coef (hlw8032_t* hlw8032, float newVcoef)
 {
@@ -139,6 +193,7 @@ void hlw8032_set_V_coef_from_R (hlw8032_t* hlw8032, float R_live, float R_gnd)
 void hlw8032_set_I_coef_from_R (hlw8032_t* hlw8032, float R)
 {
     hlw8032->CurrentCoef = 1.0f/(R*1000);
+    //hlw8032->CurrentCoef = R;
     return;
 }
 

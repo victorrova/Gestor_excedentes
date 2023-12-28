@@ -32,5 +32,6 @@ typedef struct conf_dimmmer{
 
 void dimmer_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data);
 void dimmer_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data);
-
+void dimmer_init(void);
+void dimmer_stop(void);
 #endif

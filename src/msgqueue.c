@@ -39,7 +39,7 @@ msg_queue_t queue_receive(int dest,TickType_t time)
             ESP_LOGD(__FUNCTION__,"mensaje entregado");
             return msg;
         }
-        else if(msg.dest != dest && dest != MASTER && msg.count < QUEUE_MAX_LAP )
+        else if(msg.dest != dest  && msg.count < QUEUE_MAX_LAP )
         {
             msg.count++;
             xQueueSend(msg_queue,&msg,time);
@@ -50,7 +50,7 @@ msg_queue_t queue_receive(int dest,TickType_t time)
         else if(msg.dest != dest && msg.count >= QUEUE_MAX_LAP)
         {
             msg.len_msg = 0;
-            ESP_LOGD(__FUNCTION__,"mensaje huerfano eliminado en lap =  %d",msg.count);
+            ESP_LOGE(__FUNCTION__,"mensaje huerfano eliminado en lap =  %d",msg.count);
             return msg;
         }
     }
