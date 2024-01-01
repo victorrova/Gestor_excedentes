@@ -145,11 +145,18 @@ void check_nvs(void)
     while(res == ESP_OK) 
     {
      nvs_entry_info_t info;
-     nvs_entry_info(it, &info); // Can omit error check if parameters are guaranteed to be non-NULL
+     nvs_entry_info(it, &info); 
      printf("key '%s', type '%d' \n", info.key, info.type);
      res = nvs_entry_next(&it);
     }
     nvs_release_iterator(it);
+}
+void storage_get_nvs_size(void)
+{
+    nvs_stats_t stat;
+    nvs_get_stats(NULL, &stat);
+    printf("Count: UsedEntries = (%d), FreeEntries = (%d), namespaces = (%d), AllEntries = (%d)\n",
+       stat.used_entries, stat.free_entries, stat.namespace_count, stat.total_entries);
 }
 char *storage_get_config(void)
 {

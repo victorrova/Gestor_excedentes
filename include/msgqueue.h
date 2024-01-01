@@ -36,5 +36,5 @@ msg_queue_t queue_receive(int dest,TickType_t time);
 esp_err_t queue_start(void);
 int queue_load(void);
 void queue_reset(void);
-
+esp_err_t queue_receive_instat(int dest,msg_queue_t msg);
 #endif

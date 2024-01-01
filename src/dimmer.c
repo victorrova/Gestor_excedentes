@@ -4,8 +4,8 @@
 #define TRIAC 14 
 
 
-TaskHandle_t dimmer_task;
-esp_timer_handle_t _timer;
+static TaskHandle_t dimmer_task;
+static esp_timer_handle_t _timer;
 static conf_dimmer_t conf_gestor;
 
 
@@ -26,15 +26,6 @@ static void IRAM_ATTR GPIO_ISR_Handler(void* arg)
     
 }
 
-/*static void conf_timmer(conf_dimmer_t dimmer)
-{
-    const esp_timer_create_args_t timer_args = {
-            .callback = timer_callback,
-            .name = "timmer"
-            
-    };
-    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &_timer));
-}*/
 static void conf_pin(conf_dimmer_t dimmer)
 {   
     gpio_config_t triac = {};
@@ -55,13 +46,12 @@ static void conf_pin(conf_dimmer_t dimmer)
     ESP_ERROR_CHECK(gpio_config(&zero));
     gpio_set_intr_type(ZERO, GPIO_INTR_ANYEDGE);
     gpio_install_isr_service(0);
-    gpio_isr_handler_add(ZERO, GPIO_ISR_Handler, (void*)ZERO);
-
 }
 
 static void dimmer_http(void *PvParams)
 {
     ESP_LOGI(__FUNCTION__,"inicio de tarea dimmer");
+    gpio_isr_handler_add(ZERO, GPIO_ISR_Handler, (void*)ZERO);
     esp_http_client_handle_t Inverter = http_begin(conf_gestor.inverter_url);
     int pid = 0;
     int sal =(int)Kostal_requests(Inverter);
@@ -75,10 +65,8 @@ static void dimmer_http(void *PvParams)
         {
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
-            //ESP_LOGI(__FUNCTION__,"potencia disponible : %d temp: %d",sal,NTC_temp);
-            //ESP_LOGI(__FUNCTION__,"state %d",conf_gestor.level);
             count_power = 0;
-            
+            ///printf("memoria dimmmer= %d\n",uxTaskGetStackHighWaterMark( NULL ));
         }
         if(count_send > 300)
         {
@@ -113,14 +101,10 @@ static void dimmer_http(void *PvParams)
             }
             Fan_state(0);
         }
-        /*ESP_LOGW(__FUNCTION__,"kp= %f ki = %f kd = %f Error = %d CumError = %d LastError = %d Max = %d min = %d",
-                conf_gestor.pid_Pwr.Kp,conf_gestor.pid_Pwr.Ki,conf_gestor.pid_Pwr.Kd,conf_gestor.pid_Pwr.Error,conf_gestor.pid_Pwr.CumError,
-                conf_gestor.pid_Pwr.LastError,conf_gestor.pid_Pwr.max,conf_gestor.pid_Pwr.min);*/
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
         int arrived = map(pid,-1000,1000,-500,500);
         sal += arrived;
         conf_gestor.result +=pid;
-        //ESP_LOGI(__FUNCTION__,"resulttado = %d pid = %d arrived = %d",conf_gestor.result,pid,arrived);
         if(conf_gestor.result < 100)
         {
             conf_gestor.result = 100;
@@ -152,7 +136,9 @@ static void dimmer_http(void *PvParams)
         }
         else if(msg.len_msg > 0 && strcmp(msg.topic,"kp")== 0)
         {
+           
             conf_gestor.pid_Pwr.Kp = atof(msg.msg);
+             ESP_LOGI(__FUNCTION__,"nuevo valor kp = %f",conf_gestor.pid_Pwr.Kp);
         }
         else if(msg.len_msg > 0 && strcmp(msg.topic,"ki")== 0)
         {
@@ -177,7 +163,7 @@ static void dimmer_http(void *PvParams)
 }
 void dimmer_init(void)
 {   
-    ///ESP_ERROR_CHECK(esp_timer_init());
+   
     union float_converter converter;
     size_t kp_len = storage_get_size("kp");
     if( kp_len > 0)
@@ -290,14 +276,23 @@ void dimmer_init(void)
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &_timer));
     //conf_timmer(conf_gestor);
     conf_pin(conf_gestor);
-    xTaskCreate(&dimmer_http,"DIMMER",10000,NULL,4,&dimmer_task);
+    xTaskCreate(&dimmer_http,"dimmer",10000,NULL,4,&dimmer_task);
 }
 void dimmer_stop(void)
 {
+
     eTaskState state = eTaskGetState(dimmer_task);
     if(state != eInvalid && state != eDeleted)
     {
         vTaskDelete(dimmer_task);
+        gpio_isr_handler_remove(ZERO);
+        esp_timer_stop(_timer);
+        ESP_LOGW(__FUNCTION__,"Dimmer task stop");
+
+    }
+    else
+    {
+        ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
     }
     
 }

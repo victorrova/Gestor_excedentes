@@ -58,6 +58,29 @@ msg_queue_t queue_receive(int dest,TickType_t time)
     return msg;
       
 }
+esp_err_t queue_receive_instat(int dest,msg_queue_t msg)
+{
+    int load = queue_load();
+    while(xQueueReceive(msg_queue,&msg,portMAX_DELAY) == pdTRUE)
+    {
+        if(msg.dest == dest) 
+        {
+            return ESP_OK;
+        }
+        else if(load == 0)
+        {
+            return ESP_FAIL;
+        }
+        else
+        {
+            msg.count++;
+            xQueueSend(msg_queue,&msg,portMAX_DELAY);
+        }
+        load --;
+        vTaskDelay(50/portTICK_PERIOD_MS);
+    }
+    return ESP_FAIL;
+}
 
 esp_err_t queue_start(void)
 {

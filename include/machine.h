@@ -18,19 +18,18 @@
 #include "msgqueue.h"
 #include "cJSON.h"
 #include "hlw8032.h"
-
+#include "wifi.h"
 
 typedef struct s_timer{
  int prescaler;
  int timer;
- int(*function_cb)(void);
+ int(*function_cb)(void *params);
  int count;
  void *params;
  int result;
 } s_timer_t;
 
 
-int _free_mem(void);
 esp_err_t termistor_init(void);
 esp_err_t Fan_init(void);
 void Fan_state(int state);
@@ -40,6 +39,6 @@ void timer_loop(s_timer_t *param);
 void set_stream_logger(int logger);
 esp_err_t Meter_init(void);
 int Keepalive(int state_gestor);
-
+esp_err_t Ap_call_Init(void);
 
 #endif
