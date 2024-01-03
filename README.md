@@ -1,7 +1,7 @@
 GESTOR EXCEDENTE FOTOVOLTAICO:
 ==============================
 
-Les traigo un pequeño "Frankestein" que hará las delicicias de cualquier Maker con campo Fotovoltaico en su tejado, este amigo, te da la posibilidad de redirigir tu excedentes de produccion  a cualquier carga (regulable claro está).
+Les traigo un  "Frankestein" que hará las delicicias de cualquier Maker con campo Fotovoltaico en su tejado, este amigo, te da la posibilidad de redirigir tu excedentes de produccion  a cualquier carga (regulable claro está).
 
 Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributos:
 
@@ -38,5 +38,7 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
     =========
 
 
-
-
+    TRABAJOS PENDIENTES:
+    ====================
+    Estoy ultimando el firmware de este "bicho", me falta documentarlo todo; creanme cuando vean mi código que les hará falta documentación....
+    
