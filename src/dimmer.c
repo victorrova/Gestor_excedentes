@@ -73,7 +73,7 @@ static void dimmer_http(void *PvParams)
             char reg[32];
             conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
             itoa(conf_gestor.level,reg,10);
-            queue_send(DIMMER_TX,reg,"level",10);
+            queue_send(DIMMER_TX,reg,"level",20/portTICK_PERIOD_MS);
             ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
@@ -121,7 +121,7 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor._enable = true;
         }
-        msg = queue_receive(DIMMER_RX,150);
+        msg = queue_receive(DIMMER_RX,50/portTICK_PERIOD_MS);
         if(msg.len_msg > 0 && strcmp(msg.topic,"dimmer") == 0)
         {   
             int calc = map(atoi(msg.msg),0,100,0,3600); // pasamos de % a watios 
@@ -156,6 +156,7 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
         }
+        printf("vuelta dimmer\n");
         vTaskDelay(100/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;

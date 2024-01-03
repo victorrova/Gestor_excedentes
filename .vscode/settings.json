@@ -51,6 +51,7 @@
         "functional": "c",
         "task_factory.h": "c",
         "cjson.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "esp_https_ota.h": "c"
     }
 }

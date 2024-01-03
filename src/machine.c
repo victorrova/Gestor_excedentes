@@ -4,7 +4,7 @@
 
 
 static esp_adc_cal_characteristics_t adc1_chars;
-
+extern EventGroupHandle_t Bits_events;
 
 #define FAN 19
 #define SELECT 0 
@@ -213,6 +213,7 @@ esp_err_t Keepalive(int state_gestor)
     else
     {
         ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
+        return ESP_FAIL;
     }
     cJSON_AddNumberToObject(root,"temp_ntc",temp);
     cJSON_AddNumberToObject(root,"voltage",voltage);
@@ -221,38 +222,27 @@ esp_err_t Keepalive(int state_gestor)
     cJSON_AddNumberToObject(root,"p_appa",P_appa);
     cJSON_AddNumberToObject(root,"factor_p",factor_p);
     cJSON_AddItemToObject(keep, "keepalive",root);
-    char *msg_root = cJSON_Print(keep);
-    queue_send(MQTT_TX,msg_root,"keepalive",portMAX_DELAY);
+    char *msg = cJSON_Print(keep);
+    queue_send(MQTT_TX,msg,"keepalive",portMAX_DELAY);
     cJSON_Delete(keep);
-    ESP_LOGI(__FUNCTION__,"keep alive enviado!");
+    cJSON_free(msg);
     return ESP_OK;
 }
 
-
-void ap_call_task(void* pvParams)
-{
-    ESP_LOGW(__FUNCTION__,"llamada del ap");
-    vTaskDelay(3000/portTICK_PERIOD_MS);
-    if(gpio_get_level(SELECT) == 1)
-    {
-        Wifi_run(WIFI_MODE_AP);
-    }
-    vTaskDelete(NULL);
-}
 static void IRAM_ATTR ISR_ap_call(void* arg)
-{   
-    xTaskCreate(&ap_call_task,"ap_call",1024,NULL,1,NULL);
+{
+    xEventGroupSetBits(Bits_events,WIFI_CHANGE);
 }
-
+ 
 esp_err_t Ap_call_Init(void)
 {
     esp_err_t err = ESP_FAIL;
     gpio_config_t select = {};
-    select.pin_bit_mask = (1ULL<<SELECT);
-    select.intr_type = GPIO_INTR_POSEDGE;
-    select.mode = GPIO_MODE_INPUT_OUTPUT;
+    select.pin_bit_mask = ((1ULL<<SELECT));
+    select.intr_type = GPIO_INTR_NEGEDGE;
+    select.mode = GPIO_MODE_INPUT;
     select.pull_down_en = 0;
-    select.pull_up_en = 0;
+    select.pull_up_en = 1;
     err = gpio_config(&select);
     err = gpio_set_intr_type(SELECT, GPIO_INTR_ANYEDGE);
     err = gpio_install_isr_service(0);

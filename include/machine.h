@@ -38,7 +38,7 @@ void timer_init(s_timer_t *param,int prescaler,int timer,int (*callback)(void), 
 void timer_loop(s_timer_t *param);
 void set_stream_logger(int logger);
 esp_err_t Meter_init(void);
-int Keepalive(int state_gestor);
+esp_err_t Keepalive(int state_gestor);
 esp_err_t Ap_call_Init(void);
-
+int free_mem(void);
 #endif
