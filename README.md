@@ -30,15 +30,15 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
     Todo ele sistema esta controlado y comandado por el Maravilloso esp32 de los amigos de Espressif.
 
 
-    ESQUEMA:
-    ========
+ESQUEMA:
+========
 
 
-    IMAGENES:
-    =========
+IMAGENES:
+=========
 
 
-    TRABAJOS PENDIENTES:
-    ====================
-    Estoy ultimando el firmware de este "bicho", me falta documentarlo todo; creanme cuando vean mi código que les hará falta documentación....
-    
+TRABAJOS PENDIENTES:
+====================
+Estoy ultimando el firmware de este "bicho", me falta documentarlo todo; creanme cuando vean mi código que les hará falta documentación....
+
