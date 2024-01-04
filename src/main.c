@@ -50,11 +50,15 @@ void Machine_MQTT_disconnect_handler(void* arg, esp_event_base_t event_base,int3
     led_machine_ok();
     
 }
+void Machine_OTA_OK_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    ESP_LOGE(__FILE__,"reboot....");
+    esp_restart();
+}
 
 void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     
-    dimmer_stop();
     led_AP();
 }
 
@@ -111,6 +115,7 @@ void Machine_init(void)
     err  = Wifi_init();
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&Machine_wifi_connect,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&Machine_wifi_disconnect,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_AP_START,&Machine_Ap_connect,NULL));
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[Wifi_init] error fatal en inicio!");
@@ -237,27 +242,23 @@ static esp_err_t stream_pid(cJSON *payload)
 }
 void Com_Task(void *pvparams)
 {   ESP_LOGW(__FUNCTION__, "INICIADO");
+    int _count = 0;
     while(1)
     {
         msg_queue_t msg; 
-        msg = queue_receive(MASTER,20/portTICK_PERIOD_MS);
+        msg = queue_receive(MASTER,100/portTICK_PERIOD_MS);
         if(msg.len_msg >0)
         {
-            switch (msg.dest)
+            if(msg.dest == MQTT_TX)
             {
-            case MQTT_TX:
-                
-                    EventBits_t flags = xEventGroupGetBits(Bits_events);
-                
-                    if(flags & MQTT_CONNECT)
-                    {
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
-                    }
-                    msg.len_msg = 0;
-                
-                break;
-            case  MQTT_RX:
-            case WS_RX:    
+                EventBits_t flags = xEventGroupGetBits(Bits_events);
+                if(flags & MQTT_CONNECT)
+                {
+                    ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
+                }
+            }
+            else if(msg.dest == MQTT_RX || msg.dest == WS_RX)
+            {
                     xEventGroupClearBits(Bits_events,MQTT_ON_MESSAGE);
                     led_on_message();
                     cJSON *payload = cJSON_Parse(msg.msg);
@@ -290,34 +291,62 @@ void Com_Task(void *pvparams)
                         }
                         else if(Find_Key(payload,"update"))
                         {
-                            //actualizacion
+                            cJSON *item = cJSON_GetObjectItem(payload,"update");
+                            if(cJSON_IsString(item))
+                            {
+                                char *url= item->valuestring;
+                                xTaskCreate(&simple_ota_example_task, "ota_task", 8192, &url, 5, NULL);
+                            }
+
                         }
                     }
-                    break;
-            case DIMMER_TX:
-                    if( strcmp(msg.topic,"level")== 0)
-                    {
-                       int state_gestor =atoi(msg.msg);
-                       
-                       Keepalive(state_gestor);
-                       
-                       ESP_LOGW(__FUNCTION__,"memoria libre %d",free_mem());
-                        //vPortFree(msg);
-                    }
-                break;
-            default:
-                queue_send(msg.dest,msg.msg,msg.topic,100/portTICK_PERIOD_MS);
-                break;
             }
-            EventBits_t flags = xEventGroupGetBits(Bits_events);
-            if(flags & WIFI_CHANGE)
+            else if(msg.dest == DIMMER_TX)
             {
-                printf("eurekaaaaaaaaaaaa\n");
-                xEventGroupClearBits(Bits_events,WIFI_CHANGE);
+                if( strcmp(msg.topic,"level")== 0)
+                {
+                    int state_gestor =atoi(msg.msg);
+                    Keepalive(state_gestor);
+                    ESP_LOGW(__FUNCTION__,"memoria libre %d",free_mem());
+                }
             }
-            printf("vuelta\n");
+            else
+            {
+                queue_send(msg.dest,msg.msg,msg.topic,100/portTICK_PERIOD_MS);
+                msg.len_msg =0;
+            }
+        }
+        else
+        {
             vTaskDelay(100/portTICK_PERIOD_MS);
-            
+        }
+        EventBits_t flags = xEventGroupGetBits(Bits_events);
+        if(flags & WIFI_CHANGE)
+        {
+            if(_count > 3)
+            {
+                wifi_mode_t actual_mode = WIFI_MODE_NULL;
+                _count =0;
+                if(esp_wifi_get_mode(&actual_mode) == ESP_OK)
+                {
+                    if(actual_mode == WIFI_MODE_AP)
+                    {   
+                        ESP_LOGW(__FUNCTION__,"Desactivando Ap");
+                        Wifi_run(WIFI_MODE_STA);
+                    }
+                    else
+                    {
+                        ESP_LOGW(__FUNCTION__,"Activando Ap");
+                        Wifi_run(WIFI_MODE_AP);
+                    }
+                }
+
+            }
+            else
+            {
+                _count++;
+            }
+            xEventGroupClearBits(Bits_events,WIFI_CHANGE);
         }
     }
     vTaskDelete(NULL);
@@ -333,13 +362,13 @@ void app_main(void)
     //storage_get_nvs_size();
     //ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
     //ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
     /*led_init();
     led_off();
     Meter_init();

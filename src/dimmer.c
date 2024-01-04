@@ -4,7 +4,7 @@
 #define TRIAC 14 
 
 
-static TaskHandle_t dimmer_task;
+static TaskHandle_t dimmer_task =NULL;
 static esp_timer_handle_t _timer;
 static conf_dimmer_t conf_gestor;
 
@@ -156,7 +156,6 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
         }
-        printf("vuelta dimmer\n");
         vTaskDelay(100/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;

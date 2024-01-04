@@ -37,9 +37,10 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 }
 void simple_ota_example_task(void *pvParameter)
 {
+    char *url = *(char*)pvParameter;
     ESP_LOGI(__FUNCTION__, "Starting OTA example task");
     esp_http_client_config_t config = {
-        .url = BIN_URL, 
+        .url = url, 
         .event_handler = _http_event_handler,
         .keep_alive_enable = true,
     };
@@ -55,5 +56,6 @@ void simple_ota_example_task(void *pvParameter)
         ESP_LOGE(__FUNCTION__, "Firmware upgrade failed");
         esp_event_post(MACHINE_EVENTS,MACHINE_OTA_FAIL,NULL,0,portMAX_DELAY);
     }
+
     vTaskDelete(NULL);
 }
