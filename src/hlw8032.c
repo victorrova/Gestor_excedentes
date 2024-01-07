@@ -242,7 +242,13 @@ float hlw8032_get_P_active (hlw8032_t* hlw8032)
     float P = 0;
 
     if ((float)hlw8032->PowerData > 0)
-    P = ((float)hlw8032->PowerPar/(float)hlw8032->PowerData)*hlw8032->VoltageCoef*hlw8032->CurrentCoef;
+    {
+        P = ((float)hlw8032->PowerPar/(float)hlw8032->PowerData) * hlw8032->VoltageCoef * hlw8032->CurrentCoef;
+    }
+    else
+    {
+        P =-1.0;
+    }
 
     return P;
 }

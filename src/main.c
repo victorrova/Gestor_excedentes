@@ -323,7 +323,9 @@ void Com_Task(void *pvparams)
         EventBits_t flags = xEventGroupGetBits(Bits_events);
         if(flags & WIFI_CHANGE)
         {
-            if(_count > 3)
+            ESP_LOGW(__FUNCTION__,"llamada a WIFI_CHANGE: %d",_count);
+            xEventGroupClearBits(Bits_events,WIFI_CHANGE);
+            if(_count > 6)
             {
                 wifi_mode_t actual_mode = WIFI_MODE_NULL;
                 _count =0;
@@ -334,7 +336,7 @@ void Com_Task(void *pvparams)
                         ESP_LOGW(__FUNCTION__,"Desactivando Ap");
                         Wifi_run(WIFI_MODE_STA);
                     }
-                    else
+                    else if(actual_mode == WIFI_MODE_STA)
                     {
                         ESP_LOGW(__FUNCTION__,"Activando Ap");
                         Wifi_run(WIFI_MODE_AP);
@@ -346,11 +348,12 @@ void Com_Task(void *pvparams)
             {
                 _count++;
             }
-            xEventGroupClearBits(Bits_events,WIFI_CHANGE);
+            
         }
     }
     vTaskDelete(NULL);
 }
+extern hlw8032_t  hlw_meter;
 void app_main(void)
 {
     
@@ -359,25 +362,24 @@ void app_main(void)
     Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
     //xTaskCreate(&simple_ota_example_task, "ota_task", 8192, NULL, 5, NULL);
-    //storage_get_nvs_size();
-    //ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
-    //ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
-    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
+    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
-    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     /*led_init();
     led_off();
     Meter_init();
+    
     while(1)
     {
        hlw8032_read(&hlw_meter);
        printf("V = %2f\n",hlw8032_get_V(&hlw_meter));
-       printf("V = %2f\n",hlw8032_get_I(&hlw_meter));
-       vTaskDelay(500/portTICK_PERIOD_MS);
+       printf("I = %2f\n",hlw8032_get_I_analog(&hlw_meter));
+       printf("P = %2f\n",hlw8032_get_P_active(&hlw_meter));
+       vTaskDelay(250/portTICK_PERIOD_MS);
     }*/
 }
 
