@@ -336,7 +336,7 @@ void Com_Task(void *pvparams)
                         ESP_LOGW(__FUNCTION__,"Desactivando Ap");
                         Wifi_run(WIFI_MODE_STA);
                     }
-                    else if(actual_mode == WIFI_MODE_STA)
+                    else if(actual_mode == WIFI_MODE_APSTA)
                     {
                         ESP_LOGW(__FUNCTION__,"Activando Ap");
                         Wifi_run(WIFI_MODE_AP);
