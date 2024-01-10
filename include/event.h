@@ -16,6 +16,7 @@
 #define MQTT_ON_MESSAGE    BIT4
 #define MACHINE_STATE_OK   BIT5
 #define TASK_CALL          BIT6
+#define WIFI_CHANGE        BIT7
  
 
 enum{                  // EVENTOS DE LA MAQUINA 
@@ -24,8 +25,8 @@ enum{                  // EVENTOS DE LA MAQUINA
     MACHINE_RESET,     // necesidada de reset
     MACHINE_SAVE,      // necesidad de guardadr cambios
     MACHINE_LOAD,      // necesidad de cargar cambios
-    MACHINE_CONF_OK,   // configuración correcta
-    MACHINE_CONF_FAIL, // configuración fallida
+    MACHINE_OTA_OK,   // configuración correcta
+    MACHINE_OTA_FAIL, // configuración fallida
     QUEUE_OVERLOAD,     // cola de mensajes llena
     MACHINE_MQTT_CONNECT,
     MACHINE_MQTT_DISCONNECT,

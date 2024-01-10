@@ -14,14 +14,11 @@ typedef enum{
     WS_RX,
     MQTT_TX,
     MQTT_RX,
-    HTTP_TX,
-    HTTP_RX,
     OLED_TX,
     MASTER,
     DIMMER_RX,
     DIMMER_TX,
-    CONFIG,
-    STORAGE,
+    CONTROL,
 }msg_type;
 
 typedef struct msg{ //  estructura de la  cola infinita 
@@ -39,5 +36,5 @@ msg_queue_t queue_receive(int dest,TickType_t time);
 esp_err_t queue_start(void);
 int queue_load(void);
 void queue_reset(void);
-
+esp_err_t queue_receive_instat(int dest,msg_queue_t msg);
 #endif

@@ -55,4 +55,5 @@ void check_nvs(void);
 esp_err_t storage_erase_key(char *key);
 void storage_task(void *Pvparams);
 char *storage_get_config(void);
+void storage_get_nvs_size(void);
 #endif

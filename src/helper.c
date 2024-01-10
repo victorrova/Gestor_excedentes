@@ -16,15 +16,12 @@ int map(int val,int in_min,int in_max,int out_min,int out_max){
 }
 bool Find_Key(cJSON *obj, const char* key)
 {
-    /*1 comprobar el primero 
-      2 meter en el bucle wile has Null hasta terminar*/
   cJSON *probe = obj->child;
- 
   if (strcmp(probe->string,key) == 0)
   {
     return true;
   }
-  printf("key %s\n",probe->string);
+ 
   probe = probe->next;
  
   while(probe != NULL)
@@ -39,7 +36,7 @@ bool Find_Key(cJSON *obj, const char* key)
         probe = probe->next;
 
     }
-    printf("key %s\n",probe->string);
+   
   }
   return false;
 }

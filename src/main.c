@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "storage.h"
 #include "wifi.h"
 #include "mqtt.h"
@@ -8,42 +9,67 @@
 #include "event.h"
 #include "machine.h"
 #include "led.h"
+#include "ota.h"
 
+#define VERSION 0.5
 extern EventGroupHandle_t Bits_events;
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
-
 void Com_Task(void *pvparams);
+
 void Machine_event_ok_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
-    ESP_LOGI(__FUNCTION__,"launch machine_ok");
-    ESP_ERROR_CHECK(Wifi_run(WIFI_MODE_STA));
-    http_server_start();
-    //led_machine_ok();
+    ESP_LOGW(__FUNCTION__,"launch machine_ok");
+    
+    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
+   
+}
+void Machine_wifi_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    led_machine_ok();
+    dimmer_init();
+}
+void Machine_wifi_disconnect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    dimmer_stop();
+    led_off();
 }
 void Machine_event_fail_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
-    ESP_LOGI(__FUNCTION__,"launch machine_fail");
-    //led_fail();
+    ESP_LOGW(__FUNCTION__,"launch machine_fail");
+    led_fail();
 }
-void Machine_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+void Machine_MQTT_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
-    ESP_LOGI(__FUNCTION__,"launch machine_connect");
-    //led_total_connect();
-    xTaskCreate(&Com_Task,"task1",10000,NULL,3,NULL);
-}
-void Machine_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
-{
-    ESP_LOGI(__FUNCTION__,"launch machine_disconnect");
-    //led_machine_ok();
+    ESP_LOGW(__FUNCTION__,"launch machine_connect");
+    led_total_connect();
     
+}
+void Machine_MQTT_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    ESP_LOGW(__FUNCTION__,"launch machine_disconnect");
+    led_machine_ok();
+    
+}
+void Machine_OTA_OK_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    ESP_LOGE(__FILE__,"reboot....");
+    esp_restart();
+}
+
+void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    
+    led_AP();
 }
 
 void Machine_init(void)
 {
     esp_err_t err = ESP_FAIL;
     err = Event_init();
-    //ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_FAIL,&Machine_event_fail_handler,NULL));
-    //ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Machine_event_ok_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_FAIL,&Machine_event_fail_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Machine_event_ok_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_MQTT_connect_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_MQTT_disconnect_handler,NULL));
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[event_init] error fatal en inicio!");
@@ -79,8 +105,17 @@ void Machine_init(void)
         ESP_LOGE(__FUNCTION__,"[Fan_init] error fatal en inicio!");
         ESP_ERROR_CHECK(esp_event_post(MACHINE_EVENTS,MACHINE_FAIL,NULL,0,portMAX_DELAY));
     }
+    err  = Ap_call_Init();
+    if(err != ESP_OK)
+    {
+        ESP_LOGE(__FUNCTION__,"[Ap_Button] error fatal en inicio!");
+    
+    }
+     
     err  = Wifi_init();
-
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&Machine_wifi_connect,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&Machine_wifi_disconnect,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_AP_START,&Machine_Ap_connect,NULL));
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[Wifi_init] error fatal en inicio!");
@@ -102,18 +137,6 @@ void Machine_init(void)
 
 }
 
-
-void Handler_battery_register(void)
-{
-
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_connect_handler,NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_disconnect_handler,NULL));
-    //ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_FAIL,&Machine_event_fail_handler,NULL));
-    //ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Machine_event_ok_handler,NULL));
-    
-}
 static esp_err_t stream_pid(cJSON *payload)
 {
     esp_err_t err = ESP_FAIL;
@@ -134,7 +157,8 @@ static esp_err_t stream_pid(cJSON *payload)
                 float _kp = (float)kp->valuedouble;
                 char buff[64];
                 int change =snprintf(buff,sizeof(buff),"%f",_kp);
-                if(change == sizeof(buff))
+                printf("buffer = %s change = %d\n",buff,change);
+                if(change <= sizeof(buff))
                 {
                     err = queue_send(DIMMER_RX,buff,"kp",100);
                 }
@@ -150,7 +174,7 @@ static esp_err_t stream_pid(cJSON *payload)
                 float _ki = (float)ki->valuedouble;
                 char buff[64];
                 int change =snprintf(buff,sizeof(buff),"%f",_ki);
-                if(change == sizeof(buff))
+                if(change <= sizeof(buff))
                 {
                     err = queue_send(DIMMER_RX,buff,"ki",100);
                 }
@@ -166,13 +190,13 @@ static esp_err_t stream_pid(cJSON *payload)
                 float _kd = (float)kd->valuedouble;
                 char buff[64];
                 int change =snprintf(buff,sizeof(buff),"%f",_kd);
-                if(change == sizeof(buff))
+                if(change <= sizeof(buff))
                 {
                     err = queue_send(DIMMER_RX,buff,"kd",100);
                 }
                 else
                 {
-                    ESP_LOGE(__FUNCTION__,"fallo snprintf");
+                    ESP_LOGE(__FUNCTION__,"fallo sprintf");
                     err = ESP_FAIL;
                 }
             }
@@ -182,7 +206,7 @@ static esp_err_t stream_pid(cJSON *payload)
                 float _min = (float)min->valuedouble;
                 char buff[64];
                 int change =snprintf(buff,sizeof(buff),"%f",_min);
-                if(change == sizeof(buff))
+                if(change <= sizeof(buff))
                 {
                     err = queue_send(DIMMER_RX,buff,"min",100);
                 }
@@ -198,7 +222,7 @@ static esp_err_t stream_pid(cJSON *payload)
                 float _max = (float)max->valuedouble;
                 char buff[64];
                 int change =snprintf(buff,sizeof(buff),"%f",_max);
-                if(change == sizeof(buff))
+                if(change <= sizeof(buff))
                 {
                     err = queue_send(DIMMER_RX,buff,"max",100);
                 }
@@ -217,88 +241,147 @@ static esp_err_t stream_pid(cJSON *payload)
     return err;
 }
 void Com_Task(void *pvparams)
-{   ESP_LOGI(__FUNCTION__, "Com_Task");
+{   ESP_LOGW(__FUNCTION__, "INICIADO");
+    int _count = 0;
     while(1)
     {
         msg_queue_t msg; 
-        msg = queue_receive(MASTER,portMAX_DELAY);
+        msg = queue_receive(MASTER,100/portTICK_PERIOD_MS);
         if(msg.len_msg >0)
         {
-            switch (msg.dest)
+            if(msg.dest == MQTT_TX)
             {
-            case MQTT_TX:
+                EventBits_t flags = xEventGroupGetBits(Bits_events);
+                if(flags & MQTT_CONNECT)
                 {
-                    EventBits_t flags = xEventGroupGetBits(Bits_events);
-                
-                    if(flags & MQTT_CONNECT)
-                    {
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
-                    }
+                    ESP_ERROR_CHECK_WITHOUT_ABORT(queue_to_mqtt_publish(msg));
                 }
-                break;
-            case  MQTT_RX || WS_RX:
-                {
+            }
+            else if(msg.dest == MQTT_RX || msg.dest == WS_RX)
+            {
+                    xEventGroupClearBits(Bits_events,MQTT_ON_MESSAGE);
+                    led_on_message();
                     cJSON *payload = cJSON_Parse(msg.msg);
-                    
-                    if(Find_Key(payload,"dimmer"))
+                    if(!cJSON_IsNull(payload))
                     {
-                        float dimmer = 0.0;
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
-                        char *buff =(char*)pvPortMalloc(sizeof(float));
-                        itoa((int)dimmer,buff,10);
-                        queue_send(DIMMER_RX,buff,"dimmer",100);
-                        vPortFree(buff);
+                        
+                        if(Find_Key(payload,"dimmer"))
+                        {
+                            float dimmer = 0.0;
+                            ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
+                            char *buff =(char*)pvPortMalloc(sizeof(float));
+                            itoa((int)dimmer,buff,10);
+                            queue_send(DIMMER_RX,buff,"dimmer",100/portTICK_PERIOD_MS);
+                            vPortFree(buff);
+                           
+                        }
+                        else if(Find_Key(payload,"temperature"))
+                        {
+                            /* mandar a dimmer cuando el control de temperatura este echo*/
+                        }
+                        else if (Find_Key(payload,"storage"))
+                        {   
+                            xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                            
+                        }
+                        else if( Find_Key(payload,"stream"))
+                        {
+                            ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
+                            
+                        }
+                        else if(Find_Key(payload,"update"))
+                        {
+                            cJSON *item = cJSON_GetObjectItem(payload,"update");
+                            if(cJSON_IsString(item))
+                            {
+                                char *url= item->valuestring;
+                                xTaskCreate(&simple_ota_example_task, "ota_task", 8192, &url, 5, NULL);
+                            }
 
+                        }
                     }
-                    else if(Find_Key(payload,"temperature"))
-                    {
-                        /* mandar a dimmer cuando el control de temperatura este echo*/
-                    }
-                    else if (Find_Key(payload,"storage"))
+            }
+            else if(msg.dest == DIMMER_TX)
+            {
+                if( strcmp(msg.topic,"level")== 0)
+                {
+                    int state_gestor =atoi(msg.msg);
+                    Keepalive(state_gestor);
+                    ESP_LOGW(__FUNCTION__,"memoria libre %d",free_mem());
+                }
+            }
+            else
+            {
+                queue_send(msg.dest,msg.msg,msg.topic,100/portTICK_PERIOD_MS);
+                msg.len_msg =0;
+            }
+        }
+        else
+        {
+            vTaskDelay(100/portTICK_PERIOD_MS);
+        }
+        EventBits_t flags = xEventGroupGetBits(Bits_events);
+        if(flags & WIFI_CHANGE)
+        {
+            ESP_LOGW(__FUNCTION__,"llamada a WIFI_CHANGE: %d",_count);
+            xEventGroupClearBits(Bits_events,WIFI_CHANGE);
+            if(_count > 6)
+            {
+                wifi_mode_t actual_mode = WIFI_MODE_NULL;
+                _count =0;
+                if(esp_wifi_get_mode(&actual_mode) == ESP_OK)
+                {
+                    if(actual_mode == WIFI_MODE_AP)
                     {   
-                        xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                        ESP_LOGW(__FUNCTION__,"Desactivando Ap");
+                        Wifi_run(WIFI_MODE_STA);
                     }
-                    else if( Find_Key(payload,"stream"))
+                    else if(actual_mode == WIFI_MODE_APSTA)
                     {
-                        ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
+                        ESP_LOGW(__FUNCTION__,"Activando Ap");
+                        Wifi_run(WIFI_MODE_AP);
                     }
                 }
-                break;
-            default:
-                msg.count +=1;
-                queue_send(msg.dest,msg.msg,msg.topic,portMAX_DELAY);
-                break;
-            }  
+
+            }
+            else
+            {
+                _count++;
+            }
+            
         }
     }
     vTaskDelete(NULL);
 }
-void Control(void *pvparams)
-{
-    /*control de la cola*/
-    /* causa de reinicio*/
-    /*control reinicio*/
-    /*salto keep alive*/
-}
-
+extern hlw8032_t  hlw_meter;
 void app_main(void)
 {
     
     Machine_init();
-    Handler_battery_register();
-    vTaskDelay(1000/portTICK_PERIOD_MS);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
-    //ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&dimmer_connect_handler,NULL));
-    //ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,&dimmer_disconnect_handler,NULL));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "prueba/prueba"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "prueba/prueba"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
+    printf("versión actual: %f\n",VERSION);
+    //xTaskCreate(&simple_ota_example_task, "ota_task", 8192, NULL, 5, NULL);
+    /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
+    ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
+    /*led_init();
+    led_off();
+    Meter_init();
+    
+    while(1)
+    {
+       hlw8032_read(&hlw_meter);
+       printf("V = %2f\n",hlw8032_get_V(&hlw_meter));
+       printf("I = %2f\n",hlw8032_get_I_analog(&hlw_meter));
+       printf("P = %2f\n",hlw8032_get_P_active(&hlw_meter));
+       vTaskDelay(250/portTICK_PERIOD_MS);
+    }*/
 }
-
 
 
 
