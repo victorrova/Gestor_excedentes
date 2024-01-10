@@ -12,9 +12,10 @@ h1 {
     margin: 5px;
     padding: 30px;
     font-size: 3em;
-    color: #cd4e4e;
-    background-color: #2b3237;
+    color: #b91010;
+    background-color: #566167;
     border-radius: 30px;
+    text-shadow: 1px 1px 1px #000000;
 }
 
 h2 {
@@ -31,14 +32,6 @@ h4 {
 	font-size: 1em;
     color: #38598b;
 }
-
-.gr {
-	color: green;
-}
-.rd {
-	color: red;
-}
-
 
 th, td {
     padding-left: 15px;
@@ -82,9 +75,6 @@ th, td {
 	display: none;
 }
 
-.buttons {
-    padding: 5px;
-}
 
 input[type="button"] {
 	font-size: 12px;
@@ -115,7 +105,19 @@ input[type="button"]:active {
 }
 
 
-
+.section {
+	border: 0;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    color: #c12323;
+    
+    border-radius: 15px;
+    background-color: #ffffffd5;
+    
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
 
 
 

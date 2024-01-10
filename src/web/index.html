@@ -1,125 +1,133 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es-ES">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<link rel="stylesheet" href="app.css">
-	<script async src="app.js"></script>
-	<title>Configuración Gestor</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/ico" href="logo.ico">
+
 </head>
-
 <body>
-	<header>
-		<h1>Configuración Gestor</h1>
-	</header>
+    <div class="grid-container">
+        <header class="header">
+            <h1>Configuración Gestor</h1>
+            <img src="logo.ico" alt="Logo" width="80" height="80">
+        </header>
 
-	<section id="local_time">
-		<h4 id="time_label">Fecha y Hora:</h4>
-		<p id="timestamp_label">-</p>
-	</section>
+        <nav class="menu">
+            <h2>MENU</h2>
+            <ul>
+                <li><a id="menu_wifi" >WIFI</a></li>
+                <li><a id="menu_mqtt" >MQTT</a></li>
+                <li><a id="menu_inv" >INVERSOR</a></li>
+                <li><a id="menu_pid" >PID</a></li>
+            </ul>            
+        </nav>
 
-	<hr>
-	<div id="WiFiConnect">
-		<h2>Conexión WIFI:</h2>
-		<section>
-			<input id="scan_wifi" type="button" value="Scan">
-			<input list="wifi_list" id="connect_ssid" type="text" maxlength="32" placeholder="SSID" value="">
-			<datalist id="wifi_list">
-			</datalist>
-			<input id="connect_pass" type="password" maxlength="64" placeholder="Password" value="">
-			<input type="checkbox" onclick="showPassword()">Show Password
-			<input id="connect_dhcp" type="checkbox">DHCP
-			<input id="connect_ip" type="text" maxlength="16" placeholder="IP" value="">
-			<input id="connect_netmask" type="text" maxlength="16" placeholder="Netmask" value="255.255.255.0">
-			<input id="connect_gateway" type="text" maxlength="16" placeholder="Gateway" value="">
-			<input id="connect_dns1" type="text" maxlength="16" placeholder="DNS 1" value="">
-			<input id="connect_dns2" type="text" maxlength="16" placeholder="DNS 2" value="">
-		</section>
-		<div class="buttons">
-			<input id="connect_wifi" type="button" value="Connect" />
-		</div>
-		<div id="wifi_connect_credentials_errors"></div>
-		<h4 id="wifi_connect_status"></h4>
-	</div>
+        <main class="main">
 
-	<div id="ConnectInfo">
-		<section>
-			<div id="connected_ap_label"></div>
-			<div id="connected_ap"></div>
-		</section>
-		<div id="ip_address_label"></div>
-		<div id="wifi_connect_ip"></div>
-		<div id="netmask_label"></div>
-		<div id="wifi_connect_netmask"></div>
-		<div id="gateway_label"></div>
-		<div id="wifi_connect_gw"></div>
-		<div class="buttons">
-			<input id="disconnect_wifi" type="button" value="Disconnect" />
-		</div>
-	</div>
-	</hr>
-	<hr>
+            <div id="secWifi">
+                <h2>Conexión WIFI</h2>
+                <input id="scan_wifi" type="button" value="Scan">
+                <input list="wifi_list" id="connect_ssid" type="text" maxlength="32" placeholder="SSID" value="">
+                        <datalist id="wifi_list">
+                            <option>Hola</option>
+                        </datalist>
+                <p>Password: </p>
+                <input id="connect_pass" type="password" maxlength="64" placeholder="Password" value="">
 
-	<div id="MqttConnect">
-		<h2>Conexión MQTT</h2>
-		<section>
-			<input id="mqtt_host" type="text" maxlength="64" placeholder="Servidor" value="">
-			<input id="mqtt_port" type="text" maxlength="6" placeholder="Port" value="1883">
-			<input id="mqtt_id" type="text" maxlength="32" placeholder="Id" value="">
-			<input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
-			<input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
-			<input type="checkbox" onclick="showPassword()">Show Password
-			<input id="mqtt_pub" type="text" maxlength="64" placeholder="mqtt pub" value="">
-			<input id="mqtt_sub" type="text" maxlength="64" placeholder="mqtt sub" value="">
-		</section>
-		<div class="buttons">
-			<input id="connect_mqtt" type="button" value="Connect" />
-		</div>
-		<div id="mqtt_connect_credentials_errors"></div>
-		<h4 id="mqtt_connect_status"></h4>
-	</div>
+                <input id="connect_dhcp" type="checkbox" onclick="showIPConfig()"> DHCP
+                
+                <p>IP:</p>
+                
+                <input id="connect_ip" type="text" maxlength="16" placeholder="IP" value="">
+                
+                <p>Netmask: </p>
+                    
+                <input id="connect_netmask" type="text" maxlength="16" placeholder="Netmask" value="255.255.255.0">
+                    
+                <p>Gateway: </p>
+                    
+                <input id="connect_gateway" type="text" maxlength="16" placeholder="Gateway" value="">
+                    
+                <p>DNS 1: </p>
+                    
+                <input id="connect_dns1" type="text" maxlength="16" placeholder="DNS 1" value="">
+                    
+                <p>DNS 2: </p>
+                    
+                <input id="connect_dns2" type="text" maxlength="16" placeholder="DNS 2" value="">
+                
+                <input id="connect_wifi" type="button" value="Connect" />
+            </div>
 
-	<div id="MqttConnectInfo">
-		<section>
-			<div id="mqtt_connected_ap_label"></div>
-			<div id="mqtt_connected_ap"></div>
-		</section>
-		<div class="buttons">
-			<input id="disconnect_mqtt" type="button" value="Disconnect" />
-		</div>
-	</div>
-	<hr>
-	<div id="pid">
-		<h2>PID:</h2>
-		<div class="slidecontainer">
-			Valor Kp: <p id="pid-kp-value"></p>
-			<input type="range" min="1" max="100" value="50" class="slider" id="pid-kp">
-			Valor Ki: <p id="pid-ki-value"></p>
-			<input type="range" min="1" max="100" value="50" class="slider" id="pid-ki">
-			Valor Kd: <p id="pid-kd-value"></p>
-			<input type="range" min="1" max="100" value="50" class="slider" id="pid-kd">
-			<input id="pid-min" type="text" maxlength="4" placeholder="Valor Min" value="">
-			<input id="pid-max" type="text" maxlength="4" placeholder="Valor Max" value="">
-		  </div>
-		<div class="buttons">
-			<input id="pid-send_pid" type="button" value="Send PID" />
-			<input id="pid-save_pid" type="button" value="Save PID" />
-		</div>
-	</div>
-	<hr>
-	<div id="inversor">
-		<h2>Inversor:</h2>
-		<div>
-			<h3>URL Inversor</h3>
-			<input id="url_inverter" type="text" maxlength="64" placeholder="url_inverter" value="http://192.168.1.39/measurements.xml">
-		  </div>
-		<div class="buttons">
-			<input id="inverter-save_url" type="button" value="Save URL" />
-		</div>
-	</div>
+            <!-------------------------------------------------------------------------------------------->
+            <div id="secMqtt">        
+                <h2>Conexión MQTT</h2>
+                
+                <p>Servidor:</p> <input id="mqtt_host" type="text" maxlength="64" placeholder="Servidor" value="">
+                
+                <p>Port:</p> <input id="mqtt_port" type="text" maxlength="6" placeholder="Port" value="1883">
+                
+                <p>Id:</p>  <input id="mqtt_id" type="text" maxlength="32" placeholder="Id" value="">
+                
+                <p>User:</p> <input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
+                
+                <p>Password:</p>  <input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
+                
+                <input type="checkbox" onclick="showPassword()"> Show Password
+                
+                <p>MQTT Pub:</p>  <input id="mqtt_pub" type="text" maxlength="64" placeholder="mqtt pub" value="">
+                
+                <p></p>MQTT Sub:</p>  <input id="mqtt_sub" type="text" maxlength="64" placeholder="mqtt sub" value="">
 
+                <input id="connect_mqtt" type="button" value="Connect" />
+
+                <input id="disconnect_mqtt" type="button" value="Disconnect"/>
+            </div>
+            
+            <!--Sección conexión Inversor-->	
+            <div id="secInv">
+                
+                <h2>Inversor:</h2>
+                <p>URL Inversor:</p>
+                <input id="url_inverter" type="url" maxlength="64" size="64" placeholder="url_inverter" value="http://192.168.1.39/measurements.xml">
+                <input id="inverter-save_url" type="button" value="Save URL">
+                     
+            </div>
+            
+            <!-- Sección PID-->
+             <div id="secPid">
+            
+                <h2>PID:</h2>
+                <p>Valor Kp:</p>
+                <input type="range" min="1" max="100" value="50" class="slider" id="pid-kp">
+                <p id="pid-kp-value"></p>
+                <p>Valor Ki:</p>
+                <input type="range" min="1" max="100" value="50" class="slider" id="pid-ki">
+                <p id="pid-ki-value"></p>
+                <p>Valor Kd:</p>
+                <input type="range" min="1" max="100" value="50" class="slider" id="pid-kd">
+                <p id="pid-kd-value"></p>
+                <p>Valor Mínimo:</p>
+                <input id="pid-min" type="text" maxlength="4" placeholder="Valor Min" value="">
+                <p>Valor Máximo</p>
+                <input id="pid-max" type="text" maxlength="4" placeholder="Valor Max" value="">
+                <input id="pid-send_pid" type="button" value="Send PID" />
+                <input id="pid-save_pid" type="button" value="Save PID" />
+                
+             </div>
+
+                </main>
+
+                <aside class="rigth"></aside>
+
+                <footer class="footer"><a href="https://github.com/victorrova/librerias" target="_blank">Github</a></footer>
+
+            </div>
+
+    <script async src="app.js"></script>
 </body>
-<html>
+</html>

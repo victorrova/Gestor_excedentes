@@ -1,0 +1,33 @@
+.main {
+    grid-area: main;
+    display:block;
+    margin: 0px 25px;
+    padding: 50px 100px;
+    background-color: #ffffffa3;
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px #000000;
+}
+
+.main h2 {
+    color: #1D3557;
+    font-size: 30px;
+    text-shadow: 2px 2px 5px #c5c5c5;
+    text-transform: uppercase;
+    padding-bottom: 30px;
+}
+
+#secWifi {
+    display: block;
+}
+
+#secMqtt {
+    display: none;
+}
+
+#secInv {
+    display: none;
+}
+
+#secPid {
+    display: none;
+}

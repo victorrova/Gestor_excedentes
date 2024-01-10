@@ -1,0 +1,24 @@
+
+.header {
+    grid-area: header;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 20px;
+    background-color: #1D3557;
+    box-shadow: 1px 1px 5px #000000;   
+}
+
+.header h1 {
+    margin: 10px 50px;
+    text-shadow: 1px 1px 5px #000000;
+    font-size: 30px;
+    text-transform: uppercase; 
+    color: #ffffff;  
+    
+}
+
+.header img {
+    margin: 10px 50px;
+    filter: invert(100%);
+    
+}

@@ -1,0 +1,7 @@
+.rigth {
+    grid-area: rigth;
+    background-color: #E63946;
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px #000000;
+    margin: 0px 25px;
+}

@@ -15,6 +15,9 @@ function onLoad(event) {
 	initWebSocket();
 	initButton();
 	updateSliders();
+
+	
+
 }
 
 function initWebSocket() {
@@ -80,13 +83,23 @@ function onMessage(event) {
 function initButton() {
 
 	document.getElementById('connect_wifi').addEventListener('click', checkCredentials);
-	document.getElementById('disconnect_wifi').addEventListener('click', WSdisconnectWIFI);
+	//document.getElementById('disconnect_wifi').addEventListener('click', WSdisconnectWIFI);
 	document.getElementById('connect_mqtt').addEventListener('click', WSconnectMQTT);
 	document.getElementById('disconnect_mqtt').addEventListener('click', WSdisconnectMQTT);
 	document.getElementById('scan_wifi').addEventListener('click', WSgetWifiScanList);
 	document.getElementById('pid-send_pid').addEventListener('click', WSsendPID);
 	document.getElementById('pid-save_pid').addEventListener('click', WSsavePID);
 	document.getElementById('inverter-save_url').addEventListener('click', WSsaveInverterURL);
+
+	document.getElementById('menu_wifi').addEventListener('click', menuWifi);
+	document.getElementById('menu_mqtt').addEventListener('click', menuMqtt);
+	document.getElementById('menu_inv').addEventListener('click', menuInv);
+	document.getElementById('menu_pid').addEventListener('click', menuPid);
+
+	document.getElementById('secWifi').style.display = 'block'; 
+	document.getElementById('secMqtt').style.display = 'none'; 
+	document.getElementById('secInv').style.display = 'none'; 
+	document.getElementById('secPid').style.display = 'none'; 
 
 }
 
@@ -119,6 +132,39 @@ function updateSliders()
 		outputKd.innerHTML = this.value;
 		WSsendPID();
 	}
+}
+
+function menuWifi() {
+
+	document.getElementById('secWifi').style.display = 'block'; 
+	document.getElementById('secMqtt').style.display = 'none'; 
+	document.getElementById('secInv').style.display = 'none'; 
+	document.getElementById('secPid').style.display = 'none'; 
+}
+
+function menuMqtt() {
+
+	document.getElementById('secWifi').style.display = 'none'; 
+	document.getElementById('secMqtt').style.display = 'block'; 
+	document.getElementById('secInv').style.display = 'none'; 
+	document.getElementById('secPid').style.display = 'none'; 
+}
+
+function menuInv() {
+
+	document.getElementById('secWifi').style.display = 'none'; 
+	document.getElementById('secMqtt').style.display = 'none'; 
+	document.getElementById('secInv').style.display = 'block'; 
+	document.getElementById('secPid').style.display = 'none'; 
+
+}
+
+function menuPid() {
+
+	document.getElementById('secWifi').style.display = 'none'; 
+	document.getElementById('secMqtt').style.display = 'none'; 
+	document.getElementById('secInv').style.display = 'none'; 
+	document.getElementById('secPid').style.display = 'block'; 
 }
 
 function WSsendPID() {
@@ -456,8 +502,21 @@ function showPassword() {
 	}
 }
 
+/**
+ * Shows the WiFi password if the box is checked.
+ */
+function showIPConfig() {
+	
+	if (document.getElementById('connect_dhcp').checked == true) {
 
-
+		document.getElementById('data_no_DHCP').style.visibility = 'hidden';
+		
+	}
+	else {
+		document.getElementById('data_no_DHCP').style.visibility = 'visible';
+		
+	}
+}
 
 
 

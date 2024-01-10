@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="app.css">
+	<script async src="app.js"></script>
+	<title>Configuración Gestor</title>
+</head>
+
+<body>
+	<header>
+		<h1>Configuración Gestor</h1>
+	</header>
+
+	<!-- Sección Fecha y Hora-->
+	<div class="section" id="local_time">
+		<table>
+			<tr>
+				<td>
+					<h4 id="time_label">Fecha y Hora:</h4>
+				</td>
+				<td>
+					<p id="timestamp_label">-</p>
+				</td>
+			</tr>
+		</table>
+
+		
+	</div>
+
+	<!-- Sección WIFI-->
+	
+	<div class="section" id="WiFiConnect">
+		<hr>
+		<table>
+			<tr>
+				<td colspan="2">
+					<h2>Conexión WIFI</h2>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<input id="scan_wifi" type="button" value="Scan">
+				</td>
+				<td>
+					<input list="wifi_list" id="connect_ssid" type="text" maxlength="32" placeholder="SSID" value="">
+					<datalist id="wifi_list">
+						<option>Hola</option>
+					</datalist>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<p>Password: </p>
+				</td>
+				<td>
+					<input id="connect_pass" type="password" maxlength="64" placeholder="Password" value="">
+				</td>
+				<td>	
+					<input type="checkbox" onclick="showPassword()"> Show Password
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<input id="connect_dhcp" type="checkbox" onclick="showIPConfig()"> DHCP
+				</td>
+				
+			</tr>
+
+			<tr id="data_no_DHCP">
+				<td>
+					<p>IP: </p>
+				</td>
+				<td>
+					<input id="connect_ip" type="text" maxlength="16" placeholder="IP" value="">
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<p>Netmask: </p>
+				</td>
+				<td>
+					<input id="connect_netmask" type="text" maxlength="16" placeholder="Netmask" value="255.255.255.0">
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<p>Gateway: </p>
+				</td>
+				<td>
+					<input id="connect_gateway" type="text" maxlength="16" placeholder="Gateway" value="">
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<p>DNS 1: </p>
+				</td>
+				<td>
+					<input id="connect_dns1" type="text" maxlength="16" placeholder="DNS 1" value="">
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<p>DNS 2: </p>
+				</td>
+				<td>
+					<input id="connect_dns2" type="text" maxlength="16" placeholder="DNS 2" value="">
+				</td>
+			</tr>
+			
+
+			<tr>
+				<td>
+					<input id="connect_wifi" type="button" value="Connect" />
+				</td>
+			</tr>
+		</table>
+	
+		<div id="wifi_connect_credentials_errors"></div>
+		<h4 id="wifi_connect_status"></h4>
+	</div>
+
+	<div id="ConnectInfo">
+		<section>
+			<div id="connected_ap_label"></div>
+			<div id="connected_ap"></div>
+		</section>
+		<div id="ip_address_label"></div>
+		<div id="wifi_connect_ip"></div>
+		<div id="netmask_label"></div>
+		<div id="wifi_connect_netmask"></div>
+		<div id="gateway_label"></div>
+		<div id="wifi_connect_gw"></div>
+		<div class="buttons">
+			<input id="disconnect_wifi" type="button" value="Disconnect" />
+		</div>
+	</div>
+	</hr>
+	
+	<!-- Sección MQTT-->
+	<div id="MqttConnect">
+		<hr>
+		<table>
+		<tr>
+			<td colspan="2">
+				<h2>Conexión MQTT</h2>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Servidor: <input id="mqtt_host" type="text" maxlength="64" placeholder="Servidor" value="">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Port: <input id="mqtt_port" type="text" maxlength="6" placeholder="Port" value="1883">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Id: <input id="mqtt_id" type="text" maxlength="32" placeholder="Id" value="">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				User: <input id="mqtt_user" type="text" maxlength="32" placeholder="User" value="">
+			</td>
+		</tr>	
+		<tr>
+			<td>
+				Password: <input id="mqtt_pass" type="password" maxlength="32" placeholder="Password" value="">
+			</td>
+
+			<td>
+				<input type="checkbox" onclick="showPassword()"> Show Password
+			</td>
+
+		</tr>	
+		<tr>
+			<td>
+				MQTT Pub: <input id="mqtt_pub" type="text" maxlength="64" placeholder="mqtt pub" value="">
+			</td>
+		</tr>	
+		<tr>
+			<td>
+				MQTT Sub: <input id="mqtt_sub" type="text" maxlength="64" placeholder="mqtt sub" value="">
+			</td>
+		</tr>	
+		<tr class="buttons">
+			<td>
+				<input id="connect_mqtt" type="button" value="Connect" />
+				<input id="disconnect_mqtt" type="button" value="Disconnect" />
+			</td>
+		</tr>	
+		
+		<div id="mqtt_connect_credentials_errors"></div>
+		<h4 id="mqtt_connect_status"></h4>
+		</table>
+	</div>
+
+	<!-- 
+	<div id="MqttConnectInfo">
+		<section>
+			<div id="mqtt_connected_ap_label"></div>
+			<div id="mqtt_connected_ap"></div>
+		</section>
+	-->
+		
+	</div>
+
+	<!-- Sección PID-->
+	<div id="pid">
+		<hr>	
+		<table>
+		<tr>
+			<td colspan="2">
+				<h2>PID:</h2>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Valor Kp:</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="range" min="1" max="100" value="50" class="slider" id="pid-kp">
+			</td>
+			<td>
+				<p id="pid-kp-value"></p>
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+				<p>Valor Ki:</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="range" min="1" max="100" value="50" class="slider" id="pid-ki">
+			</td>
+			<td>
+				<p id="pid-ki-value"></p>
+			</td>
+		</tr>	
+
+		<tr>
+			<td>
+				<p>Valor Kd:</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="range" min="1" max="100" value="50" class="slider" id="pid-kd">
+			</td>
+			<td>
+				<p id="pid-kd-value"></p>
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+				<p>Valor Mínimo:</p>
+			</td>
+			<td>
+				<input id="pid-min" type="text" maxlength="4" placeholder="Valor Min" value="">
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				<p>Valor Máximo</p>
+			</td>
+			<td>
+				<input id="pid-max" type="text" maxlength="4" placeholder="Valor Max" value="">
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+				<input id="pid-send_pid" type="button" value="Send PID" />
+			</td>
+			<td>
+				<input id="pid-save_pid" type="button" value="Save PID" />
+			</td>
+		</tr>
+		</table>
+	</div>
+
+	<!--Sección conexión Inversor-->	
+	<div id="inversor">
+		<hr>
+		<table>
+			<tr>
+				<td colspan="2">
+					<h2>Inversor:</h2>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p>URL Inversor:</p>
+				</td>
+				<td>
+					<input id="url_inverter" type="url" maxlength="64" size="64" placeholder="url_inverter" value="http://192.168.1.39/measurements.xml">
+				</td>
+			</tr>
+			<tr>
+				<td class="buttons">
+					<input id="inverter-save_url" type="button" value="Save URL">
+				</td>
+				
+			</tr>
+		</table>
+	</div>
+
+</body>
+<html>
