@@ -13,7 +13,7 @@
 #include "string.h"
 #include <sys/socket.h>
 
-void simple_ota_example_task(void *pvParameter);
+void Ota_task(void *pvParameter);
 
 
 #endif

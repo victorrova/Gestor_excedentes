@@ -40,40 +40,33 @@ esp_err_t hlw8032_serial_begin(hlw8032_t* hlw8032, uart_port_t UART_number, gpio
 
 esp_err_t hlw8032_read(hlw8032_t* hlw8032)
 {
-   
-    int rxBytes = 0;
+    uint8_t check_search = 0;
     size_t data_len = 0;
-    uint8_t* data = (uint8_t*)hlw8032->buffer;
     uart_get_buffered_data_len(hlw8032->UART_num, &data_len);
-    //ESP_LOGI(__FUNCTION__,"TAMAÑO BUFFER = %d",(int)data_len);
-    if((int)data_len >=24)
-    {
-        
-        rxBytes = uart_read_bytes(hlw8032->UART_num, data, 24, 60/portTICK_PERIOD_MS);
-        uart_flush(hlw8032->UART_num);
-    }
-    else
-    {
-        ESP_LOGW(__FUNCTION__, "buffer incompleto = %d",(int)data_len);
-       
-        return ESP_FAIL;
-    }
-    for(int i = 0; i<rxBytes;i++)
-    {
-        printf("%02x ",data[i]);
-    }
-    printf("numero %d\n",rxBytes);
-     /*if (data[24] != 0x55 && data[24] < 0xF0)
-    {
-        ESP_LOGW(HLW8032_TAG, "Invalid status REG -> 0x%02X", data[23]);
-        uart_flush(hlw8032->UART_num);
-        return ESP_FAIL;
-    }*/
-    return ESP_OK;
 
-        /*if (rxBytes > 0)
+    while ((int)data_len > 0 && check_search != 0x5A)
+    {
+        uart_read_bytes(hlw8032->UART_num, &check_search, 1, portMAX_DELAY);
+        uart_get_buffered_data_len(hlw8032->UART_num, &data_len);
+    }
+    if ((int)data_len >= 24 && check_search == 0x5A)
+    {
+        uint8_t* data = (uint8_t*)hlw8032->buffer;
+        data[0] = check_search;
+        const int rxBytes = uart_read_bytes(hlw8032->UART_num, data + 2, 24, portMAX_DELAY);
+        if (rxBytes > 0)
         {
-
+            for(int i = 0; i<rxBytes;i++)
+            {
+                printf("%02x ",data[i]);
+            }
+            printf("numero %d\n",rxBytes);
+            if (data[24] != 0x55 && data[24] < 0xF0)
+            {
+                ESP_LOGW(HLW8032_TAG, "Invalid status REG -> 0x%02X", data[23]);
+                uart_flush(hlw8032->UART_num);
+                return ESP_FAIL;
+            }
 
             uint8_t checksum = 0;
             for(uint8_t a = 2; a<=22; a++)
@@ -127,7 +120,7 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
     } 
     
     uart_flush(hlw8032->UART_num);
-    return ESP_OK;*/
+    return ESP_OK;
 }
 /*esp_err_t hlw8032_read(hlw8032_t* hlw8032)
 {

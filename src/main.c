@@ -295,7 +295,7 @@ void Com_Task(void *pvparams)
                             if(cJSON_IsString(item))
                             {
                                 char *url= item->valuestring;
-                                xTaskCreate(&simple_ota_example_task, "ota_task", 8192, &url, 5, NULL);
+                                xTaskCreate(&Ota_task, "ota_task", 8192, &url, 5, NULL);
                             }
 
                         }
@@ -357,11 +357,11 @@ extern hlw8032_t  hlw_meter;
 void app_main(void)
 {
     
-    Machine_init();
-    vTaskDelay(2000/portTICK_PERIOD_MS);
-    Wifi_run(WIFI_MODE_STA);
-    printf("versión actual: %f\n",VERSION);
-    //xTaskCreate(&simple_ota_example_task, "ota_task", 8192, NULL, 5, NULL);
+    //Machine_init();
+    //vTaskDelay(2000/portTICK_PERIOD_MS);
+    //Wifi_run(WIFI_MODE_STA);
+    //printf("versión actual: %f\n",VERSION);
+    //xTaskCreate(&Ota_task, "ota_task", 8192, NULL, 5, NULL);
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
@@ -369,18 +369,18 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
-    /*led_init();
+    led_init();
     led_off();
     Meter_init();
     
     while(1)
     {
        hlw8032_read(&hlw_meter);
-       printf("V = %2f\n",hlw8032_get_V(&hlw_meter));
-       printf("I = %2f\n",hlw8032_get_I_analog(&hlw_meter));
-       printf("P = %2f\n",hlw8032_get_P_active(&hlw_meter));
-       vTaskDelay(250/portTICK_PERIOD_MS);
-    }*/
+       //printf("V = %2f\n",hlw8032_get_V(&hlw_meter));
+       //printf("I = %2f\n",hlw8032_get_I_analog(&hlw_meter));
+       //printf("P = %2f\n",hlw8032_get_P_active(&hlw_meter));
+       vTaskDelay(500/portTICK_PERIOD_MS);
+    }
 }
 
 

@@ -52,6 +52,9 @@
         "task_factory.h": "c",
         "cjson.h": "c",
         "adc.h": "c",
-        "esp_https_ota.h": "c"
+        "esp_https_ota.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }
