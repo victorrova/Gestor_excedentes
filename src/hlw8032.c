@@ -50,12 +50,12 @@ esp_err_t hlw8032_read(hlw8032_t* hlw8032)
     {
         
         rxBytes = uart_read_bytes(hlw8032->UART_num, data, 24, 60/portTICK_PERIOD_MS);
-        uart_flush(hlw8032->UART_num);
+        
     }
     else
     {
-        ESP_LOGW(__FUNCTION__, "buffer incompleto = %d",(int)data_len);
-       
+        ESP_LOGE(__FUNCTION__, "buffer incompleto = %d",(int)data_len);
+        uart_flush(hlw8032->UART_num);
         return ESP_FAIL;
     }
     for(int i = 0; i<rxBytes;i++)

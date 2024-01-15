@@ -7,7 +7,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
-
+#include "helper.h"
 #define HLW8032_TAG "HLW8032"
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
