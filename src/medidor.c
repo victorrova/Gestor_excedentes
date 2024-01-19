@@ -42,7 +42,12 @@ esp_err_t Hlw8032_read(meter_t *meter)
     int rxBytes = 0;
     uint8_t *buffer = NULL;
     size_t data_len = 0;
-    uart_get_buffered_data_len(UART_PORT, &data_len);
+    uart_flush(UART_PORT);
+    do
+    {
+        uart_get_buffered_data_len(UART_PORT, &data_len);
+    } while ((int)data_len < 24);
+    
     if((int)data_len >=24)
     {
         uint8_t *buffer = (uint8_t*)malloc(sizeof(uint8_t)*50);
