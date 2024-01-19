@@ -4,12 +4,13 @@
 #include "mqtt.h"
 #include "pid.h"
 #include "dimmer.h"
-#include "hlw8032.h"
+//#include "hlw8032.h"
 #include "http_server_app.h"
 #include "event.h"
 #include "machine.h"
 #include "led.h"
 #include "ota.h"
+#include "medidor.h"
 
 #define VERSION 0.5
 extern EventGroupHandle_t Bits_events;
@@ -371,15 +372,21 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
     led_init();
     led_off();
-    Meter_init();
-    
+    //Meter_init();
+    Hlw8032_Init();
+    esp_err_t err = ESP_FAIL;
     while(1)
     {
-       hlw8032_read(&hlw_meter);
-       //printf("V = %2f\n",hlw8032_get_V(&hlw_meter));
-       //printf("I = %2f\n",hlw8032_get_I_analog(&hlw_meter));
-       //printf("P = %2f\n",hlw8032_get_P_active(&hlw_meter));
-       vTaskDelay(500/portTICK_PERIOD_MS);
+        meter_t *met = (meter_t*)malloc(sizeof(meter_t));
+        err = Hlw8032_read(met);
+        if(err == ESP_OK)
+        {
+            printf("V = %2f\n",met->Voltage);
+            printf("I = %2f\n",met->Current);
+            printf("P = %2f\n",met->Power_active);
+        }
+        free(met);
+        vTaskDelay(500/portTICK_PERIOD_MS);
     }
 }
 

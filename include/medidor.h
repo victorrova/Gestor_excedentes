@@ -13,7 +13,7 @@
 #define BUFFER 256
 #define VOLTAGE_COEF 1.88
 #define CURRENT_COEF 1
-
+#define DEBUG 1
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 
@@ -25,5 +25,6 @@ typedef struct{
     float Pf;
 
 }meter_t;
-
+esp_err_t Hlw8032_Init(void);
+esp_err_t Hlw8032_read(meter_t *meter);
 #endif
