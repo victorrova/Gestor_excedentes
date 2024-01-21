@@ -11,7 +11,7 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
 
     - protección por temperaturra excesiva:
     =======================================
-    Incluye una sonda NTC y un ventilador para el controlar la optima refrigeración.
+    Incluye una sonda NTC y un ventilador para el controlar la óptima refrigeración.
 
     - medición de consumo:    
     ======================
@@ -27,7 +27,7 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
 
     - comunicaciones Wifi y bluetooth:
     ==================================
-    Todo ele sistema esta controlado y comandado por el Maravilloso esp32 de los amigos de Espressif.
+    Todo el sistema esta controlado y comandado por el Maravilloso esp32 de los amigos de Espressif.
 
 
 ESQUEMA:
