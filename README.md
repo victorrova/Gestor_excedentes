@@ -1,7 +1,13 @@
 GESTOR EXCEDENTE FOTOVOLTAICO:
 ==============================
 
-Les traigo un  "Frankestein" que hará las delicicias de cualquier Maker con campo Fotovoltaico en su tejado, este amigo, te da la posibilidad de redirigir tu excedentes de produccion  a cualquier carga (regulable claro está).
+ UN POCO DE HISTORIA:
+ ====================
+Un buen amigo me mostró un "gestor de excedentes" que compró en Ebay, se trataba de un dimmer con uun triac inmenso soldado con 4 cables a una pcb llena de estaño, como me parecio una basura insegura, con mucho tacto le dije:
+ - Hay mañanas que cago mierdas mejores que esto.
+Pero el concepto me gustó bastante, con los exdentes fotovoltaicos podía calentar agua  para ACS, así que empece a diseñar una dimmer como es debido.
+
+Despues de tres modelos les  traigo un  "Frankestein" que hará las delicicias de cualquier Maker con campo Fotovoltaico en su tejado, este amigo, te da la posibilidad de redirigir tu excedentes de produccion  a cualquier carga (regulable claro está).
 
 Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributos:
 
@@ -15,7 +21,7 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
 
     - medición de consumo:    
     ======================
-    le he añadido el Ic Hlw8032 para la medición ded comsumo (optoaislado por si acaso)
+    Le he añadido el ic Hlw8032 para la medición ded comsumo (optoaislado por si acaso)
 
     - Cruce por Cero:
     =================
