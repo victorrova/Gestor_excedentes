@@ -66,12 +66,11 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
-            ///printf("memoria dimmmer= %d\n",uxTaskGetStackHighWaterMark( NULL ));
         }
         if(count_send > 300)
         {
             char reg[32];
-            conf_gestor.level = map(conf_gestor.reg,conf_gestor.min_delay,10000,0,100);
+            conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",20/portTICK_PERIOD_MS);
             ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
@@ -295,13 +294,4 @@ void dimmer_stop(void)
         ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
     }
     
-}
-void dimmer_connect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
-{
-    dimmer_init();
-}
-    
-void dimmer_disconnect_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
-{
-    dimmer_stop();
 }

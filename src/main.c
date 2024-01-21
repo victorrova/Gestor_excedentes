@@ -4,7 +4,7 @@
 #include "mqtt.h"
 #include "pid.h"
 #include "dimmer.h"
-//#include "hlw8032.h"
+#include "hlw8032.h"
 #include "http_server_app.h"
 #include "event.h"
 #include "machine.h"
@@ -59,7 +59,7 @@ void Machine_OTA_OK_handler(void* arg, esp_event_base_t event_base,int32_t event
 
 void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
-    
+    dimmer_stop();
     led_AP();
 }
 
@@ -354,14 +354,35 @@ void Com_Task(void *pvparams)
     }
     vTaskDelete(NULL);
 }
-extern hlw8032_t  hlw_meter;
+
 void app_main(void)
 {
+
+    printf("	      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");              
+    printf("              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.\n");                
+    printf("              @@@@*@@@@@@@@@@@@@@@*@@@@@@*@@@@@@@@@@@@@@@@ \n");               
+    printf("               @@@**@@@@**@@**@@@***@@@@***/@@@@*****@@@@@\n");                
+    printf("               @@****@&****@***/******@&*****@@*******#@@@\n");                
+    printf("                *********@**@**************************** \n");                  
+    printf("                *****@&#********************************* \n");            
+    printf("                 **@************************************  \n");                    
+    printf("                 *****@@@@@@@@@@@@*****@@@@@@@@@@@@*****  \n");                 
+    printf("                 ******          *******          ******  \n");                 
+    printf("                  ****    ,@@     *****     @@     ****   \n");                  
+    printf("              **********    .  **/,*****/.      .********** \n");                
+    printf("             ***##*************************************##*** \n");               
+    printf("              ********************************************* \n");                
+    printf("                   ***********************************    \n");                  
+    printf("                   ********  ===============  *****@**     \n");                 
+    printf("             @@@@  *******************************@@*,  @@@@\n");                
+    printf("             @@@@@@@*************************/&@*****@@@@@@@\n");                
+    printf("             @@@@   *****************@@@@@*/*********   @@@@\n");                
+    printf("                     *******************************        \n"); 
     
-    //Machine_init();
-    //vTaskDelay(2000/portTICK_PERIOD_MS);
-    //Wifi_run(WIFI_MODE_STA);
-    //printf("versión actual: %f\n",VERSION);
+    Machine_init();
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    Wifi_run(WIFI_MODE_STA);
+    printf("versión actual: %f\n",VERSION);
     //xTaskCreate(&Ota_task, "ota_task", 8192, NULL, 5, NULL);
     /*ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
@@ -370,7 +391,7 @@ void app_main(void)
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
     ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));*/
-    led_init();
+    /*led_init();
     led_off();
     //Meter_init();
     Hlw8032_Init();
@@ -387,7 +408,7 @@ void app_main(void)
         }
         free(met);
         vTaskDelay(500/portTICK_PERIOD_MS);
-    }
+    }*/
 }
 
 

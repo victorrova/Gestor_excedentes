@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <freertos/FreeRTOS.h>
-#include "soc/efuse_reg.h"
-#include "esp_efuse.h"
 #include <freertos/task.h>
 #include "esp_err.h"
 #include "esp_log.h"
@@ -19,7 +17,8 @@
 #include "cJSON.h"
 #include "hlw8032.h"
 #include "wifi.h"
-
+#include "storage.h"
+#include "cJSON.h"
 typedef struct s_timer{
  int prescaler;
  int timer;

@@ -26,5 +26,4 @@ void xr_read(xr_callback cb, const char* doc, void* user_data);
 
 
 
-#endif //#ifndef XREAD_H
-
+#endif 

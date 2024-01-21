@@ -8,7 +8,7 @@ extern EventGroupHandle_t Bits_events;
 
 #define FAN 19
 #define SELECT 0 
-hlw8032_t  hlw_meter;
+static hlw8032_t  hlw_meter;
 
 
 esp_err_t Meter_init(void)
@@ -93,20 +93,30 @@ float temp_termistor(void)
 
 static int mqtt_logger(const char *msg, va_list arg)
 {
-    char buffer[512];
+    char buffer[256];
     vsprintf(buffer,msg,arg);
-    esp_err_t result = queue_send(MQTT_TX, buffer,"/casa/gestor/log",portMAX_DELAY);
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root,"logger",buffer);
+    char* buff = cJSON_Print(root);
+    esp_err_t result = queue_send(MQTT_TX, buff,"NONE",portMAX_DELAY);
+    cJSON_Delete(root);
+    if(buff != NULL)
+    {
+        free(buff);
+    }
     if(result == -1){
+        
         return -1;
     }
+
     return vprintf(msg,arg);
 
 }
 static int ws_logger(const char *msg, va_list arg)
 {
-    char buffer[512];
+    char buffer[256];
     vsprintf(buffer,msg,arg);
-    esp_err_t result = queue_send(WS_TX,buffer,"/ws/logger",portMAX_DELAY);
+    esp_err_t result = queue_send(WS_TX,buffer,"NONE",portMAX_DELAY);
     if(result == -1){
         return -1;
     }
