@@ -1,6 +1,6 @@
 #ifndef MQTT_H
 #define MQTT_H
-
+#include <string.h>
 #include "esp_log.h"
 #include "mqtt_client.h"
 #include "esp_event.h"

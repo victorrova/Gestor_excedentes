@@ -280,10 +280,10 @@ void dimmer_init(void)
 void dimmer_stop(void)
 {
 
-    eTaskState state = eTaskGetState(dimmer_task);
+    eTaskState state = eTaskGetState(&dimmer_task);
     if(state != eInvalid && state != eDeleted)
     {
-        vTaskDelete(dimmer_task);
+        vTaskDelete(&dimmer_task);
         gpio_isr_handler_remove(ZERO);
         esp_timer_stop(_timer);
         ESP_LOGW(__FUNCTION__,"Dimmer task stop");

@@ -233,7 +233,7 @@ esp_err_t Keepalive(int state_gestor)
     cJSON_AddNumberToObject(root,"factor_p",factor_p);
     cJSON_AddItemToObject(keep, "keepalive",root);
     char *msg = cJSON_Print(keep);
-    queue_send(MQTT_TX,msg,"keepalive",portMAX_DELAY);
+    queue_send(MQTT_TX,msg,"NONE",portMAX_DELAY);
     cJSON_Delete(keep);
     cJSON_free(msg);
     return ESP_OK;

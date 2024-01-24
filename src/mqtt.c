@@ -117,7 +117,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
 {
     esp_err_t err = ESP_FAIL;
-    if(topic != NULL || strcmp(topic,"NONE") != 0)
+    if(topic != NULL && strcmp(topic,"NONE") != 0)
     {
         esp_mqtt_client_publish(client,topic,payload,payload_len, 1, 0);
         err = ESP_OK;

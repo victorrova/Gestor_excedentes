@@ -37,8 +37,8 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 }
 void Ota_task(void *pvParameter)
 {
-    char *url = *(char*)pvParameter;
-    ESP_LOGI(__FUNCTION__, "Starting OTA example task");
+    char *url = (char*)pvParameter;
+    ESP_LOGI(__FUNCTION__, "Inicio de Ota desde url: %s",url);
     esp_http_client_config_t config = {
         .url = url, 
         .event_handler = _http_event_handler,
