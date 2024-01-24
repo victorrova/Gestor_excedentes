@@ -6,18 +6,13 @@
 static esp_adc_cal_characteristics_t adc1_chars;
 extern EventGroupHandle_t Bits_events;
 
-#define FAN 19
-#define SELECT 0 
-static hlw8032_t  hlw_meter;
+
 
 
 esp_err_t Meter_init(void)
 {
-   esp_err_t err = ESP_FAIL;
-   err = hlw8032_serial_begin(&hlw_meter,2,16,256);
-   hlw8032_set_I_coef_from_R(&hlw_meter, 0.001);
-   hlw8032_set_V_coef_from_R(&hlw_meter, 1880000, 1000);
-   return err;
+
+   return Hlw8032_Init();
 }
 esp_err_t termistor_init(void)
 {
@@ -161,47 +156,19 @@ void set_stream_logger(int logger)
 }
 
 
-void timer_init(s_timer_t *param,int prescaler,int timer,int (*callback)(void), void *params)
-{
-    param->count =0;
-    param->prescaler=prescaler;
-    param->timer = timer;
-    param->function_cb= callback;
-    param->params = params;
-    param->result = 0;
-}
 
-void timer_loop(s_timer_t *param)
-{
-    int ciclo = param->timer / param->prescaler;
-    if(ciclo <= param->count)
-    {
-        int result =param->function_cb(&param->params);
-        param->result = result;
-        param->count =0;
-    }
-    else
-    {
-        param->count++;
-    }
-
-}
 
 esp_err_t Keepalive(int state_gestor)
 {
     cJSON *keep = cJSON_CreateObject();
     cJSON *root = cJSON_CreateObject();
     float temp = 0.0;
-    float voltage = 0.0;
-    float intensidad = 0.0 ;
-    float P_activa = 0.0;
-    float P_appa = 0.0;
-    float factor_p = 0.0;
     esp_err_t err = ESP_FAIL;
     temp = temp_termistor();
+    meter_t *met = (meter_t*)malloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
-        err = hlw8032_read(&hlw_meter);
+        err =Hlw8032_read(met);
         if(err == ESP_OK)
         {
             break;
@@ -211,31 +178,23 @@ esp_err_t Keepalive(int state_gestor)
             vTaskDelay(250/portTICK_PERIOD_MS);
         }
     }
-    if(err == ESP_OK)
+    if(err != ESP_OK)
     {
-        voltage = hlw8032_get_V(&hlw_meter);
-        intensidad = hlw8032_get_I(&hlw_meter);
-        P_activa = hlw8032_get_P_active(&hlw_meter);
-        P_appa = hlw8032_get_P_apparent(&hlw_meter);
-        factor_p = hlw8032_get_P_factor(&hlw_meter);
-
-    }
-    else
-    {
+       
         ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
         return ESP_FAIL;
     }
     cJSON_AddNumberToObject(root,"temp_ntc",temp);
-    cJSON_AddNumberToObject(root,"voltage",voltage);
-    cJSON_AddNumberToObject(root,"current",intensidad);
-    cJSON_AddNumberToObject(root,"p_activa",P_activa);
-    cJSON_AddNumberToObject(root,"p_appa",P_appa);
-    cJSON_AddNumberToObject(root,"factor_p",factor_p);
+    cJSON_AddNumberToObject(root,"voltage",met->Voltage);
+    cJSON_AddNumberToObject(root,"current",met->Current);
+    cJSON_AddNumberToObject(root,"p_activa",met->Power_active);
+    cJSON_AddNumberToObject(root,"p_appa",met->Power_appa);
     cJSON_AddItemToObject(keep, "keepalive",root);
     char *msg = cJSON_Print(keep);
     queue_send(MQTT_TX,msg,"NONE",portMAX_DELAY);
     cJSON_Delete(keep);
     cJSON_free(msg);
+    free(met);
     return ESP_OK;
 }
 

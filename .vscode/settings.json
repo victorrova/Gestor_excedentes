@@ -56,6 +56,8 @@
         "array": "c",
         "string": "c",
         "string_view": "c",
-        "medidor.h": "c"
+        "medidor.h": "c",
+        "config.h": "c",
+        "ota.h": "c"
     }
 }

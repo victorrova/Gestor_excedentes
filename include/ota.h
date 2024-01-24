@@ -12,6 +12,8 @@
 #include "esp_https_ota.h"
 #include "string.h"
 #include <sys/socket.h>
+#include "config.h"
+
 
 void Ota_task(void *pvParameter);
 

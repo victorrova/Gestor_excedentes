@@ -12,7 +12,6 @@
 
 esp_http_client_handle_t  http_begin(const char *url);
 float Kostal_requests(esp_http_client_handle_t client);
-
 #endif
 
 

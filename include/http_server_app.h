@@ -28,8 +28,8 @@
 #include <esp_http_server.h>
 //#include "dns_server_app.h"
 
-#include "tasks_common.h"
 #include "cJSON.h"
+#include "config.h"
 
 #ifndef MAIN_HTTP_SERVER_H_
 #define MAIN_HTTP_SERVER_H_

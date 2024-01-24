@@ -1,7 +1,6 @@
 #include "dimmer.h"
 
-#define ZERO 18 
-#define TRIAC 14 
+
 
 
 static TaskHandle_t dimmer_task =NULL;

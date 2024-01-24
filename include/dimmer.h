@@ -15,6 +15,7 @@
 #include "machine.h"
 #include "helper.h"
 #include "storage.h"
+#include "config.h"
 
 typedef struct conf_dimmmer{
     char inverter_url[128];

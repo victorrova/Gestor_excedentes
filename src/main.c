@@ -4,15 +4,14 @@
 #include "mqtt.h"
 #include "pid.h"
 #include "dimmer.h"
-#include "hlw8032.h"
 #include "http_server_app.h"
 #include "event.h"
 #include "machine.h"
 #include "led.h"
 #include "ota.h"
 #include "medidor.h"
+#include "config.h"
 
-#define VERSION 0.53
 extern EventGroupHandle_t Bits_events;
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 void Com_Task(void *pvparams);
@@ -391,8 +390,8 @@ void app_main(void)
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
-      ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
-      ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
+    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
+    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
     /*led_init();
     led_off();

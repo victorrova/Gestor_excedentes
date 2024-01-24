@@ -21,13 +21,9 @@
 #include "esp_mac.h"
 #include "esp_err.h"
 #include "esp_check.h"
+#include "config.h"
 
 
-#define EXAMPLE_ESP_MAXIMUM_RETRY  10
-#define SSID "Gestor"
-#define CANAL 1
-#define PASS 
-#define MAXCON 1
 esp_err_t Wifi_run(wifi_mode_t mode);
 esp_err_t Wifi_init(void);
 

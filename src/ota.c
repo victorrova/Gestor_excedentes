@@ -1,10 +1,7 @@
 #include "ota.h"
-/********** HAY QUE CAMBIAR SOLO ESTO ************/
-#define BIN_URL "http://192.168.1.52:8000/firmware.bin"
-/*************************************************/
+
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 
-#define OTA_URL_SIZE 256
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     switch (evt->event_id) {
