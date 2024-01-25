@@ -1,8 +1,6 @@
 #include "dimmer.h"
 
 
-
-
 static TaskHandle_t dimmer_task =NULL;
 static esp_timer_handle_t _timer;
 static conf_dimmer_t conf_gestor;
@@ -57,6 +55,8 @@ static void dimmer_http(void *PvParams)
     uint8_t count_power = 0;
     uint16_t count_send = 0;
     int NTC_temp = 0;
+    int _pid = 0;
+    int _ntc_pid = 0;
     msg_queue_t msg;
     while(1)
     { 
@@ -65,6 +65,7 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
+            ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d ntc_pid %d  temp = %d ",conf_gestor.result,conf_gestor.min_delay,_ntc_pid,NTC_temp);
         }
         if(count_send > 300)
         {
@@ -81,8 +82,9 @@ static void dimmer_http(void *PvParams)
         }
         else if(NTC_temp > 55)
         {
-            int _pid = PID(50,NTC_temp,&conf_gestor.pid_NTC);
-            int _ntc_pid = map(_pid,-5,5,-50,50);
+             
+            _pid = PID(35,NTC_temp,&conf_gestor.pid_NTC);
+            _ntc_pid = map(_pid,-5,5,-10,10);
             conf_gestor.min_delay +=_ntc_pid;
             ESP_LOGW(__FUNCTION__,"temperatura escesiva!");
             ESP_LOGI(__FUNCTION__,"inicio pid temperatura");
@@ -90,8 +92,8 @@ static void dimmer_http(void *PvParams)
         }
         else if(NTC_temp < 45)
         {
-            int _pid = PID(55,NTC_temp,&conf_gestor.pid_NTC);
-            int _ntc_pid = map(_pid,-5,5,-50,50);
+            _pid = PID(35,NTC_temp,&conf_gestor.pid_NTC);
+            _ntc_pid = map(_pid,-5,5,-10,10);
             conf_gestor.min_delay +=_ntc_pid;
             if(conf_gestor.min_delay < 100)
             {
@@ -99,13 +101,23 @@ static void dimmer_http(void *PvParams)
             }
             Fan_state(0);
         }
+        if (NTC_temp < 35)
+        {
+            
+            conf_gestor.min_delay = 100;
+        }
+        
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
         int arrived = map(pid,-1000,1000,-500,500);
         sal += arrived;
         conf_gestor.result +=pid;
-        if(conf_gestor.result < 100)
+        if(conf_gestor.min_delay > 10000)
         {
-            conf_gestor.result = 100;
+            conf_gestor.min_delay = 10000;
+        }
+        if(conf_gestor.result <  conf_gestor.min_delay)
+        {
+            conf_gestor.result =  conf_gestor.min_delay;
             conf_gestor.pid_Pwr.CumError = 0;
         }
         
@@ -122,7 +134,7 @@ static void dimmer_http(void *PvParams)
         msg = queue_receive(DIMMER_RX,50/portTICK_PERIOD_MS);
         if(msg.len_msg > 0 && strcmp(msg.topic,"dimmer") == 0)
         {   
-            int calc = map(atoi(msg.msg),0,100,0,3600); // pasamos de % a watios 
+            int calc = map(atoi(msg.msg),0,100,0,MAX_POWER); // pasamos de % a watios 
             conf_gestor.reg = calc;
             ESP_LOGW(__FUNCTION__,"nuevo nivel = %d",calc);
         }
@@ -252,15 +264,13 @@ void dimmer_init(void)
     conf_gestor._enable = true;
     conf_gestor.pid_Pwr.CumError = 0;
     conf_gestor.pid_Pwr.LastError = 0;
-    conf_gestor.pid_Pwr.Kp = 0.5;
-    conf_gestor.pid_Pwr.Ki = 0.2;
-    conf_gestor.pid_Pwr.Kd = 0.8;
+
     conf_gestor.result = 10000;
     conf_gestor.reg = 0;
     conf_gestor.level = 0;
-    conf_gestor.pid_NTC.Kp = 0.5;
+    conf_gestor.pid_NTC.Kp = 0.3;
     conf_gestor.pid_NTC.Ki = 0.2;
-    conf_gestor.pid_NTC.Kd = 0.6;
+    conf_gestor.pid_NTC.Kd = 0.3;
     conf_gestor.pid_NTC.CumError =0;
     conf_gestor.pid_NTC.Error = 0;
     conf_gestor.pid_NTC.LastError = 0;
@@ -278,19 +288,24 @@ void dimmer_init(void)
 }
 void dimmer_stop(void)
 {
-
-    eTaskState state = eTaskGetState(&dimmer_task);
-    if(state != eInvalid && state != eDeleted)
+    if(dimmer_task != NULL)
     {
-        vTaskDelete(&dimmer_task);
-        gpio_isr_handler_remove(ZERO);
-        esp_timer_stop(_timer);
-        ESP_LOGW(__FUNCTION__,"Dimmer task stop");
+        eTaskState state = eTaskGetState(&dimmer_task);
+        ESP_LOGW(__FUNCTION__,"dimmer task state %d",(int)state);
+        if(state != eInvalid && state != eDeleted)
+        {
+            vTaskDelete(&dimmer_task);
+            gpio_isr_handler_remove(ZERO);
+            esp_timer_stop(_timer);
+            ESP_LOGW(__FUNCTION__,"Dimmer task stop");
+
+        }
+        else
+        {
+            ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
+        }
 
     }
-    else
-    {
-        ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
-    }
+
     
 }

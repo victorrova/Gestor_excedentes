@@ -50,7 +50,7 @@ esp_err_t Hlw8032_Init(void)
     return err;
 }
 
-esp_err_t Hlw8032_read(meter_t *meter)
+esp_err_t Hlw8032_Read(meter_t *out)
 {
     
     int rxBytes = 0;
@@ -68,7 +68,7 @@ esp_err_t Hlw8032_read(meter_t *meter)
         ESP_MALLOC_CHECK(buffer);
         rxBytes = uart_read_bytes(UART_PORT, buffer, 64, 60/portTICK_PERIOD_MS);
         uart_flush(UART_PORT);
-#ifdef DEBUG
+#ifndef DEBUG
         for(uint8_t i = 0; i<rxBytes;i++)
         {
             printf("%02x ",buffer[i]);
@@ -91,11 +91,13 @@ esp_err_t Hlw8032_read(meter_t *meter)
         if(position < 0)
         {
             ESP_LOGE(__FUNCTION__,"order buffer incorrect");
+            free(buffer);
             return ESP_FAIL;
         }
         if(!Checksum(position,buffer))
         {
             ESP_LOGE(__FUNCTION__,"Checksum failed!");
+            free(buffer);
             return ESP_FAIL;
         }
         float v_param = ((uint32_t)buffer[position + 2]  <<16) + ((uint32_t)buffer[position + 3] <<8) + buffer[position + 4];
@@ -104,15 +106,16 @@ esp_err_t Hlw8032_read(meter_t *meter)
         float i_data = ((uint32_t)buffer[position + 11]  <<16) + ((uint32_t)buffer[position + 12] <<8) + buffer[position + 13];
         float p_param = ((uint32_t)buffer[position + 14]  <<16) + ((uint32_t)buffer[position + 15] <<8) + buffer[position + 16];
         float p_data =  ((uint32_t)buffer[position + 17]  <<16) + ((uint32_t)buffer[position + 18] <<8) + buffer[position + 19];
-        meter->Voltage = v_param/v_data * VOLTAGE_COEF;
-        meter->Current = i_param/i_data * CURRENT_COEF;
-        meter->Power_active = p_param/p_data * VOLTAGE_COEF * CURRENT_COEF;
-        meter->Pf = 0.0;
-        meter->Power_appa = 0.0;
+        out->Voltage = v_param/v_data * VOLTAGE_COEF;
+        out->Current = i_param/i_data * CURRENT_COEF;
+        out->Power_active = p_param/p_data * VOLTAGE_COEF * CURRENT_COEF;
+        out->Pf = 0.0;
+        out->Power_appa = 0.0;
     }
     else
     {
         ESP_LOGE(__FUNCTION__, "buffer incompleto = %d",(int)data_len);
+        free(buffer);
         uart_flush(UART_PORT);
         return ESP_FAIL;
     }

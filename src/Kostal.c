@@ -15,34 +15,29 @@ static void xml_handler(xr_type_t type, const xr_str_t* name, const xr_str_t* va
         char *out =(char*)pvPortMalloc(sizeof(char) * 32);
         bzero(out,32);
         strncpy(out,name->cstr,name->len);
-        //out[name->len] = '\0';
+       
         
         if(strcmp(out,"Value") == 0)
         {
             bzero(value,24);
             strncpy(value,val->cstr,val->len);
             
-            //value[val->len] ='\0';
-            //printf("Value= %s\n",value);
         }
         else if(strcmp(out,"Unit") == 0)
         {
             bzero(unit,24);
             strncpy(unit,val->cstr,val->len);
-            //unit[val->len] ='\0';
-            //printf("Unit = %s\n",unit);
+
         }
         else if(strcmp(out,"Type") == 0)
         {
             bzero(Type,24);
             strncpy(Type,val->cstr,val->len);
-            //Type[val->len] ='\0';
-            //printf("Type = %s\n",Type);
+
         }
         if(strcmp(Type,"GridPower") == 0)
         {
             *(float*)user_data = (float)atof(value);
-            //Type[5] ='\0';
             bzero(Type,strlen(Type));
 
 

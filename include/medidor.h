@@ -1,7 +1,7 @@
 #ifndef MEDIDOR_H
-#define MADIDOR_H
+#define MEDIDOR_H
 
-#include <string.h>
+#include "string.h"
 #include "helper.h"
 #include "esp_system.h"
 #include "esp_log.h"
@@ -14,14 +14,16 @@
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 
-typedef struct{
+typedef struct {
+    
     float Voltage;
     float Current;
     float Power_active;
     float Power_appa;
     float Pf;
-}meter_t;
+} meter_t;
 
 esp_err_t Hlw8032_Init(void);
-esp_err_t Hlw8032_read(meter_t *meter);
+esp_err_t Hlw8032_Read(meter_t* out);
+
 #endif

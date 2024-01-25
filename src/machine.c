@@ -168,7 +168,7 @@ esp_err_t Keepalive(int state_gestor)
     meter_t *met = (meter_t*)malloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
-        err =Hlw8032_read(met);
+        err =Hlw8032_Read(met);
         if(err == ESP_OK)
         {
             break;
@@ -189,6 +189,7 @@ esp_err_t Keepalive(int state_gestor)
     cJSON_AddNumberToObject(root,"current",met->Current);
     cJSON_AddNumberToObject(root,"p_activa",met->Power_active);
     cJSON_AddNumberToObject(root,"p_appa",met->Power_appa);
+    cJSON_AddNumberToObject(root,"state",state_gestor);
     cJSON_AddItemToObject(keep, "keepalive",root);
     char *msg = cJSON_Print(keep);
     queue_send(MQTT_TX,msg,"NONE",portMAX_DELAY);

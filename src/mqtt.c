@@ -129,7 +129,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
         {
             char *_topic = (char*)malloc(sizeof(char) * topic_len);
             ESP_MALLOC_CHECK(_topic);
-            err = storage_load(NVS_TYPE_STR,"mqtt_pub",topic,&topic_len);
+            err = storage_load(NVS_TYPE_STR,"mqtt_pub",_topic,&topic_len);
             esp_mqtt_client_publish(client,_topic,payload,payload_len, 1, 0);
             free(_topic);
         }
@@ -139,7 +139,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
 }
 esp_err_t queue_to_mqtt_publish(msg_queue_t msg)
 {
-    if(msg.len_topic > 0)
+    if(msg.len_topic > 0 && strcmp(msg.topic,"NONE") != 0)
     {
         esp_mqtt_client_publish(client,msg.topic,msg.msg,msg.len_msg, 1, 0);
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);

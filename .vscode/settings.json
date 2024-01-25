@@ -58,6 +58,10 @@
         "string_view": "c",
         "medidor.h": "c",
         "config.h": "c",
-        "ota.h": "c"
+        "ota.h": "c",
+        "uart.h": "c",
+        "tuple": "c",
+        "utility": "c",
+        "led.h": "c"
     }
 }

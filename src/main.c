@@ -53,9 +53,9 @@ void Machine_MQTT_disconnect_handler(void* arg, esp_event_base_t event_base,int3
 void Machine_OTA_OK_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     ESP_LOGE(__FILE__,"reboot....");
+    led_off();
     esp_restart();
 }
-
 void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     dimmer_stop();
@@ -68,6 +68,7 @@ void Machine_init(void)
     err = Event_init();
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_FAIL,&Machine_event_fail_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Machine_event_ok_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OTA_OK,&Machine_OTA_OK_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_MQTT_connect_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_MQTT_disconnect_handler,NULL));
     if(err != ESP_OK)
@@ -293,15 +294,15 @@ void Com_Task(void *pvparams)
                         {
 
                             cJSON *item = cJSON_GetObjectItem(payload,"update");
-                            ESP_LOGW(__FUNCTION__,"Ota mensaje");
-                            
+                            led_Update(); 
                             if(cJSON_IsString(item))
                             {
                                 char *url= item->valuestring;
-                                xTaskCreate(&Ota_task, "ota_task", 8192, &url, 5, NULL);
+                                xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
                             }
 
                         }
+                        cJSON_Delete(payload);
                     }
             }
             else if(msg.dest == DIMMER_TX)
@@ -385,7 +386,6 @@ void app_main(void)
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
-    //xTaskCreate(&Ota_task, "ota_task", 8192, NULL, 5, NULL);
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));

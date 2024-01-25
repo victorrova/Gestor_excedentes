@@ -74,6 +74,15 @@ void led_fail(void)
         ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
         
 }
+void led_Update(void)
+{
+        led.pixel[0] = 0;
+        led.pixel[1] = 254;
+        led.pixel[2] = 254;
+        ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
+        ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
+}
+
 
 void led_off(void)
 {
