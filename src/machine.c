@@ -159,11 +159,10 @@ void set_stream_logger(int logger)
 
 
 esp_err_t Keepalive(int state_gestor)
-{
-    
-    float temp = 0.0;
+{ 
+    int temp = 0;
     uint32_t mem = free_mem();
-    temp = temp_termistor();
+    temp = (int) temp_termistor();
     esp_err_t err = ESP_FAIL;
     meter_t *met = (meter_t*)malloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
@@ -189,7 +188,7 @@ esp_err_t Keepalive(int state_gestor)
     keep = cJSON_CreateObject();
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(keep, "keepalive",root);
-    cJSON_AddNumberToObject(root,"temp_ntc",(int)temp * 100);
+    cJSON_AddNumberToObject(root,"temp_ntc",temp * 100);
     cJSON_AddNumberToObject(root,"voltage",(int)met->Voltage * 100);
     cJSON_AddNumberToObject(root,"current",(int)met->Current * 100);
     cJSON_AddNumberToObject(root,"p_activa",(int)met->Power_active * 100);
