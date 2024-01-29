@@ -63,6 +63,7 @@
         "tuple": "c",
         "utility": "c",
         "led.h": "c",
-        "esp_heap_trace.h": "c"
+        "esp_heap_trace.h": "c",
+        "ring_queue.h": "c"
     }
 }
