@@ -81,7 +81,7 @@ float temp_termistor(void)
     logR2 = log(R2);
     T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
     Tc = T - 273.15;
-    return roundf((float)Tc*100)/100;
+    return (float)Tc;
 
 }
 
@@ -189,11 +189,11 @@ esp_err_t Keepalive(int state_gestor)
     keep = cJSON_CreateObject();
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(keep, "keepalive",root);
-    cJSON_AddNumberToObject(root,"temp_ntc",temp);
-    cJSON_AddNumberToObject(root,"voltage",(double)met->Voltage);
-    cJSON_AddNumberToObject(root,"current",(double)met->Current);
-    cJSON_AddNumberToObject(root,"p_activa",(double)met->Power_active);
-    cJSON_AddNumberToObject(root,"p_appa",(double)met->Power_appa);
+    cJSON_AddNumberToObject(root,"temp_ntc",(int)temp * 100);
+    cJSON_AddNumberToObject(root,"voltage",(int)met->Voltage * 100);
+    cJSON_AddNumberToObject(root,"current",(int)met->Current * 100);
+    cJSON_AddNumberToObject(root,"p_activa",(int)met->Power_active * 100);
+    cJSON_AddNumberToObject(root,"p_appa",(int)met->Power_appa * 100);
     cJSON_AddNumberToObject(root,"state",state_gestor);
     cJSON_AddNumberToObject(root,"free_mem",mem);
     char *msg = cJSON_Print(keep);

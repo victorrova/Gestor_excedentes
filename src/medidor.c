@@ -106,9 +106,9 @@ esp_err_t Hlw8032_Read(meter_t *out)
         float i_data = ((uint32_t)buffer[position + 11]  <<16) + ((uint32_t)buffer[position + 12] <<8) + buffer[position + 13];
         float p_param = ((uint32_t)buffer[position + 14]  <<16) + ((uint32_t)buffer[position + 15] <<8) + buffer[position + 16];
         float p_data =  ((uint32_t)buffer[position + 17]  <<16) + ((uint32_t)buffer[position + 18] <<8) + buffer[position + 19];
-        out->Voltage = roundf((v_param/v_data * VOLTAGE_COEF) *100)/100;
-        out->Current = roundf((i_param/i_data * CURRENT_COEF)*100)/100;
-        out->Power_active = roundf((p_param/p_data * VOLTAGE_COEF * CURRENT_COEF) *100)/100;
+        out->Voltage = v_param/v_data * VOLTAGE_COEF;
+        out->Current = i_param/i_data * CURRENT_COEF;
+        out->Power_active = p_param/p_data * VOLTAGE_COEF * CURRENT_COEF;
         out->Pf = 0.0;
         out->Power_appa = 0.0;
     }
