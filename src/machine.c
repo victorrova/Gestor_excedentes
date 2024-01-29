@@ -33,9 +33,9 @@ esp_err_t termistor_init(void)
     return err;
 }
 
-int free_mem(void)
+uint32_t free_mem(void)
 {
-   return esp_get_free_heap_size() /1024;
+   return esp_get_free_heap_size() ;
 }
 
 esp_err_t Fan_init(void)
@@ -73,15 +73,15 @@ void Fan_state(int state)
 
 float temp_termistor(void)
 {
-    float R1 = 10000;
-    float logR2, R2, T, Tc;
-    float c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
+    double R1 = 10000;
+    double logR2, R2, T, Tc;
+    double c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
     int Vo = adc1_get_raw(ADC1_CHANNEL_6);
     R2 = R1 * (4095.0 / (float)Vo - 1.0);
     logR2 = log(R2);
     T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
     Tc = T - 273.15;
-    return Tc;
+    return roundf((float)Tc*100)/100;
 
 }
 
@@ -160,11 +160,11 @@ void set_stream_logger(int logger)
 
 esp_err_t Keepalive(int state_gestor)
 {
-    cJSON *keep = cJSON_CreateObject();
-    cJSON *root = cJSON_CreateObject();
+    
     float temp = 0.0;
-    esp_err_t err = ESP_FAIL;
+    uint32_t mem = free_mem();
     temp = temp_termistor();
+    esp_err_t err = ESP_FAIL;
     meter_t *met = (meter_t*)malloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
@@ -184,13 +184,18 @@ esp_err_t Keepalive(int state_gestor)
         ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
         return ESP_FAIL;
     }
-    cJSON_AddNumberToObject(root,"temp_ntc",temp);
-    cJSON_AddNumberToObject(root,"voltage",met->Voltage);
-    cJSON_AddNumberToObject(root,"current",met->Current);
-    cJSON_AddNumberToObject(root,"p_activa",met->Power_active);
-    cJSON_AddNumberToObject(root,"p_appa",met->Power_appa);
-    cJSON_AddNumberToObject(root,"state",state_gestor);
+    cJSON *keep = NULL;
+    cJSON *root = NULL;
+    keep = cJSON_CreateObject();
+    root = cJSON_CreateObject();
     cJSON_AddItemToObject(keep, "keepalive",root);
+    cJSON_AddNumberToObject(root,"temp_ntc",temp);
+    cJSON_AddNumberToObject(root,"voltage",(double)met->Voltage);
+    cJSON_AddNumberToObject(root,"current",(double)met->Current);
+    cJSON_AddNumberToObject(root,"p_activa",(double)met->Power_active);
+    cJSON_AddNumberToObject(root,"p_appa",(double)met->Power_appa);
+    cJSON_AddNumberToObject(root,"state",state_gestor);
+    cJSON_AddNumberToObject(root,"free_mem",mem);
     char *msg = cJSON_Print(keep);
     queue_send(MQTT_TX,msg,"NONE",portMAX_DELAY);
     cJSON_Delete(keep);

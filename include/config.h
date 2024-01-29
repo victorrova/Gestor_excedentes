@@ -1,7 +1,6 @@
 #ifndef  CONFIG_H
 #define  CONFIG_H
 
-
 /*wifi*/
 #define EXAMPLE_ESP_MAXIMUM_RETRY             10
 #define SSID                                  "Gestor"
@@ -18,7 +17,7 @@
 /*ota*/
 #define OTA_URL_SIZE                           256
 /* VERSION*/
-#define VERSION                                1.0
+#define VERSION                                1.1
 /* meter*/
 #define UART_PORT                              2
 #define RX_PIN                                 16
@@ -42,7 +41,7 @@
 #define HTTP_SERVER_TASK_CORE_ID				0
 
 /*dimmer*/
-#define KEEPALIVE_TIME                          300
+#define KEEPALIVE_LAP                           100
 #define MAX_POWER                               3600
 #define LIMIT_TEMP                              35
 #endif

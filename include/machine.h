@@ -22,14 +22,20 @@
 #include "config.h"
 
 
+typedef enum{
+    WS_LOGGER,
+    MQTT_LOGGER,
+    OLED_LOGGER,
+    SERIAL_LOGGER
+};
+
 esp_err_t termistor_init(void);
 esp_err_t Fan_init(void);
 void Fan_state(int state);
 float temp_termistor(void);
-
 void set_stream_logger(int logger);
 esp_err_t Meter_init(void);
 esp_err_t Keepalive(int state_gestor);
 esp_err_t Ap_call_Init(void);
-int free_mem(void);
+uint32_t free_mem(void);
 #endif

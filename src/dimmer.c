@@ -65,15 +65,15 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
-            ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d ntc_pid %d  temp = %d ",conf_gestor.result,conf_gestor.min_delay,_ntc_pid,NTC_temp);
+            //ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d ntc_pid %d  temp = %d ",conf_gestor.result,conf_gestor.min_delay,_ntc_pid,NTC_temp);
         }
-        if(count_send > 300)
+        if(count_send > KEEPALIVE_LAP)
         {
             char reg[32];
             conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
             itoa(conf_gestor.level,reg,10);
             queue_send(DIMMER_TX,reg,"level",20/portTICK_PERIOD_MS);
-            ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
+            //ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
         if(NTC_temp > 50)
@@ -83,16 +83,16 @@ static void dimmer_http(void *PvParams)
         else if(NTC_temp > 55)
         {
              
-            _pid = PID(35,NTC_temp,&conf_gestor.pid_NTC);
+            _pid = PID(LIMIT_TEMP,NTC_temp,&conf_gestor.pid_NTC);
             _ntc_pid = map(_pid,-5,5,-10,10);
             conf_gestor.min_delay +=_ntc_pid;
             ESP_LOGW(__FUNCTION__,"temperatura escesiva!");
             ESP_LOGI(__FUNCTION__,"inicio pid temperatura");
 
         }
-        else if(NTC_temp < 45)
+        else if(NTC_temp < 45 && NTC_temp > LIMIT_TEMP)
         {
-            _pid = PID(35,NTC_temp,&conf_gestor.pid_NTC);
+            _pid = PID(LIMIT_TEMP,NTC_temp,&conf_gestor.pid_NTC);
             _ntc_pid = map(_pid,-5,5,-10,10);
             conf_gestor.min_delay +=_ntc_pid;
             if(conf_gestor.min_delay < 100)
@@ -101,11 +101,15 @@ static void dimmer_http(void *PvParams)
             }
             Fan_state(0);
         }
-        if (NTC_temp < 35)
+        else
+        {
+            conf_gestor.min_delay = 100;
+        }
+        /*if (NTC_temp < 35)
         {
             
             conf_gestor.min_delay = 100;
-        }
+        }*/
         
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
         int arrived = map(pid,-1000,1000,-500,500);

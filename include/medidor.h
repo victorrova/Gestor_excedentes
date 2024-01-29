@@ -9,6 +9,7 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "config.h"
+#include "math.h"
 
 
 

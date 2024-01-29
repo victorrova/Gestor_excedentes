@@ -56,6 +56,11 @@ void Machine_OTA_OK_handler(void* arg, esp_event_base_t event_base,int32_t event
     led_off();
     esp_restart();
 }
+void Machine_OTA_FAIL_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    ESP_LOGE(__FILE__,"OTA_fail");
+    led_fail();
+}   
 void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
     dimmer_stop();
@@ -69,6 +74,7 @@ void Machine_init(void)
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_FAIL,&Machine_event_fail_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OK,&Machine_event_ok_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OTA_OK,&Machine_OTA_OK_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OTA_FAIL,&Machine_OTA_FAIL_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_MQTT_connect_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_MQTT_disconnect_handler,NULL));
     if(err != ESP_OK)
@@ -244,8 +250,9 @@ static esp_err_t stream_pid(cJSON *payload)
 void Com_Task(void *pvparams)
 {   ESP_LOGW(__FUNCTION__, "INICIADO");
     int _count = 0;
+    int state_gestor =0;
     while(1)
-    {
+    {   
         msg_queue_t msg; 
         msg = queue_receive(MASTER,100/portTICK_PERIOD_MS);
         if(msg.len_msg >0)
@@ -301,17 +308,17 @@ void Com_Task(void *pvparams)
                                 xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
                             }
 
-                        }
-                        cJSON_Delete(payload);
+                        }   
                     }
+                    cJSON_Delete(payload);
             }
             else if(msg.dest == DIMMER_TX)
             {
                 if( strcmp(msg.topic,"level")== 0)
                 {
-                    int state_gestor =atoi(msg.msg);
+                    state_gestor =atoi(msg.msg);
                     Keepalive(state_gestor);
-                    ESP_LOGW(__FUNCTION__,"memoria libre %d",free_mem());
+                    ESP_LOGW(__FUNCTION__,"memoria libre %lu",free_mem());
                 }
             }
             else
@@ -358,6 +365,7 @@ void Com_Task(void *pvparams)
     vTaskDelete(NULL);
 }
 
+
 void app_main(void)
 {
 
@@ -381,7 +389,6 @@ void app_main(void)
     printf("             @@@@@@@*************************/&@*****@@@@@@@\n");                
     printf("             @@@@   *****************@@@@@*/*********   @@@@\n");                
     printf("                     *******************************        \n"); 
-    
     Machine_init();
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);

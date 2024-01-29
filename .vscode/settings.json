@@ -62,6 +62,7 @@
         "uart.h": "c",
         "tuple": "c",
         "utility": "c",
-        "led.h": "c"
+        "led.h": "c",
+        "esp_heap_trace.h": "c"
     }
 }
