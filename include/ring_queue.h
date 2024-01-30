@@ -22,9 +22,9 @@ typedef struct msg{ //  estructura de la  cola infinita
     int count;
     int dest;
     int len_topic;
-    char topic[MAX_TOPIC];
+    void *topic;
     int len_msg;
-    char msg[MAX_PAYLOAD];
+    void *msg;
 }msg_queue_t;
 
 
