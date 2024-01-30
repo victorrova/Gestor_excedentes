@@ -4,28 +4,34 @@
 #include "ring_queue.h"
 #include "esp_log.h"
 #include "esp_err.h"
-
+#include "helper.h"
 static QueueHandle_t msg_queue;
 
-esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)
+esp_err_t queue_send(int dest,void *payload, void* topic,TickType_t time)
 {
-    if(strlen(payload)>MAX_PAYLOAD || strlen(topic) > MAX_TOPIC)
+    if(sizeof(&payload)>MAX_PAYLOAD || sizeof(&topic) > MAX_TOPIC)
     {
-        ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)strlen(payload),(int)strlen(topic));
+        ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)sizeof(payload),(int)sizeof(topic));
         return ESP_FAIL;
     }
-     msg_queue_t msg;
-     msg.dest = dest;
-     strcpy(msg.msg,payload);
-     msg.len_msg = strlen(payload);
+     msg_queue_t *msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
+
+    msg->dest = dest;
+    msg->len_msg = sizeof(&payload);
+    msg->msg = malloc(sizeof(&payload));
+    ESP_MALLOC_CHECK(msg->msg);
+    msg->msg = payload;
     if(topic != NULL)
     {
-        strcpy(msg.topic,topic);
-        msg.len_topic = strlen(topic);
+        msg->topic = malloc(sizeof(payload));
+        ESP_MALLOC_CHECK(msg->topic);
+        msg->topic =topic;
+        msg->len_topic = strlen(topic);
     }
-     msg.count = 0;
+     msg->count = 0;
      xQueueSend(msg_queue,&msg,time);
-     return ESP_OK;
+
+    return ESP_OK;
 
 }
 
