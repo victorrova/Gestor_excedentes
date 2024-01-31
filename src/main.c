@@ -389,9 +389,9 @@ void app_main(void)
     printf("             @@@@@@@*************************/&@*****@@@@@@@\n");                
     printf("             @@@@   *****************@@@@@*/*********   @@@@\n");                
     printf("                     *******************************        \n"); 
-    Machine_init();
-    vTaskDelay(2000/portTICK_PERIOD_MS);
-    Wifi_run(WIFI_MODE_STA);
+    //Machine_init();
+    //vTaskDelay(2000/portTICK_PERIOD_MS);
+    //Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
@@ -400,24 +400,11 @@ void app_main(void)
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
-    /*led_init();
-    led_off();
-    //Meter_init();
-    Hlw8032_Init();
-    esp_err_t err = ESP_FAIL;
+    queue_start();
     while(1)
     {
-        meter_t *met = (meter_t*)malloc(sizeof(meter_t));
-        err = Hlw8032_read(met);
-        if(err == ESP_OK)
-        {
-            printf("V = %2f\n",met->Voltage);
-            printf("I = %2f\n",met->Current);
-            printf("P = %2f\n",met->Power_active);
-        }
-        free(met);
-        vTaskDelay(500/portTICK_PERIOD_MS);
-    }*/
+        
+    }
 }
 
 

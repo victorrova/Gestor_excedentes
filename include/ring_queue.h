@@ -22,11 +22,10 @@ typedef struct msg{ //  estructura de la  cola infinita
     int count;
     int dest;
     int len_topic;
-    void *topic;
+    char topic[MAX_TOPIC];
     int len_msg;
-    void *msg;
+    char msg[MAX_PAYLOAD];
 }msg_queue_t;
-
 
 esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time);
 msg_queue_t queue_receive(int dest,TickType_t time);
