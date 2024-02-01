@@ -7,7 +7,7 @@
 #include "helper.h"
 static QueueHandle_t msg_queue;
 
-esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)
+esp_err_t xqueue_send(int dest,const char* payload, const char* topic,TickType_t time)
 {
     if(strlen(payload)>MAX_PAYLOAD || strlen(topic) > MAX_TOPIC)
     {
@@ -24,18 +24,20 @@ esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t 
         strcpy(msg->topic,topic);
         msg->len_topic = strlen(topic);
     }
-     msg->count = 0;
-     xQueueSend(msg_queue,( void * )&msg,time);
-     free(msg);
+     msg->count =0;
+     xQueueSend(msg_queue,&msg,time);
+     //free(msg);
      return ESP_OK;
 
 }
 
-esp_err_t queue_receive(int dest,TickType_t time,msg_queue_t *msg)
+esp_err_t xqueue_receive(int dest,TickType_t time,msg_queue_t msg)
 {   
     
     if(xQueueReceive(msg_queue,&msg,time) == pdTRUE)
     {
+        ESP_LOGI(__FUNCTION__,"aqui llegamos");
+        printf("sitio %d, mensage %s, lap = %d\n",msg->dest,msg->msg,msg->count);
         if(dest == MASTER || msg->dest == dest)
         {
             ESP_LOGD(__FUNCTION__,"mensaje entregado");
@@ -44,7 +46,7 @@ esp_err_t queue_receive(int dest,TickType_t time,msg_queue_t *msg)
         else if(msg->dest != dest  && msg->count < QUEUE_MAX_LAP )
         {
             msg->count++;
-            xQueueSend(msg_queue,( void * )&msg,time);
+            xQueueSend(msg_queue,&msg,time);
             ESP_LOGD(__FUNCTION__,"mensaje devuelto");
             msg->len_msg = 0;
             return ESP_FAIL;
@@ -60,9 +62,9 @@ esp_err_t queue_receive(int dest,TickType_t time,msg_queue_t *msg)
     return ESP_FAIL;
       
 }
-esp_err_t queue_receive_instat(int dest,msg_queue_t msg)
+esp_err_t xqueue_receive_instat(int dest,msg_queue_t msg)
 {
-    int load = queue_load();
+    int load = xqueue_load();
     while(xQueueReceive(msg_queue,&msg,portMAX_DELAY) == pdTRUE)
     {
         if(msg.dest == dest) 
@@ -84,7 +86,7 @@ esp_err_t queue_receive_instat(int dest,msg_queue_t msg)
     return ESP_FAIL;
 }
 
-esp_err_t queue_start(void)
+esp_err_t xqueue_start(void)
 {
     
     msg_queue = xQueueCreate(QUEUE_SIZE, sizeof(msg_queue_t));
@@ -97,13 +99,13 @@ esp_err_t queue_start(void)
 }
 
 
-int queue_load(void)
+int xqueue_load(void)
 {   
     return uxQueueMessagesWaiting(msg_queue);
 }
 
 
-void queue_reset(void)
+void xqueue_reset(void)
 {
     xQueueReset(msg_queue);
 }

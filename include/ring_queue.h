@@ -27,10 +27,10 @@ typedef struct msg{ //  estructura de la  cola infinita
     char msg[MAX_PAYLOAD];
 }msg_queue_t;
 
-esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time);
-msg_queue_t queue_receive(int dest,TickType_t time);
-esp_err_t queue_start(void);
-int queue_load(void);
-void queue_reset(void);
-esp_err_t queue_receive_instat(int dest,msg_queue_t msg);
+esp_err_t xqueue_send(int dest,const char* payload, const char* topic,TickType_t time);
+esp_err_t xqueue_receive(int dest,TickType_t time,msg_queue_t *msg);
+esp_err_t xqueue_start(void);
+int xqueue_load(void);
+void xqueue_reset(void);
+esp_err_t xqueue_receive_instat(int dest,msg_queue_t msg);
 #endif
