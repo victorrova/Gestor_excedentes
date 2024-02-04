@@ -25,16 +25,16 @@ esp_err_t xqueue_send(int dest,const char* payload, const char* topic,TickType_t
         msg->len_topic = strlen(topic);
     }
      msg->count =0;
-     xQueueSend(msg_queue,&msg,time);
-     //free(msg);
+     xQueueSend(msg_queue,msg,time);
+     free(msg);
      return ESP_OK;
 
 }
 
-esp_err_t xqueue_receive(int dest,TickType_t time,msg_queue_t msg)
+esp_err_t xqueue_receive(int dest,TickType_t time,msg_queue_t *msg)
 {   
     
-    if(xQueueReceive(msg_queue,&msg,time) == pdTRUE)
+    if(xQueueReceive(msg_queue,msg,time) == pdTRUE)
     {
         ESP_LOGI(__FUNCTION__,"aqui llegamos");
         printf("sitio %d, mensage %s, lap = %d\n",msg->dest,msg->msg,msg->count);
@@ -46,7 +46,7 @@ esp_err_t xqueue_receive(int dest,TickType_t time,msg_queue_t msg)
         else if(msg->dest != dest  && msg->count < QUEUE_MAX_LAP )
         {
             msg->count++;
-            xQueueSend(msg_queue,&msg,time);
+            xQueueSend(msg_queue,msg,time);
             ESP_LOGD(__FUNCTION__,"mensaje devuelto");
             msg->len_msg = 0;
             return ESP_FAIL;
