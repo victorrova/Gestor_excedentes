@@ -57,7 +57,8 @@ static void dimmer_http(void *PvParams)
     int NTC_temp = 0;
     int _pid = 0;
     int _ntc_pid = 0;
-    msg_queue_t msg;
+    int arrived = 0;
+    esp_err_t err = ESP_FAIL;
     while(1)
     { 
         if(count_power >= 30)
@@ -69,10 +70,12 @@ static void dimmer_http(void *PvParams)
         }
         if(count_send > KEEPALIVE_LAP)
         {
-            char reg[32];
+            char *buff =(char*)pvPortMalloc(sizeof(int));
             conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
-            itoa(conf_gestor.level,reg,10);
-            queue_send(DIMMER_TX,reg,"level",20/portTICK_PERIOD_MS);
+            itoa(conf_gestor.level,buff,10);
+            queue_send(DIMMER_TX,buff,"level",20/portTICK_PERIOD_MS);
+            vPortFree(buff);
+            
             //ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
@@ -105,14 +108,9 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor.min_delay = 100;
         }
-        /*if (NTC_temp < 35)
-        {
-            
-            conf_gestor.min_delay = 100;
-        }*/
         
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
-        int arrived = map(pid,-1000,1000,-500,500);
+        arrived = map(pid,-1000,1000,-500,500);
         sal += arrived;
         conf_gestor.result +=pid;
         if(conf_gestor.min_delay > 10000)
@@ -135,41 +133,47 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor._enable = true;
         }
-        msg = queue_receive(DIMMER_RX,50/portTICK_PERIOD_MS);
-        if(msg.len_msg > 0 && strcmp(msg.topic,"dimmer") == 0)
-        {   
-            int calc = map(atoi(msg.msg),0,100,0,MAX_POWER); // pasamos de % a watios 
-            conf_gestor.reg = calc;
-            ESP_LOGW(__FUNCTION__,"nuevo nivel = %d",calc);
-        }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"temperatura")== 0)
+        msg_queue_t *msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
+        ESP_MALLOC_CHECK(msg);
+        err = queue_receive(DIMMER_RX,50/portTICK_PERIOD_MS,msg);
+        if(err == ESP_OK)
         {
+            if(msg->len_msg > 0 && strcmp(msg->topic,"dimmer") == 0)
+            {   
+                int calc = map(atoi(msg->msg),0,100,0,MAX_POWER); // pasamos de % a watios 
+                conf_gestor.reg = calc;
+                ESP_LOGW(__FUNCTION__,"nuevo nivel = %d",calc);
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"temperatura")== 0)
+            {
 
-            printf("temperatura = %f\n",atof(msg.msg));
-            /*implementación pendiente*/
+                printf("temperatura = %f\n",atof(msg->msg));
+                /*implementación pendiente*/
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"kp")== 0)
+            {
+            
+                conf_gestor.pid_Pwr.Kp = atof(msg->msg);
+                ESP_LOGI(__FUNCTION__,"nuevo valor kp = %f",conf_gestor.pid_Pwr.Kp);
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"ki")== 0)
+            {
+                conf_gestor.pid_Pwr.Ki = atof(msg->msg);
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"kd")== 0)
+            {
+                conf_gestor.pid_Pwr.Kd = atof(msg->msg);
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"min")== 0)
+            {
+                conf_gestor.pid_Pwr.min = (int)atof(msg->msg);
+            }
+            else if(msg->len_msg > 0 && strcmp(msg->topic,"max")== 0)
+            {
+                conf_gestor.pid_Pwr.max = (int)atof(msg->msg);
+            }
         }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"kp")== 0)
-        {
-           
-            conf_gestor.pid_Pwr.Kp = atof(msg.msg);
-             ESP_LOGI(__FUNCTION__,"nuevo valor kp = %f",conf_gestor.pid_Pwr.Kp);
-        }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"ki")== 0)
-        {
-            conf_gestor.pid_Pwr.Ki = atof(msg.msg);
-        }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"kd")== 0)
-        {
-            conf_gestor.pid_Pwr.Kd = atof(msg.msg);
-        }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"min")== 0)
-        {
-            conf_gestor.pid_Pwr.min = (int)atof(msg.msg);
-        }
-        else if(msg.len_msg > 0 && strcmp(msg.topic,"max")== 0)
-        {
-            conf_gestor.pid_Pwr.max = (int)atof(msg.msg);
-        }
+        vPortFree(msg);
         vTaskDelay(100/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;

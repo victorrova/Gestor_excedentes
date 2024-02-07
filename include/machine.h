@@ -21,7 +21,6 @@
 #include "medidor.h"
 #include "config.h"
 
-
 typedef enum{
     WS_LOGGER,
     MQTT_LOGGER,
@@ -35,7 +34,8 @@ void Fan_state(int state);
 float temp_termistor(void);
 void set_stream_logger(int logger);
 esp_err_t Meter_init(void);
-esp_err_t Keepalive(int state_gestor);
+esp_err_t Keepalive(int state_gestor, char *exit);
 esp_err_t Ap_call_Init(void);
 uint32_t free_mem(void);
+void Keepalive_task(void *params);
 #endif

@@ -64,6 +64,9 @@
         "utility": "c",
         "led.h": "c",
         "esp_heap_trace.h": "c",
-        "ring_queue.h": "c"
+        "ring_queue.h": "c",
+        "kostal.h": "c",
+        "freertosconfig_arch.h": "c",
+        "typeinfo": "c"
     }
 }

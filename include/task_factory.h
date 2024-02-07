@@ -4,6 +4,10 @@
 #include "storage.h"
 #include "event.h"
 #include "machine.h"
-
-#define INIT_STACK  20000
+#include "config.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "FreeRTOSConfig.h"
+esp_err_t task_memory_control(const char *task_name);
+esp_err_t task_create(TaskFunction_t task,const char * const name,UBaseType_t Priority,void *pvparams);
 #endif

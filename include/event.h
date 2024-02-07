@@ -30,7 +30,8 @@ enum{                  // EVENTOS DE LA MAQUINA
     QUEUE_OVERLOAD,     // cola de mensajes llena
     MACHINE_MQTT_CONNECT,
     MACHINE_MQTT_DISCONNECT,
-    MACHINE_MQTT_MESSAGE
+    MACHINE_MQTT_MESSAGE,
+    MACHINE_TASK_CALLL,
 };
 
 esp_err_t Event_init(void);

@@ -1,10 +1,13 @@
 #ifndef MSGQUEUE_H
 #define MSGQUEUE_H
+#include <stdio.h>
+#include <string.h>
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "config.h"
-
+#include "esp_log.h"
+#include "helper.h"
 
 typedef enum{
     WS_TX,
@@ -29,9 +32,9 @@ typedef struct msg{ //  estructura de la  cola infinita
 
 
 esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time);
-msg_queue_t queue_receive(int dest,TickType_t time);
+esp_err_t queue_receive(int dest,TickType_t time,msg_queue_t *msg);
 esp_err_t queue_start(void);
 int queue_load(void);
 void queue_reset(void);
-esp_err_t queue_receive_instat(int dest,msg_queue_t msg);
+esp_err_t queue_receive_instat(int dest,msg_queue_t*msg);
 #endif

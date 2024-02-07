@@ -33,7 +33,7 @@
 #define MAX_PAYLOAD                            512
 #define MAX_TOPIC                              128
 /*task factory*/
-#define INIT_STACK                             20000
+#define INIT_STACK                             10000
 
 // HTTP Server task
 #define HTTP_SERVER_TASK_STACK_SIZE				8192
@@ -41,7 +41,7 @@
 #define HTTP_SERVER_TASK_CORE_ID				0
 
 /*dimmer*/
-#define KEEPALIVE_LAP                           100
+#define KEEPALIVE_LAP                           50
 #define MAX_POWER                               3600
 #define LIMIT_TEMP                              35
 #endif
