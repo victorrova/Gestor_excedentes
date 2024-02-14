@@ -34,6 +34,7 @@
 #define MAX_TOPIC                              128
 /*task factory*/
 #define INIT_STACK                             10000
+#define INC_VALUE                              1.30
 
 // HTTP Server task
 #define HTTP_SERVER_TASK_STACK_SIZE				8192
