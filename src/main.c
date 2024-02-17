@@ -71,6 +71,11 @@ void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id,
     dimmer_stop();
     led_AP();
 }
+void Machine_task_memory(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
+{
+    char *name = (char*)event_data;
+    ESP_ERROR_CHECK_WITHOUT_ABORT(task_memory_control(name));
+}
 
 
 void Machine_init(void)
@@ -83,6 +88,7 @@ void Machine_init(void)
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OTA_FAIL,&Machine_OTA_FAIL_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_MQTT_connect_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_MQTT_disconnect_handler,NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_TASK_CALLL,&Machine_task_memory,NULL));
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[event_init] error fatal en inicio!");

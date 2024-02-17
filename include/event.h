@@ -17,7 +17,7 @@
 #define MACHINE_STATE_OK   BIT5
 #define TASK_CALL          BIT6
 #define WIFI_CHANGE        BIT7
- 
+#define DIMMER_INIT        BIT8
 
 enum{                  // EVENTOS DE LA MAQUINA 
     MACHINE_OK,        // El arranque se ha completado con exito
