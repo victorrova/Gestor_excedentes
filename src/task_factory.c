@@ -12,7 +12,6 @@ esp_err_t task_create(TaskFunction_t task,const char *name,UBaseType_t Priority,
     
     uint8_t count = 0;
     esp_err_t err = storage_load(NVS_TYPE_U32,name,&stack,NULL);
-    printf(" memoria para tarea %s = %lu",name,stack);
     if(err != ESP_OK || stack <=  0 || stack >= 50000)
     {
         stack = INIT_STACK;
@@ -33,18 +32,20 @@ esp_err_t task_create(TaskFunction_t task,const char *name,UBaseType_t Priority,
     } while (result != pdPASS);
 
     esp_event_post(MACHINE_EVENTS,MACHINE_TASK_CALLL,name,strlen(name),portMAX_DELAY);
-    ESP_LOGI(__FUNCTION__,"tarea: %s creada con éxito pila = %lu",name,stack);
+    ESP_LOGI(__FUNCTION__,"tarea: %s creada len %d con éxito pila = %lu",name,strlen(name),stack);
     return ESP_OK;
 }
 
 esp_err_t task_memory_control(const char *task_name)
 {
     TaskHandle_t task_Handle = NULL;
+    printf("task_name = %s\n",task_name);
     TaskStatus_t status;
     task_Handle = xTaskGetHandle(task_name);
     esp_err_t err = ESP_FAIL;
     if(task_Handle == NULL)
     {
+        ESP_LOGE(__FUNCTION__,"%s Task_handle no encontrado",task_name);
         return err;
     }
     vTaskGetInfo(task_Handle,&status,pdTRUE,eInvalid);

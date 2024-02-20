@@ -432,7 +432,7 @@ void app_main(void)
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
-    ESP_ERROR_CHECK(task_memory_control("com_task"));
+    //ESP_ERROR_CHECK(task_memory_control("com_task"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
     //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));

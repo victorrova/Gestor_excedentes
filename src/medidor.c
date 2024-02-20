@@ -125,4 +125,3 @@ esp_err_t Hlw8032_Read(meter_t *out)
     }
     return ESP_OK;
 }
-
