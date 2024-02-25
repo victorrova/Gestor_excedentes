@@ -8,6 +8,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "FreeRTOSConfig.h"
-esp_err_t task_memory_control(const char *task_name);
+esp_err_t task_memory_control(char *task_name);
 esp_err_t task_create(TaskFunction_t task,const char * const name,UBaseType_t Priority,void *pvparams);
 #endif

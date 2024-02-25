@@ -154,9 +154,6 @@ void set_stream_logger(int logger)
     }
 }
 
-
-
-
 esp_err_t Keepalive(int state_gestor, char *exit)
 { 
     int temp = 0;
@@ -204,48 +201,6 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     vPortFree(met);
     return ESP_OK;
 }
-void Keepalive_task(void *params)
-{ 
-    int state_gestor = *(int*)params;
-    int temp = 0;
-    uint32_t mem = free_mem();
-    temp = temp_termistor();
-    esp_err_t err = ESP_FAIL;
-    /*meter_t *met = (meter_t*)pvPortMalloc(sizeof(meter_t));
-    for(int i = 0; i < 10;i++)
-    {
-        err =Hlw8032_Read(met);
-        if(err == ESP_OK)
-        {
-            break;
-        }
-        else
-        {
-            vTaskDelay(250/portTICK_PERIOD_MS);
-        }
-    }
-    if(err != ESP_OK)
-    {
-       
-        ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
-        vTaskDelete(NULL);
-    }*/
-    cJSON *keep  = cJSON_CreateObject();
-    cJSON *root = cJSON_CreateObject();
-    cJSON_AddItemToObject(keep, "keepalive",root);
-    cJSON_AddNumberToObject(root,"temp_ntc",18.25);
-    cJSON_AddNumberToObject(root,"voltage",231.25);
-    cJSON_AddNumberToObject(root,"current",0.25);
-    cJSON_AddNumberToObject(root,"p_activa",0.0);
-    cJSON_AddNumberToObject(root,"p_appa",0.0);
-    cJSON_AddNumberToObject(root,"state",state_gestor);
-    cJSON_AddNumberToObject(root,"free_mem",mem);
-    queue_send(MQTT_TX,cJSON_Print(keep),"NONE",portMAX_DELAY);
-    cJSON_Delete(keep);
-    //vPortFree(met);
-    vTaskDelete(NULL);
-}
-
 
 static void IRAM_ATTR ISR_ap_call(void* arg)
 {

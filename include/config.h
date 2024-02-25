@@ -47,7 +47,7 @@
 #define HTTP_SERVER_TASK_CORE_ID				0
 
 /*dimmer*/
-#define KEEPALIVE_LAP                           600
+#define KEEPALIVE_LAP                           900
 #define MAX_POWER                               3600
 #define LIMIT_TEMP                              35
 #endif

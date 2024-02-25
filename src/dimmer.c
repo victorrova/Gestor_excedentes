@@ -292,7 +292,7 @@ void dimmer_init(void)
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &_timer));
     //conf_timmer(conf_gestor);
     conf_pin(conf_gestor);
-    xTaskCreate(&dimmer_http,"dimmer",10000,NULL,4,&dimmer_task);
+    ESP_ERROR_CHECK(task_create(&dimmer_http,"dimmer",4,NULL));
 }
 void dimmer_stop(void)
 {
