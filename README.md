@@ -34,7 +34,6 @@ Se trata de un regulador de potencia (dimmer) de 2Kw con los siguientes atributo
     ==================================
     Todo el sistema esta controlado y comandado por el Maravilloso esp32 de los amigos de Espressif.
 
-
 ESQUEMA:
 ========
 ![esquema](https://github.com/victorrova/librerias/blob/60fdc79c3b665ba7ccb75779944cb327731e6d5e/imagenes/Schematic_gestor.png)
@@ -43,7 +42,12 @@ IMAGENES:
 =========
 ![imagen frontal](https://github.com/victorrova/librerias/blob/60fdc79c3b665ba7ccb75779944cb327731e6d5e/imagenes/IMG_20240121_105323.jpg)
 ![imagen trasera](https://github.com/victorrova/librerias/blob/60fdc79c3b665ba7ccb75779944cb327731e6d5e/imagenes/IMG_20240103_132508_1.jpg)
+
+
 TRABAJOS PENDIENTES:
 ====================
 Estoy ultimando el firmware de este "bicho", me falta documentarlo todo; creanme cuando vean mi código que les hará falta documentación....
+También está en construcción la web para la configuración, y la reparación del meter, que no mide la intensidad como debería.
+
+
 

@@ -26,7 +26,7 @@ typedef enum{
     MQTT_LOGGER,
     OLED_LOGGER,
     SERIAL_LOGGER
-};
+}logger_t;
 /*inicio del termistor NTC*/
 esp_err_t termistor_init(void);
 /*inicio de la salida del ventilador y prueba su funcionamiento */

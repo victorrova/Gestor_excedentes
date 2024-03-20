@@ -210,7 +210,6 @@ static esp_err_t wifi_init_sta(const char *ssid, const char* password)
 char *wifi_scan(void)
 {
     cJSON *json;
-    cJSON *text;
     cJSON *msg;
     json = cJSON_CreateObject();
     msg = cJSON_CreateObject();
@@ -223,7 +222,7 @@ char *wifi_scan(void)
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
      for (int i = 0; (i < numero) && (i < ap_count); i++)
     { 
-        text = cJSON_AddNumberToObject(json,(const char*)ap_lista[i].ssid,ap_lista[i].rssi);
+        cJSON_AddNumberToObject(json,(const char*)ap_lista[i].ssid,ap_lista[i].rssi);
         
     }
     cJSON_AddItemToObject(msg,"wifiscan",json);

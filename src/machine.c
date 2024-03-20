@@ -159,10 +159,10 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     int temp = 0;
     uint32_t mem = free_mem();
     temp = temp_termistor();
-    esp_err_t err = ESP_FAIL;
     cJSON *keep = cJSON_CreateObject();
     cJSON *root = cJSON_CreateObject();
 #ifndef METER_ENABLE
+    esp_err_t err = ESP_FAIL;
     meter_t *met = (meter_t*)pvPortMalloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
@@ -192,16 +192,18 @@ esp_err_t Keepalive(int state_gestor, char *exit)
 
 
 
-    cJSON_AddItemToObject(keep, "keepalive",root);
-    cJSON_AddItemToObject(root,"temp_ntc",t);
+    
     cJSON_AddItemToObject(root,"voltage",v);
     cJSON_AddItemToObject(root,"current",i);
     cJSON_AddItemToObject(root,"p_activa",pa);
     cJSON_AddItemToObject(root,"p_appa",pap);
 #endif
+    cJSON_AddItemToObject(keep, "keepalive",root);
+    
     cJSON *st = cJSON_CreateNumber(state_gestor);
     cJSON *me = cJSON_CreateNumber(mem);
     cJSON *t = cJSON_CreateNumber(temp);
+    cJSON_AddItemToObject(root,"temp_ntc",t);
     cJSON_AddItemToObject(root,"state",st);
     cJSON_AddItemToObject(root,"free_mem",me);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
