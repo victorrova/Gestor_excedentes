@@ -3,7 +3,6 @@
 #include "msgqueue.h"
 
 
-
 static QueueHandle_t msg_queue;
 
 esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)

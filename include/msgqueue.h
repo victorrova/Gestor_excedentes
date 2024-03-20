@@ -1,3 +1,6 @@
+/*Cola en anillo para la comunicación entre tareas con autolimpieza de mensajes huerfanos*/
+
+
 #ifndef MSGQUEUE_H
 #define MSGQUEUE_H
 #include <stdio.h>
@@ -9,7 +12,10 @@
 #include "esp_log.h"
 #include "helper.h"
 
-typedef enum{
+
+
+/*posibles direcciones para la cola en anillo*/
+typedef enum{ 
     WS_TX,
     WS_RX,
     MQTT_TX,
@@ -21,10 +27,10 @@ typedef enum{
     CONTROL,
 }msg_type;
 
-typedef struct msg{ //  estructura de la  cola infinita 
-    int count;
-    int dest;
-    int len_topic;
+typedef struct msg{             //estructura de la  cola en anillo 
+    int count;                  // llamadas sin enncontrar destino 
+    int dest;                   // destino ( msg_type)
+    int len_topic;              
     char topic[MAX_TOPIC];
     int len_msg;
     char msg[MAX_PAYLOAD];

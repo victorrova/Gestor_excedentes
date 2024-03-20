@@ -160,6 +160,9 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     uint32_t mem = free_mem();
     temp = temp_termistor();
     esp_err_t err = ESP_FAIL;
+    cJSON *keep = cJSON_CreateObject();
+    cJSON *root = cJSON_CreateObject();
+#ifndef METER_ENABLE
     meter_t *met = (meter_t*)pvPortMalloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
@@ -179,26 +182,33 @@ esp_err_t Keepalive(int state_gestor, char *exit)
         ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
         return ESP_FAIL;
     }
-    cJSON *keep = cJSON_CreateObject();
-    cJSON *root = cJSON_CreateObject();
+
+
     cJSON *v = cJSON_CreateNumber(met->Voltage);
     cJSON *i = cJSON_CreateNumber(met->Current);
-    cJSON *t = cJSON_CreateNumber(temp);
+    
     cJSON *pa = cJSON_CreateNumber(met->Power_active);
     cJSON *pap = cJSON_CreateNumber(met->Power_appa);
-    cJSON *st = cJSON_CreateNumber(state_gestor);
-    cJSON *me = cJSON_CreateNumber(mem);
+
+
+
     cJSON_AddItemToObject(keep, "keepalive",root);
     cJSON_AddItemToObject(root,"temp_ntc",t);
     cJSON_AddItemToObject(root,"voltage",v);
     cJSON_AddItemToObject(root,"current",i);
     cJSON_AddItemToObject(root,"p_activa",pa);
     cJSON_AddItemToObject(root,"p_appa",pap);
+#endif
+    cJSON *st = cJSON_CreateNumber(state_gestor);
+    cJSON *me = cJSON_CreateNumber(mem);
+    cJSON *t = cJSON_CreateNumber(temp);
     cJSON_AddItemToObject(root,"state",st);
     cJSON_AddItemToObject(root,"free_mem",me);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
     cJSON_Delete(keep);
+#ifndef METER_ENABLE
     vPortFree(met);
+#endif
     return ESP_OK;
 }
 

@@ -19,19 +19,19 @@
 #define WIFI_CHANGE        BIT7
 #define DIMMER_INIT        BIT8
 
-enum{                  // EVENTOS DE LA MAQUINA 
-    MACHINE_OK,        // El arranque se ha completado con exito
-    MACHINE_FAIL,      //  El arranque tiene un componente crito en fallo
-    MACHINE_RESET,     // necesidada de reset
-    MACHINE_SAVE,      // necesidad de guardadr cambios
-    MACHINE_LOAD,      // necesidad de cargar cambios
-    MACHINE_OTA_OK,   // configuración correcta
-    MACHINE_OTA_FAIL, // configuración fallida
-    QUEUE_OVERLOAD,     // cola de mensajes llena
-    MACHINE_MQTT_CONNECT,
-    MACHINE_MQTT_DISCONNECT,
-    MACHINE_MQTT_MESSAGE,
-    MACHINE_TASK_CALLL,
+enum{                           // EVENTOS DE LA MAQUINA 
+    MACHINE_OK,                 // El arranque se ha completado con exito
+    MACHINE_FAIL,               //  El arranque tiene un componente crito en fallo
+    MACHINE_RESET,              // necesidada de reset
+    MACHINE_SAVE,               // necesidad de guardadr cambios
+    MACHINE_LOAD,               // necesidad de cargar cambios
+    MACHINE_OTA_OK,             // configuración correcta
+    MACHINE_OTA_FAIL,           // configuración fallida
+    QUEUE_OVERLOAD,             // cola de mensajes llena
+    MACHINE_MQTT_CONNECT,       // máquina conectada a mqtt
+    MACHINE_MQTT_DISCONNECT,    // máquina desconectada a mqtt
+    MACHINE_MQTT_MESSAGE,       // llegada mensaje mqtt
+    MACHINE_TASK_CALLL,         // tarea creada
 };
 
 esp_err_t Event_init(void);

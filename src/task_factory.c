@@ -22,7 +22,7 @@ esp_err_t task_create(TaskFunction_t task,const char *name,UBaseType_t Priority,
     do
     {
         result = xTaskCreate(task,name,stack,pvparams,Priority,NULL);
-        vTaskDelay(50/portTICK_PERIOD_MS);
+        vTaskDelay(50/( ( TickType_t ) 1000 / 500 ));
         count ++;
         if(count > 100)
         {

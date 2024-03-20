@@ -10,7 +10,9 @@
 #include "xread.h"
 #include <stdio.h>
 
+/*crea cliente http*/
 esp_http_client_handle_t  http_begin(const char *url);
+/* recupera el valor de potencia de un Kostal piko mp plus 4.6*/
 float Kostal_requests(esp_http_client_handle_t client);
 #endif
 

@@ -17,13 +17,15 @@
 #include "storage.h"
 #include "config.h"
 #include "task_factory.h"
+
+
 typedef struct conf_dimmmer{
     char inverter_url[128];
     int min_delay;                          // tiempo minimo de apertura de Triac
     int result;                             // tiempo maximo de apertura de Triac                           
     int Ext_Temp;                           // temperatura sonda externa
     int level;                              // Porcentaje nivel de apertura de Triac
-    int reg;                                // Nivel de regulacion nivel en tanto por ciento
+    int reg;                                // Nivel de regulación,nivel en tanto por ciento
     bool _enable;                           // control de on-off
     bool eco_mode;                          // activacion modo eco
     bool enable_Ext_Temp;                   // activacion control externo de temperatura   

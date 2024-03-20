@@ -16,8 +16,7 @@
 #include "config.h"
 #include "esp_heap_trace.h"
 #include "task_factory.h"
-//#define NUM_RECORDS 500
-//static heap_trace_record_t trace_record[NUM_RECORDS];
+
 extern EventGroupHandle_t Bits_events;
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 void Com_Task(void *pvparams);
@@ -145,11 +144,13 @@ void Machine_init(void)
     {
         ESP_LOGE(__FUNCTION__,"[mqtt_init] error  en inicio!");
     }
+#ifndef METER_ENABLE
     err = Meter_init();
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[Meter_init] error fatal en inicio!");
     }
+#endif
     ESP_LOGI(__FUNCTION__,"[OK] inicio correcto!");
     xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
     ESP_ERROR_CHECK(esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY));
@@ -301,6 +302,7 @@ void Com_Task(void *pvparams)
                     { 
                         if(Find_Key(payload,"dimmer"))
                         {
+                            /*payload: { "dimmer": 0 - 100}*/
                             float dimmer = 0.0;
                             ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
                             char *buff =(char*)pvPortMalloc(sizeof(float));
@@ -314,24 +316,36 @@ void Com_Task(void *pvparams)
                             /* mandar a dimmer cuando el control de temperatura este echo*/
                         }
                         else if (Find_Key(payload,"storage"))
-                        {   
-                            xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                        {   /*payload=  {storage:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},
+                            mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
+                             mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}*/
+
+                            //xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                            ESP_ERROR_CHECK(task_create(&storage_task,"storage_task",1,payload));
                             
                         }
                         else if( Find_Key(payload,"stream"))
                         {
+                            /*payload: {stream:{wifi:{ssid: "",password:"",ip:"",netmask:"",gateway:"",dns1:"",dns2:""},
+                            mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
+                            mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}*/
+                            
                             ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
                             
                         }
                         else if(Find_Key(payload,"update"))
                         {
-
+                            
+                            /*payload { "update": "http:// ip_server:80/firmware.bin"}*/
+                            /* lanzamiento en dir de proyecto: python -m http.server 80 */
                             cJSON *item = cJSON_GetObjectItem(payload,"update");
                             led_Update(); 
                             if(cJSON_IsString(item))
                             {
                                 char *url= item->valuestring;
-                                xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
+                                //xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
+                                (task_create(&Ota_task, "ota_task",5,url));
+                                
                             }
 
                         }   
@@ -350,9 +364,8 @@ void Com_Task(void *pvparams)
                         mqtt_publish(keep,strlen(keep),"NONE");
                     }
                     vPortFree(keep);
-                    //xTaskCreate(&Keepalive_task,"keepalive",3096,&state_gestor,3,NULL);
                     ESP_LOGW(__FUNCTION__,"memoria libre %lu",free_mem());
-                    //heap_trace_dump();
+
                 }
             }
             else if(msg->dest == OLED_TX)

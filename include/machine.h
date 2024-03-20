@@ -27,15 +27,23 @@ typedef enum{
     OLED_LOGGER,
     SERIAL_LOGGER
 };
-
+/*inicio del termistor NTC*/
 esp_err_t termistor_init(void);
+/*inicio de la salida del ventilador y prueba su funcionamiento */
 esp_err_t Fan_init(void);
+/*cambia el estado del ventilador*/
 void Fan_state(int state);
+/*lee y traduce a grados Cº la lectura del NTC*/
 float temp_termistor(void);
+/*cambia el canal de logger*/
 void set_stream_logger(int logger);
+/* Inicio del Meter  Hlw8032*/
 esp_err_t Meter_init(void);
+/*función que manda  mensaje mqtt con el estado del dimmer  */
 esp_err_t Keepalive(int state_gestor, char *exit);
+/*llamada al Ap de configuración*/
 esp_err_t Ap_call_Init(void);
+/*devuelve la memoria libre en bytes*/
 uint32_t free_mem(void);
-void Keepalive_task(void *params);
+
 #endif
