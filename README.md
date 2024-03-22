@@ -3,7 +3,7 @@ GESTOR EXCEDENTE FOTOVOLTAICO:
 
  UN POCO DE HISTORIA:
  ====================
-Un buen amigo me mostró un "gestor de excedentes" que compró en Ebay, se trataba de un dimmer con uun triac inmenso soldado con 4 cables a una pcb llena de soldadura.
+Un buen amigo me mostró un "gestor de excedentes" que compró en Ebay, se trataba de un dimmer con un triac inmenso soldado con 4 cables a una pcb llena de soldadura.
 El equipo funcionaba relativamente bien; tenía un firmware llamado Freeds, que hacia su función.
 
 Después de tres modelos les  traigo un  "Frankestein" que hará las delicicias de cualquier Maker con campo Fotovoltaico en su tejado, este amigo, te da la posibilidad de redirigir tu excedentes de produccion  a cualquier carga (regulable claro está).
