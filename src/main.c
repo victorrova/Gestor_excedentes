@@ -411,7 +411,7 @@ void Com_Task(void *pvparams)
             }
             
         }
-        //ESP_ERROR_CHECK( heap_trace_stop() );
+        
        
     }
     vTaskDelete(NULL);
@@ -420,7 +420,7 @@ void Com_Task(void *pvparams)
 
 void app_main(void)
 {
-    //ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
+    
     printf("	      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");              
     printf("              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.\n");                
     printf("              @@@@*@@@@@@@@@@@@@@@*@@@@@@*@@@@@@@@@@@@@@@@ \n");               
@@ -445,32 +445,7 @@ void app_main(void)
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
-    //ESP_ERROR_CHECK(task_memory_control("com_task"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"ssid", "CASA"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"password","k3rb3r0s"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_U32,"mqtt_port", (uint32_t)1883));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_host", "192.168.0.100"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_sub", "/gestor/envio"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"mqtt_pub", "/gestor/response"));
-    //ESP_ERROR_CHECK(storage_save(NVS_TYPE_STR,"url_inverter", "http://192.168.1.39/measurements.xml"));
-    /*led_init();
-    led_off();
-    //Meter_init();
-    Hlw8032_Init();
-    esp_err_t err = ESP_FAIL;
-    while(1)
-    {
-        meter_t *met = (meter_t*)malloc(sizeof(meter_t));
-        err = Hlw8032_read(met);
-        if(err == ESP_OK)
-        {
-            printf("V = %2f\n",met->Voltage);
-            printf("I = %2f\n",met->Current);
-            printf("P = %2f\n",met->Power_active);
-        }
-        free(met);
-        vTaskDelay(500/portTICK_PERIOD_MS);
-    }*/
+/
 }
 
 
