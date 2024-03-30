@@ -68,6 +68,10 @@ void Fan_state(int state)
         ESP_ERROR_CHECK_WITHOUT_ABORT(gpio_set_level(FAN,0));
     } 
 }
+int Fan_get_state(void)
+{
+    return gpio_get_level(FAN);
+}
  
 
 float temp_termistor(void)
@@ -161,6 +165,7 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     temp = temp_termistor();
     cJSON *keep = cJSON_CreateObject();
     cJSON *root = cJSON_CreateObject();
+    int fan = Fan_get_state();
 #ifndef METER_ENABLE
     esp_err_t err = ESP_FAIL;
     meter_t *met = (meter_t*)pvPortMalloc(sizeof(meter_t));
@@ -199,10 +204,11 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     cJSON_AddItemToObject(root,"p_appa",pap);
 #endif
     cJSON_AddItemToObject(keep, "keepalive",root);
-    
+    cJSON *fn = cJSON_CreateNumber(fan);
     cJSON *st = cJSON_CreateNumber(state_gestor);
     cJSON *me = cJSON_CreateNumber(mem);
     cJSON *t = cJSON_CreateNumber(temp);
+    cJSON_AddItemToObject(root,"fan_state",fn);
     cJSON_AddItemToObject(root,"temp_ntc",t);
     cJSON_AddItemToObject(root,"state",st);
     cJSON_AddItemToObject(root,"free_mem",me);

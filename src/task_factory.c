@@ -31,8 +31,8 @@ esp_err_t task_create(TaskFunction_t task,const char *name,UBaseType_t Priority,
         }
     } while (result != pdPASS);
 
-    esp_event_post(MACHINE_EVENTS,MACHINE_TASK_CALLL,name,strlen(name),portMAX_DELAY);
-    ESP_LOGI(__FUNCTION__,"tarea: %s creada len %d con éxito pila = %lu",name,strlen(name),stack);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(task_memory_control(name));
+    ESP_LOGI(__FUNCTION__,"tarea: %s creada con éxito pila = %lu",name,stack);
     return ESP_OK;
 }
 

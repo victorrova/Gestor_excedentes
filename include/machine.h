@@ -45,5 +45,5 @@ esp_err_t Keepalive(int state_gestor, char *exit);
 esp_err_t Ap_call_Init(void);
 /*devuelve la memoria libre en bytes*/
 uint32_t free_mem(void);
-
+int Fan_get_state(void);
 #endif

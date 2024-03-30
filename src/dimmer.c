@@ -66,7 +66,7 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
-            //ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d ntc_pid %d  temp = %d ",conf_gestor.result,conf_gestor.min_delay,_ntc_pid,NTC_temp);
+           //ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d conf_reg %d",conf_gestor.result,conf_gestor.min_delay,conf_gestor.reg);
         }
         if(count_send > KEEPALIVE_LAP)
         {
@@ -76,7 +76,7 @@ static void dimmer_http(void *PvParams)
             queue_send(DIMMER_TX,buff,"level",20/portTICK_PERIOD_MS);
             vPortFree(buff);
             
-            //ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
+            ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
         if(NTC_temp > 50)
@@ -135,7 +135,7 @@ static void dimmer_http(void *PvParams)
         }
         msg_queue_t *msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
         ESP_MALLOC_CHECK(msg);
-        err = queue_receive(DIMMER_RX,50/portTICK_PERIOD_MS,msg);
+        err = queue_receive(DIMMER_RX,100/portTICK_PERIOD_MS,msg);
         if(err == ESP_OK)
         {
             if(msg->len_msg > 0 && strcmp(msg->topic,"dimmer") == 0)
@@ -174,7 +174,7 @@ static void dimmer_http(void *PvParams)
             }
         }
         vPortFree(msg);
-        vTaskDelay(100/portTICK_PERIOD_MS);
+        vTaskDelay(50/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;
     }
@@ -292,7 +292,8 @@ void dimmer_init(void)
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &_timer));
     //conf_timmer(conf_gestor);
     conf_pin(conf_gestor);
-    ESP_ERROR_CHECK(task_create(&dimmer_http,"dimmer",4,NULL));
+    xTaskCreate(&dimmer_http,"dimmer",4000,NULL,3,NULL);
+    //ESP_ERROR_CHECK(task_create(&dimmer_http,"dimmer",4,NULL));
 }
 void dimmer_stop(void)
 {

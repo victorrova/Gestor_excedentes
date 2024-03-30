@@ -25,7 +25,8 @@ void Machine_event_ok_handler(void* arg, esp_event_base_t event_base,int32_t eve
 {
     ESP_LOGW(__FUNCTION__,"launch machine_ok");
     
-    ESP_ERROR_CHECK(task_create(&Com_Task,"com_task",3,NULL));
+    //ESP_ERROR_CHECK(task_create(&Com_Task,"com_task",3,NULL));
+    xTaskCreate(&Com_Task,"com_task",6000,NULL,3,NULL);
 }
 void Machine_wifi_connect(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
@@ -70,12 +71,6 @@ void Machine_Ap_connect(void* arg, esp_event_base_t event_base,int32_t event_id,
     dimmer_stop();
     led_AP();
 }
-void Machine_task_memory(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
-{
-    char *name = (char*)event_data;
-    ESP_ERROR_CHECK_WITHOUT_ABORT(task_memory_control(name));
-}
-
 
 void Machine_init(void)
 {
@@ -87,7 +82,6 @@ void Machine_init(void)
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_OTA_FAIL,&Machine_OTA_FAIL_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_CONNECT,&Machine_MQTT_connect_handler,NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_MQTT_DISCONNECT,&Machine_MQTT_disconnect_handler,NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(MACHINE_EVENTS,MACHINE_TASK_CALLL,&Machine_task_memory,NULL));
     if(err != ESP_OK)
     {
         ESP_LOGE(__FUNCTION__,"[event_init] error fatal en inicio!");
@@ -152,6 +146,7 @@ void Machine_init(void)
     }
 #endif
     ESP_LOGI(__FUNCTION__,"[OK] inicio correcto!");
+    set_stream_logger(MQTT_TX);
     xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
     ESP_ERROR_CHECK(esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY));
 
@@ -307,6 +302,7 @@ void Com_Task(void *pvparams)
                             ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
                             char *buff =(char*)pvPortMalloc(sizeof(float));
                             itoa((int)dimmer,buff,10);
+                            //ESP_LOGI(__FUNCTION__,"llegada %f",dimmer);
                             queue_send(DIMMER_RX,buff,"dimmer",100/portTICK_PERIOD_MS);
                             vPortFree(buff);
                            
@@ -320,8 +316,8 @@ void Com_Task(void *pvparams)
                             mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
                              mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}*/
 
-                            //xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
-                            ESP_ERROR_CHECK(task_create(&storage_task,"storage_task",1,payload));
+                            xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                            //ESP_ERROR_CHECK(task_create(&storage_task,"storage_task",1,payload));
                             
                         }
                         else if( Find_Key(payload,"stream"))
@@ -343,8 +339,8 @@ void Com_Task(void *pvparams)
                             if(cJSON_IsString(item))
                             {
                                 char *url= item->valuestring;
-                                //xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
-                                (task_create(&Ota_task, "ota_task",5,url));
+                                xTaskCreate(&Ota_task, "ota_task", 8192, url, 5, NULL);
+                                //(task_create(&Ota_task, "ota_task",5,url));
                                 
                             }
 
@@ -445,7 +441,7 @@ void app_main(void)
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
     printf("versión actual: %f\n",VERSION);
-/
+
 }
 
 
