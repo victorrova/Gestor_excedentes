@@ -201,7 +201,7 @@ esp_err_t Keepalive(int state_gestor, char *exit)
 #endif
     cJSON_AddNumberToObject(root,"fan_state",fan);
     cJSON_AddNumberToObject(root,"temp_ntc",temp);
-    JSON_AddNumberToObject(root,"state",state_gestor);
+    cJSON_AddNumberToObject(root,"state",state_gestor);
     cJSON_AddNumberToObject(root,"free_mem",mem /1024);
     cJSON_AddNumberToObject(root,"version",VERSION);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
