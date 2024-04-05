@@ -160,11 +160,11 @@ void set_stream_logger(int logger)
 
 esp_err_t Keepalive(int state_gestor, char *exit)
 { 
-    int temp = 0;
     uint32_t mem = free_mem();
-    temp = temp_termistor();
+    float temp = temp_termistor();
     cJSON *keep = cJSON_CreateObject();
     cJSON *root = cJSON_CreateObject();
+    cJSON_AddItemToObject(keep, "keepalive",root);
     int fan = Fan_get_state();
 #ifndef METER_ENABLE
     esp_err_t err = ESP_FAIL;
@@ -194,24 +194,16 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     
     cJSON *pa = cJSON_CreateNumber(met->Power_active);
     cJSON *pap = cJSON_CreateNumber(met->Power_appa);
-
-
-
-    
     cJSON_AddItemToObject(root,"voltage",v);
     cJSON_AddItemToObject(root,"current",i);
     cJSON_AddItemToObject(root,"p_activa",pa);
     cJSON_AddItemToObject(root,"p_appa",pap);
 #endif
-    cJSON_AddItemToObject(keep, "keepalive",root);
-    cJSON *fn = cJSON_CreateNumber(fan);
-    cJSON *st = cJSON_CreateNumber(state_gestor);
-    cJSON *me = cJSON_CreateNumber(mem);
-    cJSON *t = cJSON_CreateNumber(temp);
-    cJSON_AddItemToObject(root,"fan_state",fn);
-    cJSON_AddItemToObject(root,"temp_ntc",t);
-    cJSON_AddItemToObject(root,"state",st);
-    cJSON_AddItemToObject(root,"free_mem",me);
+    cJSON_AddNumberToObject(root,"fan_state",fan);
+    cJSON_AddNumberToObject(root,"temp_ntc",temp);
+    JSON_AddNumberToObject(root,"state",state_gestor);
+    cJSON_AddNumberToObject(root,"free_mem",mem /1024);
+    cJSON_AddNumberToObject(root,"version",VERSION);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
     cJSON_Delete(keep);
 #ifndef METER_ENABLE

@@ -34,7 +34,7 @@ static void mqtt_connect_handler(void* arg, esp_event_base_t event_base,int32_t 
         char *topic = (char*)malloc(sizeof(char) * topic_len);
         ESP_MALLOC_CHECK(topic);
         ESP_ERROR_CHECK_WITHOUT_ABORT(storage_load(NVS_TYPE_STR,"mqtt_sub",topic,&topic_len));
-        int eso = esp_mqtt_client_subscribe(client,(const char*)topic, 0);
+        int eso = esp_mqtt_client_subscribe(client,(char*)topic, 0);
         ESP_LOGI(__FILE__,"subscrito al broker en %s id %d",topic,eso);
         free(topic);
     }

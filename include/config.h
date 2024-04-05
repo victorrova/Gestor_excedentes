@@ -20,7 +20,7 @@
 /*ota*/
 #define OTA_URL_SIZE                           256
 /* VERSION*/
-#define VERSION                                0.1
+#define VERSION                                0.2
 /* meter*/
 #define METER_ENABLE                           0
 #define UART_PORT                              2

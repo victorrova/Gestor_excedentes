@@ -108,7 +108,6 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor.min_delay = 100;
         }
-        
         pid = PID(1-conf_gestor.reg,sal,&conf_gestor.pid_Pwr);
         arrived = map(pid,-1000,1000,-500,500);
         sal += arrived;

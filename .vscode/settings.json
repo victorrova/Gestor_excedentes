@@ -67,6 +67,7 @@
         "ring_queue.h": "c",
         "kostal.h": "c",
         "freertosconfig_arch.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "efuse_hal.h": "c"
     }
 }

@@ -146,7 +146,7 @@ void Machine_init(void)
     }
 #endif
     ESP_LOGI(__FUNCTION__,"[OK] inicio correcto!");
-    set_stream_logger(MQTT_TX);
+    //set_stream_logger(MQTT_TX);
     xEventGroupSetBits(Bits_events, MACHINE_STATE_OK);
     ESP_ERROR_CHECK(esp_event_post(MACHINE_EVENTS,MACHINE_OK,NULL,0,portMAX_DELAY));
 
@@ -268,7 +268,6 @@ void Com_Task(void *pvparams)
     cJSON *payload = NULL;
     while(1)
     {   
-        //ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
         if(msg != NULL)
         {
             vPortFree(msg);
@@ -302,7 +301,6 @@ void Com_Task(void *pvparams)
                             ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
                             char *buff =(char*)pvPortMalloc(sizeof(float));
                             itoa((int)dimmer,buff,10);
-                            //ESP_LOGI(__FUNCTION__,"llegada %f",dimmer);
                             queue_send(DIMMER_RX,buff,"dimmer",100/portTICK_PERIOD_MS);
                             vPortFree(buff);
                            
@@ -416,27 +414,7 @@ void Com_Task(void *pvparams)
 
 void app_main(void)
 {
-    
-    printf("	      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");              
-    printf("              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.\n");                
-    printf("              @@@@*@@@@@@@@@@@@@@@*@@@@@@*@@@@@@@@@@@@@@@@ \n");               
-    printf("               @@@**@@@@**@@**@@@***@@@@***/@@@@*****@@@@@\n");                
-    printf("               @@****@&****@***/******@&*****@@*******#@@@\n");                
-    printf("                *********@**@**************************** \n");                  
-    printf("                *****@&#********************************* \n");            
-    printf("                 **@************************************  \n");                    
-    printf("                 *****@@@@@@@@@@@@*****@@@@@@@@@@@@*****  \n");                 
-    printf("                 ******          *******          ******  \n");                 
-    printf("                  ****    ,@@     *****     @@     ****   \n");                  
-    printf("              **********    .  **/,*****/.      .********** \n");                
-    printf("             ***##*************************************##*** \n");               
-    printf("              ********************************************* \n");                
-    printf("                   ***********************************    \n");                  
-    printf("                   ********  ===============  *****@**     \n");                 
-    printf("             @@@@  *******************************@@*,  @@@@\n");                
-    printf("             @@@@@@@*************************/&@*****@@@@@@@\n");                
-    printf("             @@@@   *****************@@@@@*/*********   @@@@\n");                
-    printf("                     *******************************        \n");
+
     Machine_init();
     vTaskDelay(2000/portTICK_PERIOD_MS);
     Wifi_run(WIFI_MODE_STA);
