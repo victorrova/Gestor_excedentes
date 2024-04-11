@@ -206,6 +206,7 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     cJSON_AddNumberToObject(root,"version",VERSION);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
     cJSON_Delete(keep);
+    memo_leaks("keepalive");
 #ifndef METER_ENABLE
     vPortFree(met);
 #endif

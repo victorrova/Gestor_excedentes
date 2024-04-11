@@ -66,6 +66,9 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
+
+            
+            memo_leaks("dimmer");
            //ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d conf_reg %d",conf_gestor.result,conf_gestor.min_delay,conf_gestor.reg);
         }
         if(count_send > KEEPALIVE_LAP)

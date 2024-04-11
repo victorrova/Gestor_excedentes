@@ -88,4 +88,15 @@ esp_err_t decode_payload(char *msg, char * key,void *exit)
     return ESP_FAIL;
 }
 
+void memo_leaks(char *name)
+{
+    static int pre_value = 0;
+    int value = esp_get_free_heap_size();
+    int exit  = value - pre_value;
+    pre_value = value;
+    printf( "memoria perdida en %s: %d bytes\n",name,exit);
+
+}
+
+
 

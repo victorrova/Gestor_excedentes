@@ -273,6 +273,7 @@ void Com_Task(void *pvparams)
             vPortFree(msg);
             
         }
+        memo_leaks("com_task");
         msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
         ESP_MALLOC_CHECK(msg);
         err = queue_receive(MASTER,100/portTICK_PERIOD_MS,msg);

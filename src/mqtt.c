@@ -135,6 +135,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
         }
 
     }
+    memo_leaks("mqtt_publish");
     return err;
 }
 esp_err_t queue_to_mqtt_publish(msg_queue_t *msg)
@@ -150,6 +151,7 @@ esp_err_t queue_to_mqtt_publish(msg_queue_t *msg)
         return mqtt_publish(msg->msg,msg->len_msg,NULL);
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
     }
+    memo_leaks("queue_to_mqtt_publish");
 }
 
 esp_err_t mqtt_init(void)
