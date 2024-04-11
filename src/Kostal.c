@@ -12,7 +12,7 @@ static void xml_handler(xr_type_t type, const xr_str_t* name, const xr_str_t* va
     
     if(type == xr_type_attribute )
     {
-        char *out =(char*)pvPortMalloc(sizeof(char) * 32);
+        char *out =(char*)malloc(sizeof(char) * 32);
         bzero(out,32);
         strncpy(out,name->cstr,name->len);
        
@@ -42,7 +42,7 @@ static void xml_handler(xr_type_t type, const xr_str_t* name, const xr_str_t* va
 
 
         }
-        vPortFree(out);
+        free(out);
     }
  
 }
@@ -63,7 +63,7 @@ float Kostal_requests(esp_http_client_handle_t client)
 {
     int content_length = 0;
     float a =0.0;
-    char *output_buffer = (char*)pvPortMalloc(sizeof(char) * 1800);
+    char *output_buffer = (char*)malloc(sizeof(char) * 1800);
     if(output_buffer == NULL)
     {
         ESP_LOGE(__FUNCTION__, "sin memoria dinamica :(");
@@ -73,7 +73,7 @@ float Kostal_requests(esp_http_client_handle_t client)
     if (err != ESP_OK) 
     {
         ESP_LOGE(__FUNCTION__, "Imposible abrir conexion http: %s", esp_err_to_name(err));
-        vPortFree(output_buffer);
+        free(output_buffer);
         esp_http_client_close(client);
         
     } 
@@ -83,7 +83,7 @@ float Kostal_requests(esp_http_client_handle_t client)
         if (content_length < 0) 
         {
             ESP_LOGE(__FUNCTION__, "HTTP client fetch headers failed");
-            vPortFree(output_buffer);
+            free(output_buffer);
             esp_http_client_close(client);
 
         } 
@@ -92,7 +92,7 @@ float Kostal_requests(esp_http_client_handle_t client)
             int data_read = esp_http_client_read_response(client, output_buffer, 1800);
             if (data_read >= 0 && esp_http_client_get_status_code(client) == 200) 
             {
-                char *_buffer= (char*)pvPortMalloc(sizeof(char) * data_read);
+                char *_buffer= (char*)malloc(sizeof(char) * data_read);
                 bzero(_buffer,data_read);
                 size_t m = strlen(output_buffer);
                 int j = 0;
@@ -101,19 +101,19 @@ float Kostal_requests(esp_http_client_handle_t client)
                     _buffer[j] = output_buffer[i];
                     j++;
                 }
-                vPortFree(output_buffer);
+                free(output_buffer);
                 
                 xr_read(&xml_handler,_buffer,&a);
                 esp_http_client_close(client);
                 if(_buffer != NULL)
                 {
-                    vPortFree(_buffer);
+                    free(_buffer);
                 }
             } 
             else 
             {
                 ESP_LOGE(__FUNCTION__, "Failed to read response");
-                vPortFree(output_buffer);
+                free(output_buffer);
                 esp_http_client_close(client);
             }
         }

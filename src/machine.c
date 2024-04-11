@@ -168,7 +168,7 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     int fan = Fan_get_state();
 #ifndef METER_ENABLE
     esp_err_t err = ESP_FAIL;
-    meter_t *met = (meter_t*)pvPortMalloc(sizeof(meter_t));
+    meter_t *met = (meter_t*)malloc(sizeof(meter_t));
     for(int i = 0; i < 10;i++)
     {
         err =Hlw8032_Read(met);
@@ -208,7 +208,7 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     cJSON_Delete(keep);
     memo_leaks("keepalive");
 #ifndef METER_ENABLE
-    vPortFree(met);
+    free(met);
 #endif
     return ESP_OK;
 }

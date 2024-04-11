@@ -12,7 +12,7 @@ esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t 
         ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)strlen(payload),(int)strlen(topic));
         return ESP_FAIL;
     }
-    msg_queue_t *msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
+    msg_queue_t *msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
     ESP_MALLOC_CHECK(msg);
     msg->dest = dest;
     strcpy(msg->msg,payload);
@@ -24,7 +24,7 @@ esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t 
     }
     msg->count =0;
     xQueueSend(msg_queue,msg,time);
-    vPortFree(msg);
+    free(msg);
     return ESP_OK;
 
 }

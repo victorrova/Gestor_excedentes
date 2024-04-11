@@ -73,11 +73,11 @@ static void dimmer_http(void *PvParams)
         }
         if(count_send > KEEPALIVE_LAP)
         {
-            char *buff =(char*)pvPortMalloc(sizeof(int));
+            char *buff =(char*)malloc(sizeof(int));
             conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
             itoa(conf_gestor.level,buff,10);
             queue_send(DIMMER_TX,buff,"level",20/portTICK_PERIOD_MS);
-            vPortFree(buff);
+            free(buff);
             
             ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
@@ -135,7 +135,7 @@ static void dimmer_http(void *PvParams)
         {
             conf_gestor._enable = true;
         }
-        msg_queue_t *msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
+        msg_queue_t *msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
         ESP_MALLOC_CHECK(msg);
         err = queue_receive(DIMMER_RX,100/portTICK_PERIOD_MS,msg);
         if(err == ESP_OK)
@@ -175,7 +175,7 @@ static void dimmer_http(void *PvParams)
                 conf_gestor.pid_Pwr.max = (int)atof(msg->msg);
             }
         }
-        vPortFree(msg);
+        free(msg);
         vTaskDelay(50/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;

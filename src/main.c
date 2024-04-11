@@ -14,7 +14,6 @@
 #include "ota.h"
 #include "medidor.h"
 #include "config.h"
-#include "esp_heap_trace.h"
 #include "task_factory.h"
 
 extern EventGroupHandle_t Bits_events;
@@ -265,16 +264,14 @@ void Com_Task(void *pvparams)
     int state_gestor =0;
     msg_queue_t *msg = NULL;
     esp_err_t err = ESP_FAIL;
-    cJSON *payload = NULL;
     while(1)
     {   
         if(msg != NULL)
         {
-            vPortFree(msg);
+            free(msg);
             
         }
-        memo_leaks("com_task");
-        msg = (msg_queue_t*)pvPortMalloc(sizeof(msg_queue_t));
+        msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
         ESP_MALLOC_CHECK(msg);
         err = queue_receive(MASTER,100/portTICK_PERIOD_MS,msg);
         if(err == ESP_OK)
@@ -292,7 +289,7 @@ void Com_Task(void *pvparams)
             {
                     xEventGroupClearBits(Bits_events,MQTT_ON_MESSAGE);
                     led_on_message();
-                    payload = cJSON_Parse(msg->msg);
+                    cJSON *payload = cJSON_Parse(msg->msg);
                     if(!cJSON_IsNull(payload))
                     { 
                         if(Find_Key(payload,"dimmer"))
@@ -300,11 +297,10 @@ void Com_Task(void *pvparams)
                             /*payload: { "dimmer": 0 - 100}*/
                             float dimmer = 0.0;
                             ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
-                            char *buff =(char*)pvPortMalloc(sizeof(float));
+                            char *buff =(char*)malloc(sizeof(float));
                             itoa((int)dimmer,buff,10);
                             queue_send(DIMMER_RX,buff,"dimmer",100/portTICK_PERIOD_MS);
-                            vPortFree(buff);
-                           
+                            free(buff);
                         }
                         else if(Find_Key(payload,"temperature"))
                         {
@@ -345,20 +341,20 @@ void Com_Task(void *pvparams)
 
                         }   
                     }
-                   
+                    cJSON_Delete(payload);
             }
             else if(msg->dest == DIMMER_TX)
             {
                 if( strcmp(msg->topic,"level")== 0)
                 {
                     state_gestor =atoi(msg->msg);
-                    char *keep = (char*)pvPortMalloc(sizeof(char) * MAX_PAYLOAD);
+                    char *keep = (char*)malloc(sizeof(char) * MAX_PAYLOAD);
                     err = Keepalive(state_gestor,keep);
                     if(err == ESP_OK)
                     {
                         mqtt_publish(keep,strlen(keep),"NONE");
                     }
-                    vPortFree(keep);
+                    free(keep);
                     ESP_LOGW(__FUNCTION__,"memoria libre %lu",free_mem());
 
                 }
