@@ -271,6 +271,8 @@ void Com_Task(void *pvparams)
             free(msg);
             
         }
+        //memo_leaks("comtask");
+
         msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
         ESP_MALLOC_CHECK(msg);
         err = queue_receive(MASTER,100/portTICK_PERIOD_MS,msg);
@@ -324,6 +326,31 @@ void Com_Task(void *pvparams)
                             ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
                             
                         }
+                        else if( Find_Key(payload,"logger"))
+                        {   
+                            cJSON *logger = cJSON_GetObjectItem(payload,"logger");
+                            if(cJSON_IsNumber(logger))
+                            {
+                                int number = logger->valueint;
+                                if(number == MQTT_TX)
+                                {
+                                    set_stream_logger(MQTT_TX);
+                                }
+                                else if(number == WS_TX)
+                                {
+                                    set_stream_logger(WS_TX);
+                                }
+                                else if(number == OLED_TX)
+                                {
+                                    set_stream_logger(OLED_TX);
+                                }
+                                else
+                                {
+                                    set_stream_logger(0);
+                                }
+                            }
+
+                        }
                         else if(Find_Key(payload,"update"))
                         {
                             
@@ -350,9 +377,10 @@ void Com_Task(void *pvparams)
                     state_gestor =atoi(msg->msg);
                     char *keep = (char*)malloc(sizeof(char) * MAX_PAYLOAD);
                     err = Keepalive(state_gestor,keep);
+                
                     if(err == ESP_OK)
                     {
-                        mqtt_publish(keep,strlen(keep),"NONE");
+                        mqtt_publish(keep,strlen(keep),"/gestor/response");
                     }
                     free(keep);
                     ESP_LOGW(__FUNCTION__,"memoria libre %lu",free_mem());

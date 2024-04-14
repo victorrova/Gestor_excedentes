@@ -85,18 +85,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_DATA:
         ESP_LOGD(__FUNCTION__, "MQTT_EVENT_DATA");
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
-         esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_MESSAGE,NULL,0,portMAX_DELAY);
+        esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_MESSAGE,NULL,0,portMAX_DELAY);
         char* msg = (char*)malloc(sizeof(char)* event->data_len);
         char* topic = (char*)malloc(sizeof(char)* event->topic_len);
         strncpy(msg,event->data,event->data_len);
         strncpy(topic,event->topic,event->topic_len);
         ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,(const char *)topic,portMAX_DELAY));
         ESP_LOGW(__FUNCTION__, "mensaje enviado");
-        if(msg != NULL)
-        {
-            free(msg);
-            free(topic);
-        }
+        free(msg);
+        free(topic);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(__FUNCTION__, "MQTT_EVENT_ERROR");
@@ -135,7 +132,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
         }
 
     }
-    memo_leaks("mqtt_publish");
+    //memo_leaks("mqtt_publish");
     return err;
 }
 esp_err_t queue_to_mqtt_publish(msg_queue_t *msg)
@@ -151,7 +148,7 @@ esp_err_t queue_to_mqtt_publish(msg_queue_t *msg)
         return mqtt_publish(msg->msg,msg->len_msg,NULL);
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
     }
-    memo_leaks("queue_to_mqtt_publish");
+    //memo_leaks("queue_to_mqtt_publish");
 }
 
 esp_err_t mqtt_init(void)

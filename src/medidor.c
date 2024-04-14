@@ -1,6 +1,7 @@
 
 #include "medidor.h"
 
+static meter_t meter;
 
 static bool Checksum(int position,uint8_t *buffer)
 {
@@ -28,7 +29,6 @@ esp_err_t Hlw8032_Init(void)
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_APB,
     };
-    
     err = uart_driver_install(UART_PORT, BUFFER, 0, 0, NULL, 0);
     if (err != ESP_OK)
     {
@@ -47,10 +47,12 @@ esp_err_t Hlw8032_Init(void)
         ESP_LOGE(__FUNCTION__, "UART pin setting failed");
         return err;
     }
+    meter.p_op = 1.0;
+    meter.I_op = 1.0;
     return err;
 }
 
-esp_err_t Hlw8032_Read(meter_t *out)
+esp_err_t Hlw8032_Read(void)
 {
     
     int rxBytes = 0;
@@ -106,11 +108,9 @@ esp_err_t Hlw8032_Read(meter_t *out)
         float i_data = ((uint32_t)buffer[position + 11]  <<16) + ((uint32_t)buffer[position + 12] <<8) + buffer[position + 13];
         float p_param = ((uint32_t)buffer[position + 14]  <<16) + ((uint32_t)buffer[position + 15] <<8) + buffer[position + 16];
         float p_data =  ((uint32_t)buffer[position + 17]  <<16) + ((uint32_t)buffer[position + 18] <<8) + buffer[position + 19];
-        out->Voltage = v_param/v_data * VOLTAGE_COEF;
-        out->Current = i_param/i_data * CURRENT_COEF;
-        out->Power_active = p_param/p_data * VOLTAGE_COEF * CURRENT_COEF;
-        out->Pf = 0.0;
-        out->Power_appa = 0.0;
+        meter.Voltage = v_param/v_data * VOLTAGE_COEF;
+        meter.Current = (i_param/i_data * CURRENT_COEF) * meter.I_op;
+        meter.Power_active = (p_param/p_data * VOLTAGE_COEF * CURRENT_COEF) * meter.p_op;
     }
     else
     {
@@ -126,3 +126,30 @@ esp_err_t Hlw8032_Read(meter_t *out)
     return ESP_OK;
 }
 
+float meter_get_voltage(void)
+{
+    return meter.Voltage;
+}
+
+float meter_get_current(void)
+{
+    return meter.Current;
+}
+
+float meter_get_power(void)
+{
+    return meter.Power_active;
+}
+
+void tune(int state)
+{
+    float v= meter.Voltage;
+    float i = meter.Current;
+    float p = meter.Power_active;
+    int st  = map(state,10000,100,0,100);
+    float max_int = (POWER_CHARGER / v) * CF;
+    float i_con = max_int * st /100;
+    float p_con = POWER_CHARGER * st /100;
+    meter.I_op = i_con / i;
+    meter.p_op = p_con / p;
+}

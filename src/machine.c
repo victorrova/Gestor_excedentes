@@ -96,12 +96,12 @@ static int mqtt_logger(const char *msg, va_list arg)
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root,"logger",buffer);
     char* buff = cJSON_Print(root);
-    esp_err_t result = queue_send(MQTT_TX, buff,"NONE",portMAX_DELAY);
-    cJSON_Delete(root);
+    esp_err_t result = queue_send(MQTT_TX, buff,"/gestor/response",portMAX_DELAY);
     if(buff != NULL)
     {
-        free(buff);
+        cJSON_free(buff);
     }
+    cJSON_Delete(root);
     if(result == -1){
         
         return -1;
@@ -167,49 +167,22 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     cJSON_AddItemToObject(keep, "keepalive",root);
     int fan = Fan_get_state();
 #ifndef METER_ENABLE
-    esp_err_t err = ESP_FAIL;
-    meter_t *met = (meter_t*)malloc(sizeof(meter_t));
-    for(int i = 0; i < 10;i++)
-    {
-        err =Hlw8032_Read(met);
-        if(err == ESP_OK)
-        {
-            break;
-        }
-        else
-        {
-            vTaskDelay(250/portTICK_PERIOD_MS);
-        }
-    }
-    if(err != ESP_OK)
-    {
-       
-        ESP_LOGW(__FUNCTION__,"HLW8032 error de lectura");
-        return ESP_FAIL;
-    }
-
-
-    cJSON *v = cJSON_CreateNumber(met->Voltage);
-    cJSON *i = cJSON_CreateNumber(met->Current);
-    
-    cJSON *pa = cJSON_CreateNumber(met->Power_active);
-    cJSON *pap = cJSON_CreateNumber(met->Power_appa);
+    float v = meter_get_voltage();
+    float i = meter_get_current();
+    float pa= meter_get_power();
     cJSON_AddItemToObject(root,"voltage",v);
     cJSON_AddItemToObject(root,"current",i);
     cJSON_AddItemToObject(root,"p_activa",pa);
-    cJSON_AddItemToObject(root,"p_appa",pap);
 #endif
     cJSON_AddNumberToObject(root,"fan_state",fan);
     cJSON_AddNumberToObject(root,"temp_ntc",temp);
     cJSON_AddNumberToObject(root,"state",state_gestor);
-    cJSON_AddNumberToObject(root,"free_mem",mem /1024);
+    cJSON_AddNumberToObject(root,"free_mem",(double)mem/1024);
     cJSON_AddNumberToObject(root,"version",VERSION);
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
     cJSON_Delete(keep);
-    memo_leaks("keepalive");
-#ifndef METER_ENABLE
-    free(met);
-#endif
+    //memo_leaks("keepalive");
+
     return ESP_OK;
 }
 

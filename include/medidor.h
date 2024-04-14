@@ -22,9 +22,15 @@ typedef struct {
     float Power_active;
     float Power_appa;
     float Pf;
+    float I_op;
+    float p_op;
 } meter_t;
 
-esp_err_t Hlw8032_Init(void);
-esp_err_t Hlw8032_Read(meter_t* out);
 
+esp_err_t Hlw8032_Init(void);
+esp_err_t Hlw8032_Read(void);
+float meter_get_voltage(void);
+float meter_get_current(void);
+float meter_get_power(void);
+void tune(int state);
 #endif

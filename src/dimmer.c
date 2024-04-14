@@ -23,7 +23,7 @@ static void IRAM_ATTR GPIO_ISR_Handler(void* arg)
     
 }
 
-static void conf_pin(conf_dimmer_t dimmer)
+static void conf_pin(void)
 {   
     gpio_config_t triac = {};
     
@@ -66,9 +66,11 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
-
+#ifndef METER_ENABLE
+            Hlw8032_Read();
             
-            memo_leaks("dimmer");
+#endif
+            
            //ESP_LOGI(__FUNCTION__,"envio result %d min_delay %d conf_reg %d",conf_gestor.result,conf_gestor.min_delay,conf_gestor.reg);
         }
         if(count_send > KEEPALIVE_LAP)
@@ -77,8 +79,7 @@ static void dimmer_http(void *PvParams)
             conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
             itoa(conf_gestor.level,buff,10);
             queue_send(DIMMER_TX,buff,"level",20/portTICK_PERIOD_MS);
-            free(buff);
-            
+            free(buff); 
             ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
@@ -176,6 +177,7 @@ static void dimmer_http(void *PvParams)
             }
         }
         free(msg);
+        //memo_leaks("dimmer");
         vTaskDelay(50/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;
@@ -293,7 +295,7 @@ void dimmer_init(void)
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &_timer));
     //conf_timmer(conf_gestor);
-    conf_pin(conf_gestor);
+    conf_pin();
     xTaskCreate(&dimmer_http,"dimmer",4000,NULL,3,NULL);
     //ESP_ERROR_CHECK(task_create(&dimmer_http,"dimmer",4,NULL));
 }
@@ -320,3 +322,4 @@ void dimmer_stop(void)
 
     
 }
+

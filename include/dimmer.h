@@ -17,8 +17,7 @@
 #include "storage.h"
 #include "config.h"
 #include "task_factory.h"
-
-
+#include "medidor.h"
 typedef struct conf_dimmmer{
     char inverter_url[128];
     int min_delay;                          // tiempo minimo de apertura de Triac
