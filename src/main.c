@@ -351,6 +351,16 @@ void Com_Task(void *pvparams)
                             }
 
                         }
+                        else if(Find_Key(payload,"fan"))
+                        {
+                            /* payload {"fan": 0 || 1}*/
+                            cJSON *fan  = cJSON_GetObjectItem(payload,"fan");
+                            if(cJSON_IsNumber(fan))
+                            {
+                                int _fan = fan->valueint;
+                                Fan_state(_fan);
+                            }
+                        }
                         else if(Find_Key(payload,"update"))
                         {
                             

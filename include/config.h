@@ -22,7 +22,7 @@
 /* VERSION*/
 #define VERSION                                0.2
 /* meter*/
-#define METER_ENABLE                           0
+#define METER_ENABLE                           1
 #define UART_PORT                              2
 #define RX_PIN                                 16
 #define BUFFER                                 256

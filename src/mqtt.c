@@ -14,7 +14,6 @@
 
 extern EventGroupHandle_t Bits_events;
 static esp_mqtt_client_handle_t client;
-
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 
 static void log_error_if_nonzero(const char *message, int error_code)

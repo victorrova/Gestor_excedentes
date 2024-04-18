@@ -94,12 +94,18 @@ esp_err_t Hlw8032_Read(void)
         {
             ESP_LOGE(__FUNCTION__,"order buffer incorrect");
             free(buffer);
+            meter.Voltage = 0.0;
+            meter.Current = 0.0;
+            meter.Power_active = 0.0;
             return ESP_FAIL;
         }
         if(!Checksum(position,buffer))
         {
             ESP_LOGE(__FUNCTION__,"Checksum failed!");
             free(buffer);
+            meter.Voltage = 0.0;
+            meter.Current = 0.0;
+            meter.Power_active = 0.0;
             return ESP_FAIL;
         }
         float v_param = ((uint32_t)buffer[position + 2]  <<16) + ((uint32_t)buffer[position + 3] <<8) + buffer[position + 4];
@@ -117,6 +123,9 @@ esp_err_t Hlw8032_Read(void)
         ESP_LOGE(__FUNCTION__, "buffer incompleto = %d",(int)data_len);
         free(buffer);
         uart_flush(UART_PORT);
+        meter.Voltage = 0.0;
+        meter.Current = 0.0;
+        meter.Power_active = 0.0;
         return ESP_FAIL;
     }
     if(buffer !=NULL)

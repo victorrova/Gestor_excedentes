@@ -1,7 +1,7 @@
 #include "dimmer.h"
 
 
-static TaskHandle_t dimmer_task =NULL;
+
 static esp_timer_handle_t _timer;
 static conf_dimmer_t conf_gestor;
 
@@ -66,6 +66,7 @@ static void dimmer_http(void *PvParams)
             sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
+            
 #ifndef METER_ENABLE
             Hlw8032_Read();
             
@@ -301,25 +302,23 @@ void dimmer_init(void)
 }
 void dimmer_stop(void)
 {
-    if(dimmer_task != NULL)
-    {
-        eTaskState state = eTaskGetState(&dimmer_task);
-        ESP_LOGW(__FUNCTION__,"dimmer task state %d",(int)state);
-        if(state != eInvalid && state != eDeleted)
-        {
-            vTaskDelete(&dimmer_task);
-            gpio_isr_handler_remove(ZERO);
-            esp_timer_stop(_timer);
-            ESP_LOGW(__FUNCTION__,"Dimmer task stop");
 
-        }
-        else
-        {
-            ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
-        }
+    TaskHandle_t dimmer_task =NULL;
+    dimmer_task = xTaskGetHandle("dimmer");
+    eTaskState state = eTaskGetState(dimmer_task);
+    ESP_LOGW(__FUNCTION__,"dimmer task state %d",(int)state);
+    if(state != eInvalid && state != eDeleted)
+    {
+        vTaskDelete(dimmer_task);
+        gpio_isr_handler_remove(ZERO);
+        esp_timer_stop(_timer);
+        ESP_LOGW(__FUNCTION__,"Dimmer task stop");
 
     }
+    else
+    {
+        ESP_LOGE(__FUNCTION__,"dimmer task invalid state :(");
+    }
 
-    
 }
 
