@@ -14,6 +14,8 @@
 
 extern EventGroupHandle_t Bits_events;
 static esp_mqtt_client_handle_t client;
+static char mqtt_pub[64];
+
 ESP_EVENT_DECLARE_BASE(MACHINE_EVENTS);
 
 static void log_error_if_nonzero(const char *message, int error_code)
@@ -120,15 +122,7 @@ esp_err_t mqtt_publish(char * payload,int payload_len, char* topic)
     }
     else
     {
-        size_t topic_len = storage_get_size("mqtt_pub");
-        if(topic_len >0)
-        {
-            char *_topic = (char*)malloc(sizeof(char) * topic_len);
-            ESP_MALLOC_CHECK(_topic);
-            err = storage_load(NVS_TYPE_STR,"mqtt_pub",_topic,&topic_len);
-            esp_mqtt_client_publish(client,_topic,payload,payload_len, 1, 0);
-            free(_topic);
-        }
+        esp_mqtt_client_publish(client,mqtt_pub,payload,payload_len, 1, 0);
 
     }
     //memo_leaks("mqtt_publish");
@@ -161,6 +155,7 @@ esp_err_t mqtt_init(void)
     char *id = (char*)malloc(sizeof(char));
     char *user = (char*)malloc(sizeof(char));
     char *password = (char*)malloc(sizeof(char));
+    char *_topic = (char*)malloc(sizeof(char));
     bool config = true;
     size_t broker_ip_len= storage_get_size("mqtt_host");
     if(broker_ip_len == 0)
@@ -232,6 +227,20 @@ esp_err_t mqtt_init(void)
     {
         ESP_LOGW(__FUNCTION__,"Broker sin credenciales :|");
     }
+    size_t topic_len = storage_get_size("mqtt_pub");
+    if(topic_len >0)
+    {
+        _topic = (char*)realloc(_topic,sizeof(char) * topic_len);
+        ESP_MALLOC_CHECK(_topic);
+        err = storage_load(NVS_TYPE_STR,"mqtt_pub",_topic,&topic_len);
+        strcpy(mqtt_pub,_topic);
+
+    }
+    else
+    {
+        ESP_LOGW(__FUNCTION__,"no hay topic de publicación");
+    }
+
     if(config)
     {
         client = esp_mqtt_client_init(&mqtt_cfg);
@@ -259,6 +268,10 @@ exit:
     if(password != NULL)
     {
         free(password);
+    }
+    if(_topic != NULL)
+    {
+        free(_topic);
     }
     return err;
 }
