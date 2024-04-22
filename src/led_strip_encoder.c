@@ -1,8 +1,4 @@
-/*
- * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: Apache-2.0
- */
+
 
 #include "esp_check.h"
 #include "led_strip_encoder.h"
@@ -26,26 +22,26 @@ static size_t rmt_encode_led_strip(rmt_encoder_t *encoder, rmt_channel_handle_t 
     rmt_encode_state_t state = RMT_ENCODING_RESET;
     size_t encoded_symbols = 0;
     switch (led_encoder->state) {
-    case 0: // send RGB data
+    case 0: 
         encoded_symbols += bytes_encoder->encode(bytes_encoder, channel, primary_data, data_size, &session_state);
         if (session_state & RMT_ENCODING_COMPLETE) {
-            led_encoder->state = 1; // switch to next state when current encoding session finished
+            led_encoder->state = 1; 
         }
         if (session_state & RMT_ENCODING_MEM_FULL) {
             state |= RMT_ENCODING_MEM_FULL;
-            goto out; // yield if there's no free space for encoding artifacts
+            goto out; 
         }
-    // fall-through
-    case 1: // send reset code
+    
+    case 1: 
         encoded_symbols += copy_encoder->encode(copy_encoder, channel, &led_encoder->reset_code,
                                                 sizeof(led_encoder->reset_code), &session_state);
         if (session_state & RMT_ENCODING_COMPLETE) {
-            led_encoder->state = RMT_ENCODING_RESET; // back to the initial encoding session
+            led_encoder->state = RMT_ENCODING_RESET; 
             state |= RMT_ENCODING_COMPLETE;
         }
         if (session_state & RMT_ENCODING_MEM_FULL) {
             state |= RMT_ENCODING_MEM_FULL;
-            goto out; // yield if there's no free space for encoding artifacts
+            goto out; 
         }
     }
 out:
@@ -81,7 +77,7 @@ esp_err_t rmt_new_led_strip_encoder(const led_strip_encoder_config_t *config, rm
     led_encoder->base.encode = rmt_encode_led_strip;
     led_encoder->base.del = rmt_del_led_strip_encoder;
     led_encoder->base.reset = rmt_led_strip_encoder_reset;
-    // different led strip might have its own timing requirements, following parameter is for WS2812
+    
     rmt_bytes_encoder_config_t bytes_encoder_config = {
         .bit0 = {
             .level0 = 1,

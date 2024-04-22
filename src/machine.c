@@ -182,7 +182,6 @@ esp_err_t Keepalive(int state_gestor, char *exit)
     cJSON_PrintPreallocated(keep,exit,MAX_PAYLOAD,0);
     cJSON_Delete(keep);
     //memo_leaks("keepalive");
-
     return ESP_OK;
 }
 
