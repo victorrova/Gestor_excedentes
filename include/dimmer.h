@@ -37,4 +37,5 @@ typedef struct conf_dimmmer{
 
 void dimmer_init(void);
 void dimmer_stop(void);
+
 #endif

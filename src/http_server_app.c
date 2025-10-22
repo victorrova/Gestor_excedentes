@@ -5,7 +5,7 @@
 
 #include "http_server_app.h"
 
-#include "FreeRTOS/event_groups.h"
+#include "freertos/event_groups.h"
 
 #include "msgqueue.h"
 

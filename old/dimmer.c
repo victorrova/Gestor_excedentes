@@ -17,9 +17,9 @@ static void IRAM_ATTR GPIO_ISR_Handler(void* arg)
  
     esp_timer_stop(_timer);
     
-   gpio_set_level(TRIAC,0);
+    ESP_ERROR_CHECK(gpio_set_level(TRIAC,0));
  
-  esp_timer_start_once(_timer,conf_gestor.result);
+    ESP_ERROR_CHECK(esp_timer_start_once(_timer,conf_gestor.result));
     
 }
 
@@ -175,7 +175,7 @@ static void dimmer_http(void *PvParams)
             }
         }
         vPortFree(msg);
-        vTaskDelay(150/portTICK_PERIOD_MS);
+        vTaskDelay(50/portTICK_PERIOD_MS);
         count_power ++;
         count_send ++;
     }
