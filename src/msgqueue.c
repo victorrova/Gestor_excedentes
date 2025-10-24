@@ -5,59 +5,46 @@
 
 static QueueHandle_t msg_queue;
 
-esp_err_t queue_send(int dest,const char* payload, const char* topic,TickType_t time)
+esp_err_t queue_send(msg_destination dest,void* payload, msg_type type,TickType_t time)
 {
-    if(strlen(payload)>MAX_PAYLOAD || strlen(topic) > MAX_TOPIC)
-    {
-        ESP_LOGE(__FUNCTION__,"payload [%d] o topic [%d] demasiado largo",(int)strlen(payload),(int)strlen(topic));
-        return ESP_FAIL;
-    }
     msg_queue_t *msg = (msg_queue_t*)malloc(sizeof(msg_queue_t));
-    ESP_MALLOC_CHECK(msg);
     msg->dest = dest;
-    strcpy(msg->msg,payload);
-    msg->len_msg = strlen(payload);
-    if(topic != NULL)
-    {
-        strcpy(msg->topic,topic);
-        msg->len_topic = strlen(topic);
-    }
+    msg->type = type;
     msg->count =0;
+    msg->payload = payload;
     xQueueSend(msg_queue,msg,time);
     free(msg);
     return ESP_OK;
 
 }
 
-esp_err_t queue_receive(int dest,TickType_t time,msg_queue_t *msg)
+esp_err_t queue_receive(msg_destination dest,TickType_t time,msg_queue_t *msg)
 {   
     if(xQueueReceive(msg_queue,msg,time) == pdTRUE)
     {
         if(dest == MASTER || msg->dest == dest)
         {
-            ESP_LOGD(__FUNCTION__,"mensaje entregado");
+            ESP_LOGW(__FUNCTION__,"mensaje entregado");
             return ESP_OK;
         }
         else if(msg->dest != dest  && msg->count < QUEUE_MAX_LAP )
         {
             msg->count++;
             xQueueSend(msg_queue,msg,time);
-            ESP_LOGD(__FUNCTION__,"mensaje devuelto");
-            msg->len_msg = 0;
+            ESP_LOGW(__FUNCTION__,"mensaje devuelto");
             return ESP_FAIL;
         }
         else if(msg->dest != dest && msg->count >= QUEUE_MAX_LAP)
         {
-            msg->len_msg = 0;
+            
             ESP_LOGE(__FUNCTION__,"mensaje huerfano eliminado en lap =  %d",msg->count);
             return ESP_FAIL;
         }
     }
-    msg->len_msg= 0;
     return ESP_FAIL;
       
 }
-esp_err_t queue_receive_instat(int dest,msg_queue_t *msg)
+esp_err_t queue_receive_instat(msg_destination dest,msg_queue_t *msg)
 {
     int load = queue_load();
     while(xQueueReceive(msg_queue,msg,portMAX_DELAY) == pdTRUE)

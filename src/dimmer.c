@@ -45,6 +45,13 @@ static void conf_pin(void)
     gpio_install_isr_service(0);
 }
 
+static void pid_temp(int temp)
+{
+    int _pid = PID(LIMIT_TEMP,temp,&conf_gestor.pid_NTC);
+    int _ntc_pid = map(_pid,-5,5,-10,10);
+    conf_gestor.min_delay +=_ntc_pid;
+}
+
 static void dimmer_http(void *PvParams)
 {
     ESP_LOGI(__FUNCTION__,"inicio de tarea dimmer");
@@ -55,8 +62,7 @@ static void dimmer_http(void *PvParams)
     uint8_t count_power = 0;
     uint16_t count_send = 0;
     int NTC_temp = 0;
-    int _pid = 0;
-    int _ntc_pid = 0;
+
     int arrived = 0;
     esp_err_t err = ESP_FAIL;
     while(1)
@@ -91,18 +97,14 @@ static void dimmer_http(void *PvParams)
         else if(NTC_temp > 55)
         {
              
-            _pid = PID(LIMIT_TEMP,NTC_temp,&conf_gestor.pid_NTC);
-            _ntc_pid = map(_pid,-5,5,-10,10);
-            conf_gestor.min_delay +=_ntc_pid;
+            pid_temp(NTC_temp);
             ESP_LOGW(__FUNCTION__,"temperatura escesiva!");
             ESP_LOGI(__FUNCTION__,"inicio pid temperatura");
 
         }
         else if(NTC_temp < 45 && NTC_temp > LIMIT_TEMP)
         {
-            _pid = PID(LIMIT_TEMP,NTC_temp,&conf_gestor.pid_NTC);
-            _ntc_pid = map(_pid,-5,5,-10,10);
-            conf_gestor.min_delay +=_ntc_pid;
+            pid_temp(NTC_temp);
             if(conf_gestor.min_delay < 100)
             {
                 conf_gestor.min_delay = 100;
@@ -142,16 +144,18 @@ static void dimmer_http(void *PvParams)
         err = queue_receive(DIMMER_RX,100/portTICK_PERIOD_MS,msg);
         if(err == ESP_OK)
         {
-            if(msg->len_msg > 0 && strcmp(msg->topic,"dimmer") == 0)
+
+            if(msg->type == DIMMER_VALUE)
             {   
-                int calc = map(atoi(msg->msg),0,100,0,MAX_POWER); // pasamos de % a watios 
+                int _dimm = *(int*)msg->payload;
+                int calc = map(_dimm,0,100,0,MAX_POWER); // pasamos de % a watios 
                 conf_gestor.reg = calc;
                 ESP_LOGW(__FUNCTION__,"nuevo nivel = %d",calc);
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"temperatura")== 0)
+            else if(msg->type == TEMP_VALUE)
             {
 
-                printf("temperatura = %f\n",atof(msg->msg));
+                printf("temperatura = %f\n");
                 /*implementación pendiente*/
             }
             else if(msg->len_msg > 0 && strcmp(msg->topic,"kp")== 0)
