@@ -42,6 +42,28 @@ void led_total_connect(void)
     
 }
 
+void led_operate(void)
+{
+    led.color.blue = 0;
+    led.color.green = 254;
+    led.color.red = 0;
+    led.pixel[0] = led.color.green;
+    led.pixel[1] = led.color.red;
+    led.pixel[2] = led.color.blue;
+    ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
+    ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
+    vTaskDelay(300/portTICK_PERIOD_MS);
+    led.color.blue = 0;
+    led.color.green = 0;
+    led.color.red = 0;
+    led.pixel[0] = led.color.green;
+    led.pixel[1] = led.color.red;
+    led.pixel[2] = led.color.blue;
+    ESP_ERROR_CHECK(rmt_transmit(led.led_chan, led.led_encoder, led.pixel, sizeof(led.pixel), &led.tx_config));
+    ESP_ERROR_CHECK(rmt_tx_wait_all_done(led.led_chan, portMAX_DELAY));
+}
+
+
 void led_on_message(void)
 {
         led.pixel[0] = 0;

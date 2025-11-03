@@ -56,20 +56,17 @@ static void dimmer_http(void *PvParams)
 {
     ESP_LOGI(__FUNCTION__,"inicio de tarea dimmer");
     gpio_isr_handler_add(ZERO, GPIO_ISR_Handler, (void*)ZERO);
-    esp_http_client_handle_t Inverter = http_begin(conf_gestor.inverter_url);
     int pid = 0;
-    int sal =(int)Kostal_requests(Inverter);
+    int sal = 0;
     uint8_t count_power = 0;
     uint16_t count_send = 0;
     int NTC_temp = 0;
-
     int arrived = 0;
     esp_err_t err = ESP_FAIL;
     while(1)
     { 
         if(count_power >= 30)
         {
-            sal =(int)Kostal_requests(Inverter);
             NTC_temp = (int)temp_termistor();
             count_power = 0;
             
@@ -82,11 +79,9 @@ static void dimmer_http(void *PvParams)
         }
         if(count_send > KEEPALIVE_LAP)
         {
-            char *buff =(char*)malloc(sizeof(int));
+            
             conf_gestor.level = map(conf_gestor.result,10000,conf_gestor.min_delay,0,100);
-            itoa(conf_gestor.level,buff,10);
-            queue_send(DIMMER_TX,buff,"level",20/portTICK_PERIOD_MS);
-            free(buff); 
+            queue_send(DIMMER_TX,&conf_gestor.level,DIMMER_LEVEL,20/portTICK_PERIOD_MS); 
             ESP_LOGI(__FUNCTION__,"envio potencia %d",conf_gestor.level);
             count_send = 0;
         }
@@ -100,7 +95,6 @@ static void dimmer_http(void *PvParams)
             pid_temp(NTC_temp);
             ESP_LOGW(__FUNCTION__,"temperatura escesiva!");
             ESP_LOGI(__FUNCTION__,"inicio pid temperatura");
-
         }
         else if(NTC_temp < 45 && NTC_temp > LIMIT_TEMP)
         {
@@ -145,7 +139,7 @@ static void dimmer_http(void *PvParams)
         if(err == ESP_OK)
         {
 
-            if(msg->type == DIMMER_VALUE)
+            if(msg->type == POWER_VALUE)
             {   
                 int _dimm = *(int*)msg->payload;
                 int calc = map(_dimm,0,100,0,MAX_POWER); // pasamos de % a watios 
@@ -158,27 +152,29 @@ static void dimmer_http(void *PvParams)
                 printf("temperatura = %f\n");
                 /*implementación pendiente*/
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"kp")== 0)
+            else if(msg->type == PID_KP)
             {
             
-                conf_gestor.pid_Pwr.Kp = atof(msg->msg);
-                ESP_LOGI(__FUNCTION__,"nuevo valor kp = %f",conf_gestor.pid_Pwr.Kp);
+                conf_gestor.pid_Pwr.Kp = *(float*)msg->payload;
+                ESP_LOGD(__FUNCTION__,"nuevo valor kp = %f",conf_gestor.pid_Pwr.Kp);
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"ki")== 0)
+            else if(msg->type == PID_KI)
             {
-                conf_gestor.pid_Pwr.Ki = atof(msg->msg);
+                conf_gestor.pid_Pwr.Ki = *(float*)msg->payload;
+                ESP_LOGD(__FUNCTION__,"nuevo valor ki = %f",conf_gestor.pid_Pwr.Ki);
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"kd")== 0)
+            else if(msg->type == PID_KD)
             {
-                conf_gestor.pid_Pwr.Kd = atof(msg->msg);
+                conf_gestor.pid_Pwr.Kd = *(float*)msg->payload;
+                ESP_LOGD(__FUNCTION__,"nuevo valor kd = %f",conf_gestor.pid_Pwr.Kd);
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"min")== 0)
+            else if(msg->type == PID_MIN)
             {
-                conf_gestor.pid_Pwr.min = (int)atof(msg->msg);
+                conf_gestor.pid_Pwr.min = *(int*)msg->payload;
             }
-            else if(msg->len_msg > 0 && strcmp(msg->topic,"max")== 0)
+            else if(msg->type == PID_MAX)
             {
-                conf_gestor.pid_Pwr.max = (int)atof(msg->msg);
+                conf_gestor.pid_Pwr.max = *(int*)msg->payload;
             }
         }
         free(msg);

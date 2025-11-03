@@ -47,4 +47,5 @@ esp_err_t led_init(void);
 void led_off(void);
 void led_AP(void);
 void led_Update(void);
+void led_operate(void);
 #endif

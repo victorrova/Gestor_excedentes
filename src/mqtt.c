@@ -88,13 +88,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         xEventGroupSetBits(Bits_events,MQTT_ON_MESSAGE);
         esp_event_post(MACHINE_EVENTS,MACHINE_MQTT_MESSAGE,NULL,0,portMAX_DELAY);
         char* msg = (char*)malloc(sizeof(char)* event->data_len);
-        char* topic = (char*)malloc(sizeof(char)* event->topic_len);
         strncpy(msg,event->data,event->data_len);
-        strncpy(topic,event->topic,event->topic_len);
-        ESP_ERROR_CHECK(queue_send(MQTT_RX,(const char *)msg,(const char *)topic,portMAX_DELAY));
-        ESP_LOGW(__FUNCTION__, "mensaje enviado");
+        ESP_ERROR_CHECK_WITHOUT_ABORT(queue_send(MQTT_RX,msg,MQTT_SUB,100/portTICK_PERIOD_MS));
+        ESP_LOGD(__FUNCTION__, "mensaje enviado %s",msg);
         free(msg);
-        free(topic);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(__FUNCTION__, "MQTT_EVENT_ERROR");

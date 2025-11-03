@@ -26,14 +26,17 @@ typedef enum{
 }msg_destination;
 
 typedef enum{
-    DIMMER_VALUE,
-    TEMP_VALUE,
+    NONE,
     DIMMER_LEVEL,
+    TEMP_VALUE,
+    POWER_VALUE,
     PID_KP,
     PID_KI,
     PID_KD,
     PID_MIN,
-    PID_MAX
+    PID_MAX,
+    MQTT_SUB,
+    MQTT_PUB,
 }msg_type;
 
 
