@@ -139,7 +139,7 @@ static void dimmer_http(void *PvParams)
         if(err == ESP_OK)
         {
 
-            if(msg->type == POWER_VALUE)
+            if(msg->type == DIMMER_LEVEL)
             {   
                 int _dimm = *(int*)msg->payload;
                 int calc = map(_dimm,0,100,0,MAX_POWER); // pasamos de % a watios 

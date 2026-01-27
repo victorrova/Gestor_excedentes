@@ -22,7 +22,6 @@
 
 
 typedef struct conf_dimmmer{
-    char inverter_url[128];
     int min_delay;                          // tiempo minimo de apertura de Triac
     int result;                             // tiempo maximo de apertura de Triac                           
     int Ext_Temp;                           // temperatura sonda externa

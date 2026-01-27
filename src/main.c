@@ -291,18 +291,16 @@ void Com_Task(void *pvparams)
             {
                     xEventGroupClearBits(Bits_events,MQTT_ON_MESSAGE);
                     led_on_message();
-                    cJSON *payload = cJSON_Parse(msg->msg);
+                    cJSON *payload = cJSON_Parse(msg->payload);
                     if(!cJSON_IsNull(payload))
                     { 
                         if(Find_Key(payload,"dimmer"))
                         {
                             /*payload: { "dimmer": 0 - 100}*/
-                            float dimmer = 0.0;
-                            ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",&dimmer));
-                            char *buff =(char*)malloc(sizeof(float));
-                            itoa((int)dimmer,buff,10);
-                            queue_send(DIMMER_RX,buff,"dimmer",100/portTICK_PERIOD_MS);
-                            free(buff);
+                            float *value = malloc(sizeof(float));
+                            ESP_ERROR_CHECK_WITHOUT_ABORT(decode_number_payload(payload,"dimmer",value));
+                            queue_send(DIMMER_RX,value,DIMMER_LEVEL,50/portTICK_PERIOD_MS);
+                            free(value);
                         }
                         else if(Find_Key(payload,"temperature"))
                         {
@@ -313,7 +311,7 @@ void Com_Task(void *pvparams)
                             mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
                              mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}*/
 
-                            xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
+                            //xTaskCreate(&storage_task,"storage_task",3096,payload,1,NULL);
                             //ESP_ERROR_CHECK(task_create(&storage_task,"storage_task",1,payload));
                             
                         }
@@ -323,7 +321,7 @@ void Com_Task(void *pvparams)
                             mqtt:{mqtt_host:"", mqtt_uri:"", mqtt_id:"",mqtt_user:"",mqtt_pass:"",mqtt_port: ,mqtt_pub:"",
                             mqtt_sub:""}, pid:{kp:,ki:,kd:,min:,max:}, inverter:{url_inverter:""}}}*/
                             
-                            ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
+                            //ESP_ERROR_CHECK_WITHOUT_ABORT(stream_pid(payload));
                             
                         }
                         else if( Find_Key(payload,"logger"))
@@ -376,7 +374,17 @@ void Com_Task(void *pvparams)
                                 
                             }
 
-                        }   
+                        }
+                        else if ( Find_Key(payload,"injected_power"))
+                        {
+                            cJSON *value = cJSON_GetObjectItemCaseSensitive(payload,"injected_power");
+                            if(cJSON_IsNumber(value))
+                            {
+                                float power = value->valuedouble;
+                                queue_send(DIMMER_RX,&power,POWER_VALUE,50/portTICK_PERIOD_MS);
+                            }
+                        }
+ 
                     }
                     cJSON_Delete(payload);
             }
