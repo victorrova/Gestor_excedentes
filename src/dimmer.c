@@ -146,6 +146,11 @@ static void dimmer_http(void *PvParams)
                 conf_gestor.reg = calc;
                 ESP_LOGW(__FUNCTION__,"nuevo nivel = %d",calc);
             }
+            else if(msg->type == POWER_VALUE)
+            {
+                sal = *(int*)msg->payload;
+                ESP_LOGW(__FUNCTION__,"power value = %d",sal);
+            }
             else if(msg->type == TEMP_VALUE)
             {
 

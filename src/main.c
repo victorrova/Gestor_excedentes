@@ -380,7 +380,7 @@ void Com_Task(void *pvparams)
                             cJSON *value = cJSON_GetObjectItemCaseSensitive(payload,"injected_power");
                             if(cJSON_IsNumber(value))
                             {
-                                float power = value->valuedouble;
+                                int power = (int)value->valuedouble;
                                 queue_send(DIMMER_RX,&power,POWER_VALUE,50/portTICK_PERIOD_MS);
                             }
                         }
