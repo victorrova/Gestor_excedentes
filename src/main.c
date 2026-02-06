@@ -373,7 +373,6 @@ void Com_Task(void *pvparams)
                                 //(task_create(&Ota_task, "ota_task",5,url));
                                 
                             }
-
                         }
                         else if ( Find_Key(payload,"injected_power"))
                         {
@@ -390,11 +389,12 @@ void Com_Task(void *pvparams)
             }
             else if(msg->dest == DIMMER_TX)
             {
-                if( strcmp(msg->topic,"level")== 0)
+                
+                if( msg->type == DIMMER_LEVEL)
                 {
-                    state_gestor =atoi(msg->msg);
+                    
                     char *keep = (char*)malloc(sizeof(char) * MAX_PAYLOAD);
-                    err = Keepalive(state_gestor,keep);
+                    err = Keepalive(*(int*)msg->payload,keep);
                 
                     if(err == ESP_OK)
                     {
@@ -405,14 +405,7 @@ void Com_Task(void *pvparams)
 
                 }
             }
-            else if(msg->dest == OLED_TX)
-            {
-                printf("mensaje %s\n",msg->msg);
-            }
-            else
-            {
-                queue_send(msg->dest,msg->msg,msg->topic,100/portTICK_PERIOD_MS);
-            }
+
         }
         else
         {

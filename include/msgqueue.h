@@ -26,7 +26,7 @@ typedef enum{
 }msg_destination;
 
 typedef enum{
-    NONE,
+    NONE = -1,
     DIMMER_LEVEL,
     TEMP_VALUE,
     POWER_VALUE,

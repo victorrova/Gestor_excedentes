@@ -154,7 +154,7 @@ static void dimmer_http(void *PvParams)
             else if(msg->type == TEMP_VALUE)
             {
 
-                printf("temperatura = %f\n");
+                printf("temperatura = %f\n",*(float*)msg->payload);
                 /*implementación pendiente*/
             }
             else if(msg->type == PID_KP)
@@ -264,20 +264,7 @@ void dimmer_init(void)
         conf_gestor.pid_Pwr.min= -1000;
         ESP_LOGW(__FUNCTION__,"Nvs default min pid");
     }
-    size_t url_len = storage_get_size("url_inverter");
-    if(url_len >0)
-    {
-        char *url = (char*)malloc(sizeof(char) * url_len);
-        ESP_MALLOC_CHECK(url);
-        ESP_ERROR_CHECK(storage_load(NVS_TYPE_STR,"url_inverter",url,&url_len));
-        memcpy(conf_gestor.inverter_url,url,url_len);
-        ESP_LOGI(__FUNCTION__,"Url Inverter= %s",conf_gestor.inverter_url);
-        free(url);
-    }
-    else
-    {
-        abort();
-    }
+
     conf_gestor.min_delay = 100;
     conf_gestor._enable = true;
     conf_gestor.pid_Pwr.CumError = 0;
